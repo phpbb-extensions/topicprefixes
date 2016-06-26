@@ -1,0 +1,5 @@
+services:
+    phpbb.topicprefixes.listener:
+        class: phpbb\topicprefixes\event\listener
+        tags:
+            - { name: event.listener }

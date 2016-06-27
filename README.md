@@ -1,6 +1,6 @@
 # phpBB Topic Prefixes
 
-This is the repository for the development of the Topic Prefixes official phpBB extension.
+This is the repository for the development of the Topic Prefixes phpBB extension.
 
 [![Build Status](https://travis-ci.org/phpbb-extensions/topicprefixes.png)](https://travis-ci.org/phpbb-extensions/topicprefixes)
 

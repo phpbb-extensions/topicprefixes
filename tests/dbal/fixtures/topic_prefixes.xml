@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dataset>
 	<table name="phpbb_topic_prefixes">
-		<column>id</column>
-		<column>prefix</column>
+		<column>prefix_id</column>
+		<column>prefix_tag</column>
+		<column>prefix_enabled</column>
 		<column>forum_id</column>
 	</table>
 </dataset>

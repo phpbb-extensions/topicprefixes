@@ -28,7 +28,6 @@ class ext extends \phpbb\extension\base
 	 * Requires phpBB 3.1.4 and PHP 5.4, due to use of shortened array syntax
 	 *
 	 * @return bool
-	 * @access public
 	 */
 	public function is_enableable()
 	{

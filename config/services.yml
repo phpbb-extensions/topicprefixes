@@ -4,6 +4,10 @@ imports:
 services:
     phpbb.topicprefixes.listener:
         class: phpbb\topicprefixes\event\listener
+        arguments:
+            - '@phpbb.topicprefixes.manager'
+            - '@request'
+            - '@user'
         tags:
             - { name: event.listener }
 

@@ -25,7 +25,7 @@ class manager_test extends \phpbb_test_case
 	{
 		parent::setUp();
 
-		$this->nestedset = $this->getMockBuilder('\\phpbb\\topicprefixes\\prefixes\\nestedset_prefixes')
+		$this->nestedset = $this->getMockBuilder('\phpbb\topicprefixes\prefixes\nestedset_prefixes')
 			->disableOriginalConstructor()
 			->getMock();
 

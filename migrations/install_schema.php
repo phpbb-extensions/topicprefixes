@@ -40,7 +40,6 @@ class install_schema extends \phpbb\db\migration\migration
 	 *        forum_id        The forum identifier associated with the prefix
 	 *
 	 * @return array Array of table schema
-	 * @access public
 	 */
 	public function update_schema()
 	{
@@ -67,7 +66,6 @@ class install_schema extends \phpbb\db\migration\migration
 	 * Drop the topic prefixes table schema from the database
 	 *
 	 * @return array Array of table schema
-	 * @access public
 	 */
 	public function revert_schema()
 	{

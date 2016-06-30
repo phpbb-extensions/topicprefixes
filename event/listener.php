@@ -20,13 +20,19 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class listener implements EventSubscriberInterface
 {
-	/** @var manager Topic prefixes manager */
+	/**
+	 * @var manager Topic prefixes manager
+	 */
 	protected $manager;
 
-	/** @var request Request object */
+	/**
+	 * @var request Request object
+	 */
 	protected $request;
 
-	/** @var user $user object */
+	/**
+	 * @var user $user object
+	 */
 	protected $user;
 
 	/**
@@ -42,9 +48,9 @@ class listener implements EventSubscriberInterface
 	/**
 	 * Listener constructor
 	 *
-	 * @param manager  $manager  Topic prefixes manager
-	 * @param request  $request  Request object
-	 * @param user     $user     User object
+	 * @param manager $manager Topic prefixes manager
+	 * @param request $request Request object
+	 * @param user    $user    User object
 	 */
 	public function __construct(manager $manager, request $request, user $user)
 	{
@@ -72,7 +78,7 @@ class listener implements EventSubscriberInterface
 		$prefixes = $this->get_selected_prefixes($prefixes);
 
 		$event['page_data'] = array_merge($event['page_data'], [
-			'PREFIXES'		=> $prefixes,
+			'PREFIXES' => $prefixes,
 		]);
 	}
 

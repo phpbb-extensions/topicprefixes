@@ -12,19 +12,29 @@ namespace phpbb\topicprefixes\tests\event;
 
 class listener_test extends \phpbb_test_case
 {
-	/** @var \phpbb\topicprefixes\event\listener */
+	/**
+	 * @var \phpbb\topicprefixes\event\listener
+	 */
 	protected $listener;
 
-	/** @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\topicprefixes\prefixes\manager */
+	/**
+	 * @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\topicprefixes\prefixes\manager
+	 */
 	protected $manager;
 
-	/** @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\request\request */
+	/**
+	 * @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\request\request
+	 */
 	protected $request;
 
-	/** @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\user */
+	/**
+	 * @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\user
+	 */
 	protected $user;
 
-	/** @var array Basic event data for testing */
+	/**
+	 * @var array Basic event data for testing
+	 */
 	protected $event_data = array(
 		'forum_id'				=> 2,
 		'page_data'				=> array(),

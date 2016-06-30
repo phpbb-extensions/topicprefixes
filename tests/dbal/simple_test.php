@@ -15,7 +15,9 @@ namespace phpbb\topicprefixes\tests\dbal;
  */
 class simple_test extends \phpbb_database_test_case
 {
-	/** @var \phpbb\db\driver\driver_interface */
+	/**
+	 * @var \phpbb\db\driver\driver_interface
+	 */
 	protected $db;
 
 	/**

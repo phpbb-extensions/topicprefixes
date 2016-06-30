@@ -12,10 +12,14 @@ namespace phpbb\topicprefixes\tests\prefixes;
 
 class manager_test extends \phpbb_test_case
 {
-	/** @var \phpbb\topicprefixes\prefixes\manager */
+	/**
+	 * @var \phpbb\topicprefixes\prefixes\manager
+	 */
 	protected $manager;
 
-	/** @var \phpbb\topicprefixes\prefixes\nestedset_prefixes|\PHPUnit_Framework_MockObject_MockObject */
+	/**
+	 * @var \phpbb\topicprefixes\prefixes\nestedset_prefixes|\PHPUnit_Framework_MockObject_MockObject
+	 */
 	protected $nestedset;
 
 	/**
@@ -123,9 +127,10 @@ class manager_test extends \phpbb_test_case
 	/**
 	 * Test the get_prefixes() method
 	 *
-	 * @dataProvider get_prefixes_test_data
 	 * @param int $parent_id
 	 * @param array $datas_set
+	 *
+	 * @dataProvider get_prefixes_test_data
 	 */
 	public function test_get_prefixes($parent_id, $datas_set)
 	{
@@ -195,10 +200,11 @@ class manager_test extends \phpbb_test_case
 	/**
 	 * Test the get_active_prefixes() method
 	 *
-	 * @dataProvider get_active_prefixes_test_data
 	 * @param int $forum_id
 	 * @param array $data_set
 	 * @param array $expected
+	 *
+	 * @dataProvider get_active_prefixes_test_data
 	 */
 	public function test_get_active_prefixes($forum_id, $data_set, $expected)
 	{
@@ -225,9 +231,10 @@ class manager_test extends \phpbb_test_case
 	/**
 	 * Test the is_enabled() method
 	 *
-	 * @dataProvider is_enabled_test_data
 	 * @param array $prefix_data
 	 * @param bool  $expected
+	 *
+	 * @dataProvider is_enabled_test_data
 	 */
 	public function test_is_enabled($prefix_data, $expected)
 	{
@@ -250,9 +257,10 @@ class manager_test extends \phpbb_test_case
 	/**
 	 * Test the is_parent() method
 	 *
-	 * @dataProvider is_parent_test_data
 	 * @param array $prefix_data
 	 * @param bool  $expected
+	 *
+	 * @dataProvider is_parent_test_data
 	 */
 	public function test_is_parent($prefix_data, $expected)
 	{

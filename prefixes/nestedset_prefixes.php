@@ -11,8 +11,8 @@
 namespace phpbb\topicprefixes\prefixes;
 
 /**
-* Nested set class for Topic Prefixes
-*/
+ * Nested set class for Topic Prefixes
+ */
 class nestedset_prefixes extends \phpbb\tree\nestedset
 {
 	/**

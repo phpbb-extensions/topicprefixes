@@ -10,13 +10,15 @@
 
 namespace phpbb\topicprefixes\prefixes;
 
+/**
+ * Interface manager_interface
+ */
 interface manager_interface
 {
 	/**
 	 * Get topic prefixes from the specified parent, otherwise get all
 	 *
 	 * @param int $parent_id Prefix parent identifier
-	 *
 	 * @return array An array of topic prefix data
 	 */
 	public function get_prefixes($parent_id = 0);
@@ -25,7 +27,6 @@ interface manager_interface
 	 * Get enabled topic prefixes from the specified forum, otherwise get all
 	 *
 	 * @param int $forum_id Forum identifier
-	 *
 	 * @return array An array of topic prefix data
 	 */
 	public function get_active_prefixes($forum_id = 0);
@@ -35,7 +36,6 @@ interface manager_interface
 	 *
 	 * @param string $tag      Topic prefix tag/name
 	 * @param int    $forum_id Forum identifier
-	 *
 	 * @return int Return the new topic prefix identifier, or 0 on failure
 	 */
 	public function add_prefix($tag, $forum_id);
@@ -45,7 +45,6 @@ interface manager_interface
 	 *
 	 * @param string $tag  Topic prefix tag/name
 	 * @param array  $data Prefix data
-	 *
 	 * @return bool True on success, false otherwise
 	 */
 	public function edit_prefix($tag, $data);
@@ -54,7 +53,6 @@ interface manager_interface
 	 * Delete a topic prefix from the database
 	 *
 	 * @param int $id Topic prefix identifier
-	 *
 	 * @return bool True on success, false otherwise
 	 */
 	public function delete_prefix($id);
@@ -63,7 +61,6 @@ interface manager_interface
 	 * Check if a topic prefix is enabled
 	 *
 	 * @param array $row A row of topic prefix data
-	 *
 	 * @return bool True if enabled, or false
 	 */
 	public function is_enabled(array $row);
@@ -72,7 +69,6 @@ interface manager_interface
 	 * Check if a topic prefix is a parent (i.e.: a prefix category)
 	 *
 	 * @param array $row A row of topic prefix data
-	 *
 	 * @return bool True if is a parent, or false
 	 */
 	public function is_parent(array $row);

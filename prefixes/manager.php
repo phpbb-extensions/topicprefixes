@@ -10,12 +10,19 @@
 
 namespace phpbb\topicprefixes\prefixes;
 
+/**
+ * Class manager
+ */
 class manager implements manager_interface
 {
-	/** @var int Forum identifier */
+	/**
+	 * @var int Forum identifier
+	 */
 	protected $forum_id;
 
-	/** @var \phpbb\topicprefixes\prefixes\nestedset_prefixes  */
+	/**
+	 * @var \phpbb\topicprefixes\prefixes\nestedset_prefixes
+	 */
 	protected $nestedset;
 
 	/**
@@ -95,7 +102,6 @@ class manager implements manager_interface
 	 * Filter prefixes by forum id
 	 *
 	 * @param array $row A row of topic prefix data
-	 *
 	 * @return bool True if prefix is in the given form, false otherwise
 	 */
 	protected function filter_by_forum(array $row)
@@ -120,8 +126,9 @@ class manager implements manager_interface
 	}
 
 	/**
-	 * @param array $prefixes All topic prefixes
+	 * Filter empty prefix parents
 	 *
+	 * @param array $prefixes All topic prefixes
 	 * @return array All topic prefixes with empty parents removed
 	 */
 	protected function filter_empty_parents(array $prefixes)

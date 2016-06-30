@@ -38,6 +38,8 @@ class install_schema extends \phpbb\db\migration\migration
 	 *        prefix_tag      Prefix tag
 	 *        prefix_enabled  Prefix enabled/disabled state
 	 *        forum_id        The forum identifier associated with the prefix
+	 *    topics:
+	 *        topic_prefix_id The prefix identifier associated with the topic
 	 *
 	 * @return array Array of table schema
 	 */
@@ -55,6 +57,11 @@ class install_schema extends \phpbb\db\migration\migration
 					'PRIMARY_KEY'			=> 'prefix_id',
 				],
 			],
+			'add_columns'	=> [
+				$this->table_prefix . 'topics'			=> [
+					'topic_prefix_id'		=> ['UINT', 0],
+				],
+			],
 		];
 	}
 
@@ -68,6 +75,11 @@ class install_schema extends \phpbb\db\migration\migration
 		return [
 			'drop_tables'	=> [
 				$this->table_prefix . 'topic_prefixes',
+			],
+			'drop_columns'	=> [
+				$this->table_prefix . 'topics'			=> [
+					'topic_prefix_id',
+				],
 			],
 		];
 	}

@@ -1,0 +1,22 @@
+{% if PREFIXES and S_NEW_MESSAGE and not S_PRIVMSGS %}
+	<dl style="clear: left;">
+		<dt><label>{{ lang('TOPIC_PREFIXES') }}{{ lang('COLON') }}</label></dt>
+		<dd>
+			{% for prefix in PREFIXES %}
+				{% set prefix_parent = prefix.prefix_right_id - prefix.prefix_left_id > 1 %}
+				{% if prefix_parent %}
+					{% if not loop.first %}
+						</select>
+					{% endif %}
+					<select name="topic_prefix_{{ prefix.prefix_id }}" id="topic_prefix_{{ prefix.prefix_id }}">
+						<option>{{ prefix.prefix_tag }}</option>
+				{% else %}
+					<option value="{{ prefix.prefix_tag }}"{% if prefix.selected %} selected{% endif %}>{{ prefix.prefix_tag }}</option>
+				{% endif %}
+				{% if loop.last %}
+					</select>
+				{% endif %}
+			{% endfor %}
+		</dd>
+	</dl>
+{% endif %}

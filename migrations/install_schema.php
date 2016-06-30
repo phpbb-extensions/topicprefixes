@@ -32,7 +32,7 @@ class install_schema extends \phpbb\db\migration\migration
 	}
 
 	/**
-	 * Add the topic prefixes table schema to the database:
+	 * Add the topic prefixes schema to the database:
 	 *    topic_prefixes:
 	 *        prefix_id       Prefix identifier
 	 *        prefix_tag      Prefix tag
@@ -44,29 +44,29 @@ class install_schema extends \phpbb\db\migration\migration
 	public function update_schema()
 	{
 		return [
-			'add_tables' => [
-				$this->table_prefix . 'topic_prefixes' => [
+			'add_tables'	=> [
+				$this->table_prefix . 'topic_prefixes'	=> [
 					'COLUMNS'     => [
 						'prefix_id'			=> ['UINT', null, 'auto_increment'],
 						'prefix_tag'		=> ['VCHAR_UNI', ''],
 						'prefix_enabled'	=> ['BOOL', 1],
 						'forum_id'			=> ['UINT', 0],
 					],
-					'PRIMARY_KEY'		=> 'prefix_id',
+					'PRIMARY_KEY'			=> 'prefix_id',
 				],
 			],
 		];
 	}
 
 	/**
-	 * Drop the topic prefixes table schema from the database
+	 * Drop the topic prefixes schema from the database
 	 *
 	 * @return array Array of table schema
 	 */
 	public function revert_schema()
 	{
 		return [
-			'drop_tables' => [
+			'drop_tables'	=> [
 				$this->table_prefix . 'topic_prefixes',
 			],
 		];

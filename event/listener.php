@@ -41,8 +41,8 @@ class listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.posting_modify_template_vars'			=> 'update_posting_form',
 			'core.posting_modify_submit_post_before'	=> 'update_posted_title',
+			'core.posting_modify_template_vars'			=> 'add_to_posting_form',
 		];
 	}
 
@@ -67,7 +67,7 @@ class listener implements EventSubscriberInterface
 	 * @param \phpbb\event\data $event Event data object
 	 * @return null
 	 */
-	public function update_posting_form($event)
+	public function add_to_posting_form($event)
 	{
 		if (!$this->is_new_topic($event))
 		{

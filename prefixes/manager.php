@@ -39,7 +39,7 @@ class manager implements manager_interface
 	/**
 	 * @inheritdoc
 	 */
-	public function get_prefixes($forum_id = null)
+	public function get_prefixes($forum_id = 0)
 	{
 		$prefixes = [];
 
@@ -51,6 +51,7 @@ class manager implements manager_interface
 		{
 			$prefixes[$row['prefix_id']] = $row;
 		}
+		$this->db->sql_freeresult($result);
 
 		return $prefixes;
 	}
@@ -58,7 +59,7 @@ class manager implements manager_interface
 	/**
 	 * @inheritdoc
 	 */
-	public function get_active_prefixes($forum_id = null)
+	public function get_active_prefixes($forum_id = 0)
 	{
 		return array_filter($this->get_prefixes($forum_id), [$this, 'is_enabled']);
 	}

@@ -1,5 +1,18 @@
+imports:
+    - { resource: tables.yml }
+
 services:
     phpbb.topicprefixes.listener:
         class: phpbb\topicprefixes\event\listener
+        arguments:
+            - '@phpbb.topicprefixes.manager'
+            - '@request'
+            - '@user'
         tags:
             - { name: event.listener }
+
+    phpbb.topicprefixes.manager:
+        class: phpbb\topicprefixes\prefixes\manager
+        arguments:
+            - '@dbal.conn'
+            - '%phpbb.topicprefixes.tables.topic_prefixes%'

@@ -3,10 +3,10 @@
 	<dl style="clear: left;">
 		<dt><label for="topic_prefix">{{ lang('TOPIC_PREFIX') }}{{ lang('COLON') }}</label></dt>
 		<dd>
-			<select name="topic_prefix" id="topic_prefix">
+			<select name="topic_prefix" id="topic_prefix" data-prefix="{{ SELECTED_PREFIX }}">
 				<option value="">-----</option>
 				{% for prefix in PREFIXES %}
-					<option value="{{ prefix.prefix_tag }}"{% if CURRENT_PREFIX == prefix.prefix_tag %} selected{% endif %}>{{ prefix.prefix_tag }}</option>
+					<option value="{{ prefix.prefix_id }}"{% if SELECTED_PREFIX == prefix.prefix_tag %} selected{% endif %}>{{ prefix.prefix_tag }}</option>
 				{% endfor %}
 			</select>
 		</dd>

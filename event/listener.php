@@ -41,8 +41,9 @@ class listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
-			'core.posting_modify_submit_post_before'	=> 'update_posted_title',
 			'core.posting_modify_template_vars'			=> 'add_to_posting_form',
+			'core.posting_modify_submit_post_before'	=> 'submit_prefix_data',
+			'core.submit_post_modify_sql_data'			=> 'save_prefix_to_topic',
 		];
 	}
 
@@ -76,36 +77,67 @@ class listener implements EventSubscriberInterface
 
 		$this->user->add_lang_ext('phpbb/topicprefixes', 'topic_prefixes');
 
+		// Get prefixes for the current forum
+		$prefixes = $this->manager->get_active_prefixes($event['forum_id']);
+
+		// Get the current prefix (if editing an existing post,
+		// get it from post_data, otherwise get it from the form posted)
+		$selected = !empty($event['post_data']['topic_prefix_id']) ? $event['post_data']['topic_prefix_id'] : $this->request->variable('topic_prefix', 0);
+
 		$event['page_data'] = array_merge($event['page_data'], [
-			'PREFIXES'			=> $this->manager->get_active_prefixes($event['forum_id']),
-			'SELECTED_PREFIX'	=> $this->request->variable('topic_prefix', '', true),
+			'PREFIXES'			=> $prefixes,
+			'SELECTED_PREFIX'	=> $selected ? $prefixes[$selected]['prefix_tag'] : '',
 		]);
 	}
 
 	/**
-	 * Append the topic prefix to the topic before submitting
-	 * This is performed if the prefix was not already appended by javascript
+	 * Prepare topic prefix data for post submission
 	 *
 	 * @param \phpbb\event\data $event Event data object
 	 * @return null
 	 */
-	public function update_posted_title($event)
+	public function submit_prefix_data($event)
 	{
 		if (!$this->is_new_topic($event))
 		{
 			return;
 		}
 
-		$post_data = $event['post_data'];
-		$prefix = $this->request->variable('topic_prefix', '', true);
+		// Get data for the prefix selected by the user
+		$prefix = $this->manager->get_prefix($this->request->variable('topic_prefix', 0));
 
-		if (strpos($post_data['post_subject'], $prefix) === 0)
+		// First, add the topic prefix id to the data to be stored with the db
+		$data = $event['data'];
+		$data['topic_prefix_id'] = $prefix ? $prefix['prefix_id'] : 0;
+
+		// Next, prepend the topic prefix to the subject (if necessary)
+		$post_data = $event['post_data'];
+		if ($prefix && strpos($post_data['post_subject'], $prefix['prefix_tag']) !== 0)
+		{
+			$post_data['post_subject'] = $prefix['prefix_tag'] . ' ' . $post_data['post_subject'];
+		}
+
+		// Return updated events
+		$event['data'] = $data;
+		$event['post_data'] = $post_data;
+	}
+
+	/**
+	 * Save the topic prefix id with the associated topic
+	 *
+	 * @param \phpbb\event\data $event Event data object
+	 * @return null
+	 */
+	public function save_prefix_to_topic($event)
+	{
+		if (!in_array($event['post_mode'], ['edit_first_post', 'edit_topic', 'post']))
 		{
 			return;
 		}
 
-		$post_data['post_subject'] = $prefix . ' ' . $post_data['post_subject'];
-		$event['post_data'] = $post_data;
+		$sql_data = $event['sql_data'];
+		$sql_data[TOPICS_TABLE]['sql']['topic_prefix_id'] = $event['data']['topic_prefix_id'];
+		$event['sql_data'] = $sql_data;
 	}
 
 	/**

@@ -39,6 +39,21 @@ class manager implements manager_interface
 	/**
 	 * @inheritdoc
 	 */
+	public function get_prefix($id)
+	{
+		$sql = 'SELECT prefix_id, prefix_tag, prefix_enabled 
+			FROM ' . $this->prefixes_table . ' 
+			WHERE prefix_id = ' . (int) $id;
+		$result = $this->db->sql_query_limit($sql, 1);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		return $row;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function get_prefixes($forum_id = 0)
 	{
 		$prefixes = [];

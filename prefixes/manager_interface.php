@@ -13,6 +13,14 @@ namespace phpbb\topicprefixes\prefixes;
 interface manager_interface
 {
 	/**
+	 * Get a topic prefix by its identifier
+	 *
+	 * @param int $id Topic prefix identifier
+	 * @return array
+	 */
+	public function get_prefix($id);
+
+	/**
 	 * Get topic prefixes from the specified forum, otherwise get all
 	 *
 	 * @param int $forum_id Forum identifier

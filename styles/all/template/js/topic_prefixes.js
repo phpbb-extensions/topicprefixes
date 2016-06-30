@@ -9,11 +9,12 @@
 
 		$prefixMenu.on("change", function() {
 
-			var title = $topicTitle.val().trim(),
-				prefix = $(this).val();
-				//prefix = $(this).val() ? $(this).find(":selected").text() : "";
-			title = title.replace(/^(\[.*?\]\s+)/, "");
-			$topicTitle.val(prefix + " " + title).trim();
+			var title = $topicTitle.val(),
+				prefix = $(this).val() ? $(this).find(":selected").text() : "",
+				current = $(this).attr('data-prefix');
+			title = title.replace(current, "").trim();
+			$prefixMenu.attr('data-prefix', prefix);
+			$topicTitle.val(prefix + " " + title).focus();
 
 		});
 

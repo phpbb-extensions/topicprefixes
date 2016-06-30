@@ -5,5 +5,9 @@
 		<column>prefix_tag</column>
 		<column>prefix_enabled</column>
 		<column>forum_id</column>
+		<column>prefix_parent_id</column>
+		<column>prefix_left_id</column>
+		<column>prefix_right_id</column>
+		<column>prefix_parents</column>
 	</table>
 </dataset>

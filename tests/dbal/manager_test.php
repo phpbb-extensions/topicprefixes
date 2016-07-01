@@ -150,11 +150,11 @@ class manager_test extends \phpbb_database_test_case
 	}
 
 	/**
-	 * Data for test_append_prefix
+	 * Data for test_prepend_prefix
 	 *
 	 * @return array
 	 */
-	public function data_append_prefix()
+	public function data_prepend_prefix()
 	{
 		return array(
 			array('[FOO]', 'Test subject', '[FOO] Test subject'),
@@ -168,15 +168,15 @@ class manager_test extends \phpbb_database_test_case
 	}
 
 	/**
-	 * Test the append_prefix() method
+	 * Test the prepend_prefix() method
 	 *
-	 * @dataProvider data_append_prefix
+	 * @dataProvider data_prepend_prefix
 	 * @param $prefix
 	 * @param $subject
 	 * @param $expected
 	 */
-	public function test_append_prefix($prefix, $subject, $expected)
+	public function test_prepend_prefix($prefix, $subject, $expected)
 	{
-		$this->assertEquals($expected, $this->manager->append_prefix($prefix, $subject));
+		$this->assertEquals($expected, $this->manager->prepend_prefix($prefix, $subject));
 	}
 }

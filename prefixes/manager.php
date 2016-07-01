@@ -105,7 +105,7 @@ class manager implements manager_interface
 	/**
 	 * @inheritdoc
 	 */
-	public function append_prefix($prefix, $subject)
+	public function prepend_prefix($prefix, $subject)
 	{
 		if ($prefix && strpos($subject, $prefix) !== 0)
 		{

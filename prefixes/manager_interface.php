@@ -62,11 +62,11 @@ interface manager_interface
 	public function is_enabled(array $row);
 
 	/**
-	 * Append a topic prefix to a topic title/subject
+	 * Prepend a topic prefix to a topic title/subject
 	 *
 	 * @param string $prefix  A topic prefix
 	 * @param string $subject A topic title/subject
 	 * @return string Updated topic title/subject
 	 */
-	public function append_prefix($prefix, $subject);
+	public function prepend_prefix($prefix, $subject);
 }

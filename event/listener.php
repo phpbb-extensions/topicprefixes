@@ -38,7 +38,7 @@ class listener implements EventSubscriberInterface
 	/**
 	 * @inheritdoc
 	 */
-	static public function getSubscribedEvents()
+	public static function getSubscribedEvents()
 	{
 		return [
 			'core.posting_modify_template_vars'			=> 'add_to_posting_form',

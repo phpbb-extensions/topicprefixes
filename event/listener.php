@@ -108,7 +108,8 @@ class listener implements EventSubscriberInterface
 
 		// First, add the topic prefix id to the data to be stored with the db
 		$data = $event['data'];
-		$data['topic_prefix_id'] = $prefix ? $prefix['prefix_id'] : 0;
+		$data['topic_prefix_id'] = (int) $prefix['prefix_id'];
+		$event['data'] = $data;
 
 		// Next, prepend the topic prefix to the subject (if necessary)
 		$post_data = $event['post_data'];
@@ -116,9 +117,6 @@ class listener implements EventSubscriberInterface
 		{
 			$post_data['post_subject'] = $prefix['prefix_tag'] . ' ' . $post_data['post_subject'];
 		}
-
-		// Return updated events
-		$event['data'] = $data;
 		$event['post_data'] = $post_data;
 	}
 

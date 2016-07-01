@@ -4,16 +4,20 @@
 
 	$(function() {
 
+		var getPrefix = function(el) {
+			return el.val() ? el.find(":selected").text() : "";
+		};
+
 		var $prefixMenu = $("select[name=topic_prefix]"),
-			$topicTitle = $("input[name=subject]");
+			$topicTitle = $("input[name=subject]"),
+			prefix = getPrefix($prefixMenu);
 
 		$prefixMenu.on("change", function() {
 
-			var title = $topicTitle.val(),
-				prefix = $(this).val() ? $(this).find(":selected").text() : "",
-				current = $(this).attr('data-prefix');
-			title = title.replace(current, "").trim();
-			$prefixMenu.attr('data-prefix', prefix);
+			var title = $topicTitle.val();
+			title = title.replace(prefix, "").trim();
+
+			prefix = getPrefix($(this));
 			$topicTitle.val(prefix + " " + title).focus();
 
 		});

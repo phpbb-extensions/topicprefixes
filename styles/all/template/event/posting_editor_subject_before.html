@@ -3,7 +3,7 @@
 	<dl style="clear: left;">
 		<dt><label for="topic_prefix">{{ lang('TOPIC_PREFIX') }}{{ lang('COLON') }}</label></dt>
 		<dd>
-			<select name="topic_prefix" id="topic_prefix" data-prefix="{{ SELECTED_PREFIX }}">
+			<select name="topic_prefix" id="topic_prefix">
 				<option value="">-----</option>
 				{% for prefix in PREFIXES %}
 					<option value="{{ prefix.prefix_id }}"{% if SELECTED_PREFIX == prefix.prefix_tag %} selected{% endif %}>{{ prefix.prefix_tag }}</option>

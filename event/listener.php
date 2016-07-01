@@ -113,10 +113,7 @@ class listener implements EventSubscriberInterface
 
 		// Next, prepend the topic prefix to the subject (if necessary)
 		$post_data = $event['post_data'];
-		if ($prefix && strpos($post_data['post_subject'], $prefix['prefix_tag']) !== 0)
-		{
-			$post_data['post_subject'] = $prefix['prefix_tag'] . ' ' . $post_data['post_subject'];
-		}
+		$post_data['post_subject'] = $this->manager->append_prefix($prefix['prefix_tag'], $post_data['post_subject']);
 		$event['post_data'] = $post_data;
 	}
 

@@ -148,4 +148,35 @@ class manager_test extends \phpbb_database_test_case
 
 		$this->assertEquals($expected, array_column($prefixes, 'prefix_tag'));
 	}
+
+	/**
+	 * Data for test_append_prefix
+	 *
+	 * @return array
+	 */
+	public function data_append_prefix()
+	{
+		return array(
+			array('[FOO]', 'Test subject', '[FOO] Test subject'),
+			array('[FOO][BAR]', 'Test subject', '[FOO][BAR] Test subject'),
+			array('', 'Test subject', 'Test subject'),
+			array(0, 'Test subject', 'Test subject'),
+			array(null, 'Test subject', 'Test subject'),
+			array('', '', ''),
+			array('[FOO]', '', '[FOO] '),
+		);
+	}
+
+	/**
+	 * Test the append_prefix() method
+	 *
+	 * @dataProvider data_append_prefix
+	 * @param $prefix
+	 * @param $subject
+	 * @param $expected
+	 */
+	public function test_append_prefix($prefix, $subject, $expected)
+	{
+		$this->assertEquals($expected, $this->manager->append_prefix($prefix, $subject));
+	}
 }

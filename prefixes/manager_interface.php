@@ -60,4 +60,13 @@ interface manager_interface
 	 * @return bool True if enabled, or false
 	 */
 	public function is_enabled(array $row);
+
+	/**
+	 * Append a topic prefix to a topic title/subject
+	 *
+	 * @param string $prefix  A topic prefix
+	 * @param string $subject A topic title/subject
+	 * @return string Updated topic title/subject
+	 */
+	public function append_prefix($prefix, $subject);
 }

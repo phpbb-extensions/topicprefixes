@@ -101,4 +101,17 @@ class manager implements manager_interface
 	{
 		return $row['prefix_enabled'];
 	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function append_prefix($prefix, $subject)
+	{
+		if ($prefix && strpos($subject, $prefix) !== 0)
+		{
+			$subject = $prefix . ' ' . $subject;
+		}
+
+		return $subject;
+	}
 }

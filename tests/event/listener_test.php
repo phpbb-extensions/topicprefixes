@@ -42,6 +42,7 @@ class listener_test extends \phpbb_test_case
 		global $phpbb_root_path, $phpEx;
 
 		$this->manager = $this->getMockBuilder('\phpbb\topicprefixes\prefixes\manager')
+			->setMethods(array('get_active_prefixes', 'get_prefix'))
 			->disableOriginalConstructor()
 			->getMock();
 

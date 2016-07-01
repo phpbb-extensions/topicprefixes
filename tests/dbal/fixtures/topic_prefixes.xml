@@ -5,5 +5,14 @@
 		<column>prefix_tag</column>
 		<column>prefix_enabled</column>
 		<column>forum_id</column>
+	<table name="phpbb_topics">
+		<column>topic_id</column>
+		<column>topic_title</column>
+		<column>topic_prefix_id</column>
+		<row>
+			<value>1</value>
+			<value></value>
+			<value>0</value>
+		</row>
 	</table>
 </dataset>

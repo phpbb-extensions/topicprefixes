@@ -44,5 +44,6 @@ class simple_test extends \phpbb_database_test_case
 		$db_tools = new \phpbb\db\tools\tools($this->db);
 
 		$this->assertTrue($db_tools->sql_table_exists('phpbb_topic_prefixes'), 'Asserting the table "topic_prefixes" exists');
+		$this->assertTrue($db_tools->sql_column_exists('phpbb_topics', 'topic_prefix_id'), 'Asserting the column "topic_prefixes" exists in the topics table');
 	}
 }

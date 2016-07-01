@@ -16,7 +16,7 @@ interface manager_interface
 	 * Get a topic prefix by its identifier
 	 *
 	 * @param int $id Topic prefix identifier
-	 * @return array
+	 * @return mixed Array of data, or false if no data found
 	 */
 	public function get_prefix($id);
 

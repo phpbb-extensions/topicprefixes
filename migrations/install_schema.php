@@ -46,6 +46,11 @@ class install_schema extends \phpbb\db\migration\migration
 	public function update_schema()
 	{
 		return [
+			'add_columns'	=> [
+				$this->table_prefix . 'topics'			=> [
+					'topic_prefix_id' => ['UINT', 0],
+				],
+			],
 			'add_tables'	=> [
 				$this->table_prefix . 'topic_prefixes'	=> [
 					'COLUMNS'     => [
@@ -55,11 +60,6 @@ class install_schema extends \phpbb\db\migration\migration
 						'forum_id'			=> ['UINT', 0],
 					],
 					'PRIMARY_KEY'			=> 'prefix_id',
-				],
-			],
-			'add_columns'	=> [
-				$this->table_prefix . 'topics'			=> [
-					'topic_prefix_id'		=> ['UINT', 0],
 				],
 			],
 		];
@@ -73,13 +73,13 @@ class install_schema extends \phpbb\db\migration\migration
 	public function revert_schema()
 	{
 		return [
-			'drop_tables'	=> [
-				$this->table_prefix . 'topic_prefixes',
-			],
 			'drop_columns'	=> [
-				$this->table_prefix . 'topics'			=> [
+				$this->table_prefix . 'topics' => [
 					'topic_prefix_id',
 				],
+			],
+			'drop_tables'	=> [
+				$this->table_prefix . 'topic_prefixes',
 			],
 		];
 	}

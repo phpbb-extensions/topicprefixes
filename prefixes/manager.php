@@ -60,7 +60,8 @@ class manager implements manager_interface
 
 		$sql = 'SELECT prefix_id, prefix_tag, prefix_enabled 
 			FROM ' . $this->prefixes_table .
-			(($forum_id !== null) ? ' WHERE forum_id = ' . (int) $forum_id : '');
+			($forum_id ? ' WHERE forum_id = ' . (int) $forum_id : '') . '
+			ORDER BY prefix_id';
 		$result = $this->db->sql_query($sql, 3600);
 		while ($row = $this->db->sql_fetchrow($result))
 		{

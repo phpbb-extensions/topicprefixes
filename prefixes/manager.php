@@ -10,30 +10,21 @@
 
 namespace phpbb\topicprefixes\prefixes;
 
-use phpbb\db\driver\driver_interface;
-
 class manager implements manager_interface
 {
 	/**
-	 * @var driver_interface Database object
+	 * @var \phpbb\topicprefixes\prefixes\nestedset_prefixes
 	 */
-	protected $db;
-
-	/**
-	 * @var string Topic prefixes data table name
-	 */
-	protected $prefixes_table;
+	protected $nestedset;
 
 	/**
 	 * Listener constructor
 	 *
-	 * @param driver_interface $db             Database object
-	 * @param string           $prefixes_table Topic prefixes data table name
+	 * @param \phpbb\topicprefixes\prefixes\nestedset_prefixes $nestedset
 	 */
-	public function __construct(driver_interface $db, $prefixes_table)
+	public function __construct(\phpbb\topicprefixes\prefixes\nestedset_prefixes $nestedset)
 	{
-		$this->db = $db;
-		$this->prefixes_table = $prefixes_table;
+		$this->nestedset = $nestedset;
 	}
 
 	/**
@@ -41,14 +32,9 @@ class manager implements manager_interface
 	 */
 	public function get_prefix($id)
 	{
-		$sql = 'SELECT prefix_id, prefix_tag, prefix_enabled 
-			FROM ' . $this->prefixes_table . ' 
-			WHERE prefix_id = ' . (int) $id;
-		$result = $this->db->sql_query_limit($sql, 1);
-		$row = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
+		$prefix = $this->nestedset->get_subtree_data($id);
 
-		return $row;
+		return sizeof($prefix) ? $prefix[$id] : false;
 	}
 
 	/**
@@ -56,20 +42,12 @@ class manager implements manager_interface
 	 */
 	public function get_prefixes($forum_id = 0)
 	{
-		$prefixes = [];
-
-		$sql = 'SELECT prefix_id, prefix_tag, prefix_enabled 
-			FROM ' . $this->prefixes_table .
-			($forum_id ? ' WHERE forum_id = ' . (int) $forum_id : '') . '
-			ORDER BY prefix_id';
-		$result = $this->db->sql_query($sql, 3600);
-		while ($row = $this->db->sql_fetchrow($result))
+		if ($forum_id)
 		{
-			$prefixes[$row['prefix_id']] = $row;
+			$this->nestedset->set_forum_id($forum_id);
 		}
-		$this->db->sql_freeresult($result);
 
-		return $prefixes;
+		return $this->nestedset->get_all_tree_data();
 	}
 
 	/**

@@ -34,10 +34,14 @@ class install_schema extends \phpbb\db\migration\migration
 	/**
 	 * Add the topic prefixes schema to the database:
 	 *    topic_prefixes:
-	 *        prefix_id       Prefix identifier
-	 *        prefix_tag      Prefix tag
-	 *        prefix_enabled  Prefix enabled/disabled state
-	 *        forum_id        The forum identifier associated with the prefix
+	 *        prefix_id        Prefix identifier
+	 *        prefix_tag       Prefix tag
+	 *        prefix_enabled   Prefix enabled/disabled state
+	 *        prefix_parent_id Prefix parent identifier
+	 *        prefix_left_id   Prefix left tree id
+	 *        prefix_right_id  Prefix right tree id
+	 *        prefix_parents   Prefix parents data
+	 *        forum_id         The forum identifier associated with the prefix
 	 *    topics:
 	 *        topic_prefix_id The prefix identifier associated with the topic
 	 *
@@ -57,6 +61,10 @@ class install_schema extends \phpbb\db\migration\migration
 						'prefix_id'			=> ['UINT', null, 'auto_increment'],
 						'prefix_tag'		=> ['VCHAR_UNI', ''],
 						'prefix_enabled'	=> ['BOOL', 1],
+						'prefix_parent_id'	=> ['UINT', 0],
+						'prefix_left_id'	=> ['UINT', 0],
+						'prefix_right_id'	=> ['UINT', 0],
+						'prefix_parents'	=> ['MTEXT_UNI', ''],
 						'forum_id'			=> ['UINT', 0],
 					],
 					'PRIMARY_KEY'			=> 'prefix_id',

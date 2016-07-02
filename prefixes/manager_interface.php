@@ -49,7 +49,7 @@ interface manager_interface
 	 * Delete a topic prefix from the database
 	 *
 	 * @param int $id Topic prefix identifier
-	 * @return bool True on success, false otherwise
+	 * @return array Item ids that have been deleted
 	 */
 	public function delete_prefix($id);
 

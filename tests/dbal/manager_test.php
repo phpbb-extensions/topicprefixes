@@ -50,7 +50,17 @@ class manager_test extends \phpbb_database_test_case
 
 		$this->db = $this->new_dbal();
 
-		$this->manager = new \phpbb\topicprefixes\prefixes\manager($this->db, 'phpbb_topic_prefixes');
+		$lock = $this->getMockBuilder('\phpbb\lock\db')
+			->disableOriginalConstructor()
+			->getMock();
+
+		$this->manager = new \phpbb\topicprefixes\prefixes\manager(
+			new \phpbb\topicprefixes\prefixes\nestedset_prefixes(
+				$this->db,
+				$lock,
+				'phpbb_topic_prefixes'
+			)
+		);
 	}
 
 	/**

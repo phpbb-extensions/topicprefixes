@@ -91,6 +91,17 @@ class manager implements manager_interface
 	/**
 	 * @inheritdoc
 	 */
+	public function move_prefix($id, $direction = 'up', $amount = 1)
+	{
+		$id = (int) $id;
+		$amount = (int) $amount;
+
+		$this->nestedset->move($id, ($direction !== 'up' ? -$amount : $amount));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function is_enabled(array $row)
 	{
 		return $row['prefix_enabled'];

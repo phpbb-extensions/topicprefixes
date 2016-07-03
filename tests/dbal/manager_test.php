@@ -52,9 +52,8 @@ class manager_test extends \phpbb_database_test_case
 
 		$this->db = $this->new_dbal();
 
-		$lock = $this->getMockBuilder('\phpbb\lock\db')
-			->disableOriginalConstructor()
-			->getMock();
+		$config = new \phpbb\config\config(array('topicprefixes.table_lock.topic_prefixes_table' => 0));
+		$lock = new \phpbb\lock\db('topicprefixes.table_lock.topic_prefixes_table', $config, $this->db);
 
 		$this->manager = new \phpbb\topicprefixes\prefixes\manager(
 			new \phpbb\topicprefixes\prefixes\nestedset_prefixes(
@@ -257,6 +256,113 @@ class manager_test extends \phpbb_database_test_case
 	public function test_update_prefix_fails()
 	{
 		$this->manager->update_prefix(0, array());
+	}
+
+	/**
+	 * Data for test_move_prefix
+	 *
+	 * @return array
+	 */
+	public function data_move_prefix()
+	{
+		return array(
+			array(
+				1,
+				'up', // Move item 1 up (not expected to move)
+				array(
+					array('prefix_id' => 1, 'prefix_left_id' => 1),
+					array('prefix_id' => 2, 'prefix_left_id' => 3),
+					array('prefix_id' => 3, 'prefix_left_id' => 5),
+					array('prefix_id' => 4, 'prefix_left_id' => 7),
+					array('prefix_id' => 5, 'prefix_left_id' => 9),
+				),
+			),
+			array(
+				1,
+				'down', // Move item 1 down
+				array(
+					array('prefix_id' => 2, 'prefix_left_id' => 1),
+					array('prefix_id' => 1, 'prefix_left_id' => 3),
+					array('prefix_id' => 3, 'prefix_left_id' => 5),
+					array('prefix_id' => 4, 'prefix_left_id' => 7),
+					array('prefix_id' => 5, 'prefix_left_id' => 9),
+				),
+			),
+			array(
+				3,
+				'up', // Move item 3 up
+				array(
+					array('prefix_id' => 1, 'prefix_left_id' => 1),
+					array('prefix_id' => 3, 'prefix_left_id' => 3),
+					array('prefix_id' => 2, 'prefix_left_id' => 5),
+					array('prefix_id' => 4, 'prefix_left_id' => 7),
+					array('prefix_id' => 5, 'prefix_left_id' => 9),
+				),
+			),
+			array(
+				3,
+				'down', // Move item 3 down
+				array(
+					array('prefix_id' => 1, 'prefix_left_id' => 1),
+					array('prefix_id' => 2, 'prefix_left_id' => 3),
+					array('prefix_id' => 4, 'prefix_left_id' => 5),
+					array('prefix_id' => 3, 'prefix_left_id' => 7),
+					array('prefix_id' => 5, 'prefix_left_id' => 9),
+				),
+			),
+			array(
+				5,
+				'up', // Move item 5 up
+				array(
+					array('prefix_id' => 1, 'prefix_left_id' => 1),
+					array('prefix_id' => 2, 'prefix_left_id' => 3),
+					array('prefix_id' => 3, 'prefix_left_id' => 5),
+					array('prefix_id' => 5, 'prefix_left_id' => 7),
+					array('prefix_id' => 4, 'prefix_left_id' => 9),
+				),
+			),
+			array(
+				5,
+				'down', // Move item 5 down (not expected to move)
+				array(
+					array('prefix_id' => 1, 'prefix_left_id' => 1),
+					array('prefix_id' => 2, 'prefix_left_id' => 3),
+					array('prefix_id' => 3, 'prefix_left_id' => 5),
+					array('prefix_id' => 4, 'prefix_left_id' => 7),
+					array('prefix_id' => 5, 'prefix_left_id' => 9),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test move_prefix() method
+	 *
+	 * @dataProvider data_move_prefix
+	 * @param $id
+	 * @param $direction
+	 * @param $expected
+	 */
+	public function test_move_prefix($id, $direction, $expected)
+	{
+		$this->manager->move_prefix($id, $direction);
+
+		$result = $this->db->sql_query('SELECT prefix_id, prefix_left_id
+			FROM phpbb_topic_prefixes
+			ORDER BY prefix_left_id ASC');
+
+		$this->assertEquals($expected, $this->db->sql_fetchrowset($result));
+		$this->db->sql_freeresult($result);
+	}
+
+	/**
+	 * Test move_prefix() method
+	 *
+	 * @expectedException OutOfBoundsException
+	 */
+	public function test_move_prefix_fails()
+	{
+		$this->manager->move_prefix(123, 'up');
 	}
 
 	/**

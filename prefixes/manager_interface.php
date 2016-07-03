@@ -65,6 +65,17 @@ interface manager_interface
 	public function update_prefix($id, array $data);
 
 	/**
+	 * Move a prefix up/down
+	 *
+	 * @param int    $id        The prefix identifier to move
+	 * @param string $direction The direction (up|down)
+	 * @param int    $amount    The number of places to move the rule
+	 * @return null
+	 * @throws \OutOfBoundsException
+	 */
+	public function move_prefix($id, $direction = 'up', $amount = 1);
+
+	/**
 	 * Check if a topic prefix is enabled
 	 *
 	 * @param array $row A row of topic prefix data

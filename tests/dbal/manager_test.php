@@ -10,6 +10,8 @@
 
 namespace phpbb\topicprefixes\tests\dbal;
 
+use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
+
 /**
  * Class manager_test
  */
@@ -157,6 +159,67 @@ class manager_test extends \phpbb_database_test_case
 		$prefixes = $this->manager->get_active_prefixes($forum_id);
 
 		$this->assertEquals($expected, array_column($prefixes, 'prefix_tag'));
+	}
+
+	/**
+	 * Data for test_add_prefix
+	 *
+	 * @return array
+	 */
+	public function data_add_prefix()
+	{
+		return array(
+			array('[TEST 1]', 2, 6),
+			array('[TEST 2]', 3, 6),
+			array('0', 2, 6),
+			array('', 2, false),
+		);
+	}
+
+	/**
+	 * Test the add_prefix() method
+	 *
+	 * @dataProvider data_add_prefix
+	 * @param $tag
+	 * @param $forum_id
+	 * @param $expected
+	 */
+	public function test_add_prefix($tag, $forum_id, $expected)
+	{
+		$result = $this->manager->add_prefix($tag, $forum_id);
+		$this->assertEquals($expected, $result['prefix_id']);
+	}
+
+	/**
+	 * Test delete_prefix() method
+	 */
+	public function test_delete_prefix()
+	{
+		$this->assertEquals(array(1), $this->manager->delete_prefix(1));
+	}
+
+	/**
+	 * Data for test_delete_prefix_fails
+	 *
+	 * @return array
+	 */
+	public function data_delete_prefix_fails()
+	{
+		return array(
+			array(0),
+			array(10),
+		);
+	}
+
+	/**
+	 * Test delete_prefix() method
+	 *
+	 * @dataProvider data_delete_prefix_fails
+	 * @expectedException OutOfBoundsException
+	 */
+	public function test_delete_prefix_fails($id)
+	{
+		$this->manager->delete_prefix($id);
 	}
 
 	/**

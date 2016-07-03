@@ -41,7 +41,7 @@ interface manager_interface
 	 *
 	 * @param string $tag      Topic prefix tag/name
 	 * @param int    $forum_id Forum identifier
-	 * @return int Return the new topic prefix identifier, or 0 on failure
+	 * @return mixed Array with new prefix data as set in the database, false on error
 	 */
 	public function add_prefix($tag, $forum_id);
 
@@ -50,6 +50,7 @@ interface manager_interface
 	 *
 	 * @param int $id Topic prefix identifier
 	 * @return array Item ids that have been deleted
+	 * @throws \OutOfBoundsException
 	 */
 	public function delete_prefix($id);
 

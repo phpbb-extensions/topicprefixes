@@ -63,6 +63,13 @@ class manager implements manager_interface
 	 */
 	public function add_prefix($tag, $forum_id)
 	{
+		$data = [
+			'prefix_tag'		=> $tag,
+			'forum_id'			=> (int) $forum_id,
+			'prefix_enabled'	=> true,
+		];
+
+		return $tag !== '' ? $this->nestedset->insert($data) : false;
 	}
 
 	/**
@@ -70,6 +77,7 @@ class manager implements manager_interface
 	 */
 	public function delete_prefix($id)
 	{
+		return $this->nestedset->delete($id);
 	}
 
 	/**

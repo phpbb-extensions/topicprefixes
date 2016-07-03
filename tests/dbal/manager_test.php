@@ -10,8 +10,6 @@
 
 namespace phpbb\topicprefixes\tests\dbal;
 
-use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
-
 /**
  * Class manager_test
  */
@@ -214,7 +212,8 @@ class manager_test extends \phpbb_database_test_case
 	 * Test delete_prefix() method
 	 *
 	 * @dataProvider data_delete_prefix_fails
-	 * @expectedException OutOfBoundsException
+	 * @expectedException \OutOfBoundsException
+	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
 	 */
 	public function test_delete_prefix_fails($id)
 	{
@@ -251,7 +250,8 @@ class manager_test extends \phpbb_database_test_case
 	/**
 	 * Test the update_prefix() method
 	 *
-	 * @expectedException OutOfBoundsException
+	 * @expectedException \OutOfBoundsException
+	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
 	 */
 	public function test_update_prefix_fails()
 	{
@@ -358,7 +358,8 @@ class manager_test extends \phpbb_database_test_case
 	/**
 	 * Test move_prefix() method
 	 *
-	 * @expectedException OutOfBoundsException
+	 * @expectedException \OutOfBoundsException
+	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
 	 */
 	public function test_move_prefix_fails()
 	{

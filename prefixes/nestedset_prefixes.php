@@ -28,7 +28,7 @@ class nestedset_prefixes extends \phpbb\tree\nestedset
 			$db,
 			$lock,
 			$table_name,
-			'',
+			'TOPIC_PREFIXES_',
 			'',
 			[],
 			[

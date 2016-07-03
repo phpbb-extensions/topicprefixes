@@ -55,6 +55,16 @@ interface manager_interface
 	public function delete_prefix($id);
 
 	/**
+	 * Update a topic prefix in the database
+	 *
+	 * @param int   $id   The item identifier
+	 * @param array $data SQL array of data to update
+	 * @return mixed Number of the affected rows updated, or false
+	 * @throws \OutOfBoundsException
+	 */
+	public function update_prefix($id, array $data);
+
+	/**
 	 * Check if a topic prefix is enabled
 	 *
 	 * @param array $row A row of topic prefix data

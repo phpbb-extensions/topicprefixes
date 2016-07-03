@@ -53,4 +53,27 @@ class nestedset_prefixes extends \phpbb\tree\nestedset
 
 		return $this;
 	}
+
+	/**
+	 * Update a nested item
+	 *
+	 * @param int   $item_id   The item identifier
+	 * @param array $item_data SQL array of data to update
+	 * @return mixed Number of the affected rows updated, or false
+	 * @throws \OutOfBoundsException
+	 */
+	public function update_item($item_id, array $item_data)
+	{
+		if (!$item_id)
+		{
+			throw new \OutOfBoundsException($this->message_prefix . 'INVALID_ITEM');
+		}
+
+		$sql = 'UPDATE ' . $this->table_name . '
+			SET ' . $this->db->sql_build_array('UPDATE', $item_data) . '
+			WHERE ' . $this->column_item_id . ' = ' . (int) $item_id;
+		$this->db->sql_query($sql);
+
+		return $this->db->sql_affectedrows();
+	}
 }

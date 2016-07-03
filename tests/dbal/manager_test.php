@@ -223,6 +223,43 @@ class manager_test extends \phpbb_database_test_case
 	}
 
 	/**
+	 * Data for test_update_prefix
+	 *
+	 * @return array
+	 */
+	public function data_update_prefix()
+	{
+		return array(
+			array(1, array('prefix_enabled' => 0), 1),
+			array(2, array('prefix_enabled' => 1), 1),
+			array(9, array('prefix_enabled' => 0), 0),
+		);
+	}
+
+	/**
+	 * Test the update_prefix() method
+	 *
+	 * @dataProvider data_update_prefix
+	 * @param $id
+	 * @param $data
+	 * @param $expected
+	 */
+	public function test_update_prefix($id, $data, $expected)
+	{
+		$this->assertEquals($expected, $this->manager->update_prefix($id, $data));
+	}
+
+	/**
+	 * Test the update_prefix() method
+	 *
+	 * @expectedException OutOfBoundsException
+	 */
+	public function test_update_prefix_fails()
+	{
+		$this->manager->update_prefix(0, array());
+	}
+
+	/**
 	 * Data for test_prepend_prefix
 	 *
 	 * @return array

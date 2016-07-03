@@ -83,6 +83,14 @@ class manager implements manager_interface
 	/**
 	 * @inheritdoc
 	 */
+	public function update_prefix($id, array $data)
+	{
+		return $this->nestedset->update_item($id, $data);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function is_enabled(array $row)
 	{
 		return $row['prefix_enabled'];

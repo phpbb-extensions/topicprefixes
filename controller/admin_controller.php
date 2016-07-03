@@ -133,7 +133,7 @@ class admin_controller implements admin_controller_interface
 	 */
 	public function edit_prefix($prefix_id)
 	{
-		if (!check_link_hash($this->request->variable('hash', ''), 'edit' . $prefix_id))
+		if (!$this->check_hash('edit' . $prefix_id))
 		{
 			trigger_error($this->get_error_message('FORM_INVALID'), E_USER_WARNING);
 		}
@@ -181,7 +181,7 @@ class admin_controller implements admin_controller_interface
 	 */
 	public function move_prefix($prefix_id, $direction, $amount = 1)
 	{
-		if (!check_link_hash($this->request->variable('hash', ''), $direction . $prefix_id))
+		if (!$this->check_hash($direction . $prefix_id))
 		{
 			trigger_error($this->get_error_message('FORM_INVALID'), E_USER_WARNING);
 		}
@@ -217,6 +217,17 @@ class admin_controller implements admin_controller_interface
 	public function set_forum_id($forum_id)
 	{
 		$this->forum_id = $forum_id;
+	}
+
+	/**
+	 * Check link hash helper
+	 *
+	 * @param string $hash A hashed string
+	 * @return bool True if hash matches, false if not
+	 */
+	protected function check_hash($hash)
+	{
+		return check_link_hash($this->request->variable('hash', ''), $hash);
 	}
 
 	/**

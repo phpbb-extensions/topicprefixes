@@ -56,11 +56,10 @@ interface admin_controller_interface
 	 * Move a prefix up/down
 	 *
 	 * @param int    $prefix_id The prefix identifier to move
-	 * @param string $direction The direction (up|down)
-	 * @param int    $amount    The number of places to move the prefix
+	 * @param string $action The action (move_up|move_down)
 	 * @return null
 	 */
-	public function move_prefix($prefix_id, $direction, $amount = 1);
+	public function move_prefix($prefix_id, $action);
 
 	/**
 	 * Set u_action

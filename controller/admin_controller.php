@@ -74,8 +74,7 @@ class admin_controller implements admin_controller_interface
 
 			case 'edit':
 			case 'delete':
-				$method = $action . '_prefix';
-				$this->$method($prefix_id);
+				$this->{$action . '_prefix'}($prefix_id);
 			break;
 
 			case 'move_up':
@@ -97,7 +96,7 @@ class admin_controller implements admin_controller_interface
 			$this->template->assign_block_vars('prefixes', [
 				'PREFIX_TAG'		=> $prefix['prefix_tag'],
 				'PREFIX_ENABLED'	=> (int) $prefix['prefix_enabled'],
-				'U_EDIT'			=> "{$this->u_action}&amp;action=edit&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id. '&amp;hash=' . generate_link_hash('edit' . $prefix['prefix_id']),
+				'U_EDIT'			=> "{$this->u_action}&amp;action=edit&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id . '&amp;hash=' . generate_link_hash('edit' . $prefix['prefix_id']),
 				'U_DELETE'			=> "{$this->u_action}&amp;action=delete&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id,
 				'U_MOVE_UP'			=> "{$this->u_action}&amp;action=move_up&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id . '&amp;hash=' . generate_link_hash('up' . $prefix['prefix_id']),
 				'U_MOVE_DOWN'		=> "{$this->u_action}&amp;action=move_down&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id . '&amp;hash=' . generate_link_hash('down' . $prefix['prefix_id']),

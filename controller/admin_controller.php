@@ -120,7 +120,7 @@ class admin_controller implements admin_controller_interface
 		{
 			if (!check_form_key($this->form_key))
 			{
-				trigger_error($this->get_error_message('FORM_INVALID'), E_USER_WARNING);
+				$this->trigger_message('FORM_INVALID', E_USER_WARNING);
 			}
 
 			$prefix = $this->request->variable('prefix_tag', '', true);
@@ -135,7 +135,7 @@ class admin_controller implements admin_controller_interface
 	{
 		if (!$this->check_hash('edit' . $prefix_id))
 		{
-			trigger_error($this->get_error_message('FORM_INVALID'), E_USER_WARNING);
+			$this->trigger_message('FORM_INVALID', E_USER_WARNING);
 		}
 
 		try
@@ -145,7 +145,7 @@ class admin_controller implements admin_controller_interface
 		}
 		catch (\OutOfBoundsException $e)
 		{
-			trigger_error($e->getMessage() . $this->get_error_message(), E_USER_WARNING);
+			$this->trigger_message($e->getMessage(), E_USER_WARNING);
 		}
 	}
 
@@ -162,10 +162,10 @@ class admin_controller implements admin_controller_interface
 			}
 			catch (\OutOfBoundsException $e)
 			{
-				trigger_error($e->getMessage() . $this->get_error_message(), E_USER_WARNING);
+				$this->trigger_message($e->getMessage(), E_USER_WARNING);
 			}
 
-			trigger_error($this->get_error_message('TOPIC_PREFIX_DELETED'));
+			$this->trigger_message('TOPIC_PREFIX_DELETED');
 		}
 
 		confirm_box(false, $this->user->lang('DELETE_TOPIC_PREFIX_CONFIRM'), build_hidden_fields([
@@ -183,7 +183,7 @@ class admin_controller implements admin_controller_interface
 	{
 		if (!$this->check_hash($direction . $prefix_id))
 		{
-			trigger_error($this->get_error_message('FORM_INVALID'), E_USER_WARNING);
+			$this->trigger_message('FORM_INVALID', E_USER_WARNING);
 		}
 
 		try
@@ -192,7 +192,7 @@ class admin_controller implements admin_controller_interface
 		}
 		catch (\OutOfBoundsException $e)
 		{
-			trigger_error($e->getMessage() . $this->get_error_message(), E_USER_WARNING);
+			$this->trigger_message($e->getMessage(), E_USER_WARNING);
 		}
 
 		if ($this->request->is_ajax())
@@ -231,13 +231,14 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * Return a common message and back link for trigger error dialogs
+	 * Trigger a message and back link for error/success dialogs
 	 *
 	 * @param string $message A language key
-	 * @return string
+	 * @param string $error   Error type constant, optional
+	 * @return null
 	 */
-	protected function get_error_message($message = '')
+	protected function trigger_message($message = '', $error = E_USER_NOTICE)
 	{
-		return $this->user->lang($message) . adm_back_link("{$this->u_action}&amp;forum_id={$this->forum_id}");
+		trigger_error($this->user->lang($message) . adm_back_link("{$this->u_action}&amp;forum_id={$this->forum_id}"), $error);
 	}
 }

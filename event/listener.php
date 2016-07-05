@@ -80,13 +80,12 @@ class listener implements EventSubscriberInterface
 		// Get prefixes for the current forum
 		$prefixes = $this->manager->get_active_prefixes($event['forum_id']);
 
-		// Get the current prefix (if editing an existing post,
-		// get it from post_data, otherwise get it from the form posted)
-		$selected = !empty($event['post_data']['topic_prefix_id']) ? $event['post_data']['topic_prefix_id'] : $this->request->variable('topic_prefix', 0);
+		// Get the current prefix selected
+		$selected = $this->get_selected_prefix($event);
 
 		$event['page_data'] = array_merge($event['page_data'], [
 			'PREFIXES'			=> $prefixes,
-			'SELECTED_PREFIX'	=> $selected ? $prefixes[$selected]['prefix_tag'] : '',
+			'SELECTED_PREFIX'	=> array_key_exists($selected, $prefixes) ? $prefixes[$selected]['prefix_tag'] : '',
 		]);
 	}
 
@@ -144,5 +143,25 @@ class listener implements EventSubscriberInterface
 	protected function is_new_topic($event)
 	{
 		return ($event['mode'] === 'post' || ($event['mode'] === 'edit' && $event['post_data']['topic_first_post_id'] == $event['post_data']['post_id']));
+	}
+
+	/**
+	 * Get the current prefix for the selection menu
+	 *
+	 * @param \phpbb\event\data $event Event data object
+	 * @return int Identifier for the selected prefix
+	 */
+	protected function get_selected_prefix($event)
+	{
+		// Get the prefix from the select menu
+		$prefix_id = $this->request->variable('topic_prefix', 0);
+
+		// If no prefix was selected, get one if it already exists (ie: editing a post)
+		if (!$prefix_id && !empty($event['post_data']['topic_prefix_id']))
+		{
+			$prefix_id = (int) $event['post_data']['topic_prefix_id'];
+		}
+
+		return $prefix_id;
 	}
 }

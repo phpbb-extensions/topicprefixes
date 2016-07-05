@@ -174,7 +174,7 @@ class listener_test extends \phpbb_test_case
 				2,
 				array(
 					'PREFIXES'			=> $prefix_data,
-					'SELECTED_PREFIX'	=> null,
+					'SELECTED_PREFIX'	=> '',
 				),
 			),
 		);

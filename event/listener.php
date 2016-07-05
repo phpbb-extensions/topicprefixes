@@ -97,13 +97,13 @@ class listener implements EventSubscriberInterface
 	 */
 	public function submit_prefix_data($event)
 	{
-		if (!$this->is_new_topic($event))
+		if (!($selected = $this->request->variable('topic_prefix', 0)))
 		{
 			return;
 		}
 
 		// Get data for the prefix selected by the user
-		$prefix = $this->manager->get_prefix($this->request->variable('topic_prefix', 0));
+		$prefix = $this->manager->get_prefix($selected);
 
 		// First, add the topic prefix id to the data to be stored with the db
 		$data = $event['data'];
@@ -124,7 +124,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function save_prefix_to_topic($event)
 	{
-		if (!in_array($event['post_mode'], ['edit_first_post', 'edit_topic', 'post']))
+		if (!isset($event['data']['topic_prefix_id']) || !in_array($event['post_mode'], ['edit_first_post', 'edit_topic', 'post']))
 		{
 			return;
 		}

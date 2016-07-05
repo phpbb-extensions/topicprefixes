@@ -274,7 +274,7 @@ class listener_test extends \phpbb_test_case
 					),
 				),
 				array(
-					'data'		=> array('topic_prefix_id' => 0),
+					'data'		=> array(),
 					'post_data'	=> array('post_subject' => 'test subject'),
 				),
 			),
@@ -309,6 +309,14 @@ class listener_test extends \phpbb_test_case
 		$test_data = array_merge($this->get_event_data(), $parameters);
 
 		$data = new \phpbb\event\data($test_data);
+
+		$prefix_id = isset($prefix['prefix_id']) ? $prefix['prefix_id'] : 0;
+
+		$this->request->expects($this->any())
+			->method('variable')
+			->will($this->returnValueMap(array(
+				array('topic_prefix', 0, false, \phpbb\request\request_interface::REQUEST, $prefix_id),
+			)));
 
 		$this->manager->expects($this->any())
 			->method('get_prefix')

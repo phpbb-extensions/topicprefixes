@@ -10,6 +10,7 @@
 
 namespace phpbb\topicprefixes\controller;
 
+use phpbb\log\log;
 use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\topicprefixes\prefixes\manager;
@@ -23,6 +24,9 @@ class admin_controller implements admin_controller_interface
 	/** @var manager */
 	protected $manager;
 
+	/** @var log */
+	protected $log;
+
 	/** @var request */
 	protected $request;
 
@@ -31,6 +35,12 @@ class admin_controller implements admin_controller_interface
 
 	/** @var user */
 	protected $user;
+
+	/** @var string */
+	protected $root_path;
+
+	/** @var string */
+	protected $php_ext;
 
 	/** @var string */
 	protected $form_key;
@@ -45,16 +55,22 @@ class admin_controller implements admin_controller_interface
 	 * Constructor
 	 *
 	 * @param manager  $manager
+	 * @param log      $log
 	 * @param request  $request
 	 * @param template $template
 	 * @param user     $user
+	 * @param string   $phpbb_root_path
+	 * @param string   $phpEx
 	 */
-	public function __construct(manager $manager, request $request, template $template, user $user)
+	public function __construct(manager $manager, log $log, request $request, template $template, user $user, $phpbb_root_path, $phpEx)
 	{
 		$this->manager = $manager;
+		$this->log = $log;
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
+		$this->root_path = $phpbb_root_path;
+		$this->php_ext = $phpEx;
 	}
 
 	public function main()
@@ -122,8 +138,9 @@ class admin_controller implements admin_controller_interface
 				$this->trigger_message('FORM_INVALID', E_USER_WARNING);
 			}
 
-			$prefix = $this->request->variable('prefix_tag', '', true);
-			$this->manager->add_prefix($prefix, $this->forum_id);
+			$tag = $this->request->variable('prefix_tag', '', true);
+			$prefix = $this->manager->add_prefix($tag, $this->forum_id);
+			$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_ADDED');
 		}
 	}
 
@@ -157,7 +174,9 @@ class admin_controller implements admin_controller_interface
 		{
 			try
 			{
-				$this->manager->delete_prefix($prefix_id);
+				$prefix = $this->manager->get_prefix($prefix_id);
+				$this->manager->delete_prefix($prefix['prefix_id']);
+				$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_DELETED');
 			}
 			catch (\OutOfBoundsException $e)
 			{
@@ -239,5 +258,36 @@ class admin_controller implements admin_controller_interface
 	protected function trigger_message($message = '', $error = E_USER_NOTICE)
 	{
 		trigger_error($this->user->lang($message) . adm_back_link("{$this->u_action}&amp;forum_id={$this->forum_id}"), $error);
+	}
+
+	/**
+	 * Helper for logging topic prefix admin actions
+	 *
+	 * @param string $tag     The topic prefix tag
+	 * @param string $message The log action language key
+	 */
+	protected function log($tag, $message)
+	{
+		$forum_data = $this->get_forum_info($this->forum_id);
+
+		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), array($tag, $forum_data['forum_name']));
+	}
+
+	/**
+	 * Get a forum's information
+	 *
+	 * @param int $forum_id
+	 * @return mixed Array with the current row, false, if the row does not exist
+	 */
+	protected function get_forum_info($forum_id)
+	{
+		if (!class_exists('acp_forums'))
+		{
+			include $this->root_path . 'includes/acp/acp_forums.' . $this->php_ext;
+		}
+
+		$acp_forums = new \acp_forums();
+
+		return $acp_forums->get_forum_info($forum_id);
 	}
 }

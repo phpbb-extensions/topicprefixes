@@ -8,6 +8,9 @@ services:
         class: phpbb\topicprefixes\controller\admin_controller
         arguments:
             - '@phpbb.topicprefixes.manager'
+            - '@log'
             - '@request'
             - '@template'
             - '@user'
+            - '%core.root_path%'
+            - '%core.php_ext%'

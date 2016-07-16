@@ -39,6 +39,7 @@ class manager_delete_prefix_test extends manager_base
 	 * @dataProvider data_delete_prefix_fails
 	 * @expectedException \OutOfBoundsException
 	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
+	 * @param $id
 	 */
 	public function test_delete_prefix_fails($id)
 	{

@@ -13,16 +13,16 @@ namespace phpbb\topicprefixes\prefixes;
 class manager implements manager_interface
 {
 	/**
-	 * @var \phpbb\topicprefixes\prefixes\nestedset_prefixes
+	 * @var nestedset_prefixes
 	 */
 	protected $nestedset;
 
 	/**
-	 * Listener constructor
+	 * Constructor
 	 *
-	 * @param \phpbb\topicprefixes\prefixes\nestedset_prefixes $nestedset
+	 * @param nestedset_prefixes $nestedset
 	 */
-	public function __construct(\phpbb\topicprefixes\prefixes\nestedset_prefixes $nestedset)
+	public function __construct(nestedset_prefixes $nestedset)
 	{
 		$this->nestedset = $nestedset;
 	}
@@ -93,7 +93,6 @@ class manager implements manager_interface
 	 */
 	public function move_prefix($id, $direction = 'up', $amount = 1)
 	{
-		$id = (int) $id;
 		$amount = (int) $amount;
 
 		$this->nestedset->move($id, ($direction !== 'up' ? -$amount : $amount));

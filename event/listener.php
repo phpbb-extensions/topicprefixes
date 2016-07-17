@@ -124,7 +124,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function save_prefix_to_topic($event)
 	{
-		if (!isset($event['data']['topic_prefix_id']) || !in_array($event['post_mode'], ['edit_first_post', 'edit_topic', 'post']))
+		if (!array_key_exists('topic_prefix_id', $event['data']) || !in_array($event['post_mode'], ['edit_first_post', 'edit_topic', 'post'], true))
 		{
 			return;
 		}

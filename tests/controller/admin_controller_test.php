@@ -75,6 +75,50 @@ class admin_controller_test extends \phpbb_test_case
 	}
 
 	/**
+	 * Data for test_display_settings
+	 *
+	 * @return array
+	 */
+	public function data_display_settings()
+	{
+		return array(
+			array(0, 1),
+			array(1, 2),
+			array(2, 3),
+		);
+	}
+
+	/**
+	 * Test display_settings()
+	 *
+	 * @dataProvider data_display_settings
+	 * @param $prefix_count
+	 * @param $forum_id
+	 */
+	public function test_display_settings($prefix_count, $forum_id)
+	{
+		$this->manager->expects(static::any())
+			->method('get_prefixes')
+			->will(static::returnValue(array_pad(array(), $prefix_count, 0)));
+
+		$this->template->expects(static::exactly($prefix_count))
+			->method('assign_block_vars');
+
+		$this->template->expects(static::any())
+			->method('assign_vars')
+			->with(array(
+				'S_FORUM_OPTIONS'	=> '#select menu#',
+				'FORUM_ID'			=> $forum_id,
+				'U_ACTION'			=> 'foo',
+			));
+
+		$this->controller
+			->set_u_action('foo')
+			->set_forum_id($forum_id)
+			->display_settings();
+	}
+
+	/**
 	 * Data for test_add_prefix
 	 *
 	 * @return array
@@ -101,9 +145,9 @@ class admin_controller_test extends \phpbb_test_case
 		{
 			self::$valid_form = $valid_form;
 
-			$this->request->expects($this->any())
+			$this->request->expects(static::any())
 				->method('is_set_post')
-				->will($this->returnValue($submit));
+				->will(static::returnValue($submit));
 
 			if (!$valid_form)
 			{
@@ -111,17 +155,17 @@ class admin_controller_test extends \phpbb_test_case
 			}
 			else
 			{
-				$this->manager->expects($this->once())
+				$this->manager->expects(static::once())
 					->method('add_prefix');
-				$this->controller->expects($this->once())
+				$this->controller->expects(static::once())
 					->method('log');
 			}
 		}
 		else
 		{
-			$this->manager->expects($this->never())
+			$this->manager->expects(static::never())
 				->method('add_prefix');
-			$this->controller->expects($this->never())
+			$this->controller->expects(static::never())
 				->method('log');
 		}
 
@@ -151,10 +195,10 @@ class admin_controller_test extends \phpbb_test_case
 	 */
 	public function test_edit_prefix($prefix_id, $valid_form)
 	{
-		$this->request->expects($this->any())
+		$this->request->expects(static::any())
 			->method('variable')
-			->with($this->anything())
-			->will($this->returnValueMap(array(
+			->with(static::anything())
+			->will(static::returnValueMap(array(
 				array('hash', '', false, \phpbb\request\request_interface::REQUEST, generate_link_hash('edit' . $prefix_id))
 			)));
 
@@ -162,16 +206,16 @@ class admin_controller_test extends \phpbb_test_case
 		{
 			$prefix_id = 0;
 			$this->setExpectedTriggerError(E_USER_WARNING);
-			$this->manager->expects($this->never())
+			$this->manager->expects(static::never())
 				->method('update_prefix');
 		}
 		else
 		{
 			$this->setExpectedTriggerError(E_USER_WARNING);
-			$this->manager->expects($this->once())
+			$this->manager->expects(static::once())
 				->method('update_prefix')
-				->with($this->equalTo(0))
-				->will($this->throwException(new \OutOfBoundsException));
+				->with(static::equalTo(0))
+				->will(static::throwException(new \OutOfBoundsException));
 		}
 
 		$this->controller->edit_prefix($prefix_id);
@@ -204,26 +248,26 @@ class admin_controller_test extends \phpbb_test_case
 
 		if (!$confirm)
 		{
-			$this->manager->expects($this->never())
+			$this->manager->expects(static::never())
 				->method('delete_prefix');
-			$this->controller->expects($this->never())
+			$this->controller->expects(static::never())
 				->method('log');
 		}
 		else if ($prefix_id === 0)
 		{
 			$this->setExpectedTriggerError(E_USER_WARNING);
-			$this->manager->expects($this->once())
+			$this->manager->expects(static::once())
 				->method('delete_prefix')
-				->will($this->throwException(new \OutOfBoundsException()));
-			$this->controller->expects($this->never())
+				->will(static::throwException(new \OutOfBoundsException()));
+			$this->controller->expects(static::never())
 				->method('log');
 		}
 		else
 		{
 			$this->setExpectedTriggerError(E_USER_NOTICE);
-			$this->manager->expects($this->once())
+			$this->manager->expects(static::once())
 				->method('delete_prefix');
-			$this->controller->expects($this->once())
+			$this->controller->expects(static::once())
 				->method('log');
 		}
 
@@ -253,14 +297,15 @@ class admin_controller_test extends \phpbb_test_case
 	 *
 	 * @dataProvider data_move_prefix
 	 * @param $prefix_id
+	 * @param $direction
 	 * @param $valid_form
 	 */
 	public function test_move_prefix($prefix_id, $direction, $valid_form)
 	{
-		$this->request->expects($this->any())
+		$this->request->expects(static::any())
 			->method('variable')
-			->with($this->anything())
-			->will($this->returnValueMap(array(
+			->with(static::anything())
+			->will(static::returnValueMap(array(
 				array('hash', '', false, \phpbb\request\request_interface::REQUEST, generate_link_hash($direction . $prefix_id))
 			)));
 
@@ -268,7 +313,7 @@ class admin_controller_test extends \phpbb_test_case
 		{
 			$prefix_id = 0;
 			$this->setExpectedTriggerError(E_USER_WARNING);
-			$this->manager->expects($this->never())
+			$this->manager->expects(static::never())
 				->method('move_prefix');
 		}
 		else
@@ -276,16 +321,16 @@ class admin_controller_test extends \phpbb_test_case
 			if ($prefix_id === 0)
 			{
 				$this->setExpectedTriggerError(E_USER_WARNING);
-				$this->manager->expects($this->once())
+				$this->manager->expects(static::once())
 					->method('move_prefix')
-					->with($this->equalTo(0), $this->stringContains($direction))
-					->will($this->throwException(new \OutOfBoundsException));
+					->with(static::equalTo(0), static::stringContains($direction))
+					->will(static::throwException(new \OutOfBoundsException));
 			}
 			else
 			{
-				$this->manager->expects($this->once())
+				$this->manager->expects(static::once())
 					->method('move_prefix')
-					->with($this->equalTo($prefix_id), $this->stringContains($direction));
+					->with(static::equalTo($prefix_id), static::stringContains($direction));
 			}
 		}
 
@@ -313,4 +358,14 @@ function confirm_box()
 function check_form_key()
 {
 	return \phpbb\topicprefixes\controller\admin_controller_test::$valid_form;
+}
+
+/**
+ * Mock make_forum_select()
+ *
+ * @return string
+ */
+function make_forum_select()
+{
+	return '#select menu#';
 }

@@ -68,4 +68,11 @@ interface admin_controller_interface
 	 * @return null
 	 */
 	public function set_u_action($u_action);
+
+	/**
+	 * Set forum ID
+	 *
+	 * @param int $forum_id Forum identifier
+	 */
+	public function set_forum_id($forum_id);
 }

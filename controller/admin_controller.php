@@ -230,11 +230,12 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @param int $forum_id
+	 * @inheritdoc
 	 */
 	public function set_forum_id($forum_id)
 	{
 		$this->forum_id = $forum_id;
+		return $this;
 	}
 
 	/**

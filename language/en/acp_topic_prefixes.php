@@ -42,5 +42,4 @@ $lang = array_merge($lang, array(
 	'TOPIC_PREFIXES_LOCK_FAILED_ACQUIRE'	=> 'Topic prefixes extension failed to acquire a lock on the table.',
 	'TOPIC_PREFIXES_INVALID_ITEM'			=> 'The requested topic prefix is invalid.',
 	'TOPIC_PREFIXES_INVALID_PARENT'			=> 'The requested topic prefix has no valid parent.',
-
 ));

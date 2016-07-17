@@ -252,7 +252,7 @@ class admin_controller implements admin_controller_interface
 	 * Trigger a message and back link for error/success dialogs
 	 *
 	 * @param string $message A language key
-	 * @param string $error   Error type constant, optional
+	 * @param int    $error   Error type constant, optional
 	 * @return null
 	 */
 	protected function trigger_message($message = '', $error = E_USER_NOTICE)

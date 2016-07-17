@@ -15,7 +15,7 @@
 		$prefixMenu.on("change", function() {
 			var title = $topicTitle.val().replace(prefix, "").trim();
 			prefix = getPrefix($(this));
-			$topicTitle.val(prefix + " " + title).focus();
+			$topicTitle.val(prefix ? prefix + " " + title : title).focus();
 		});
 
 	});

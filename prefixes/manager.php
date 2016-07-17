@@ -44,7 +44,7 @@ class manager implements manager_interface
 	{
 		if ($forum_id)
 		{
-			$this->nestedset->set_forum_id($forum_id);
+			$this->nestedset->where_forum_id($forum_id);
 		}
 
 		return $this->nestedset->get_all_tree_data();

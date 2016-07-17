@@ -47,7 +47,7 @@ class nestedset_prefixes extends \phpbb\tree\nestedset
 	 * @param int $forum_id The forum identifier
 	 * @return nestedset_prefixes $this object for chaining calls
 	 */
-	public function set_forum_id($forum_id)
+	public function where_forum_id($forum_id)
 	{
 		$this->sql_where = '%sforum_id = ' . (int) $forum_id;
 

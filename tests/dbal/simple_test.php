@@ -40,10 +40,10 @@ class simple_test extends \phpbb_database_test_case
 	public function test_table_exists()
 	{
 		$this->db = $this->new_dbal();
+		$factory = new \phpbb\db\tools\factory();
+		$db_tools = $factory->get($this->db);
 
-		$db_tools = new \phpbb\db\tools\tools($this->db);
-
-		//$this->assertTrue($db_tools->sql_column_exists('phpbb_topics', 'topic_prefix_id')); //TODO: test fails in phpBB 3.2/postgresql
+		$this->assertTrue($db_tools->sql_column_exists('phpbb_topics', 'topic_prefix_id'));
 		$this->assertTrue($db_tools->sql_table_exists('phpbb_topic_prefixes'));
 	}
 }

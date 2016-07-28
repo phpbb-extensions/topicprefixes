@@ -50,9 +50,9 @@ class listener implements EventSubscriberInterface
 	/**
 	 * Listener constructor
 	 *
-	 * @param user    $user    Language object
-	 * @param request $request Request object
 	 * @param manager $manager Topic prefixes manager
+	 * @param request $request Request object
+	 * @param user    $user    Language object
 	 */
 	public function __construct(manager $manager, request $request, user $user)
 	{

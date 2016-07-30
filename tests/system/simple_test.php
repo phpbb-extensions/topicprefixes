@@ -21,6 +21,9 @@ class simple_test extends \phpbb_test_case
 	/** @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\db\migrator */
 	protected $migrator;
 
+	/**
+	 * @inheritdoc
+	 */
 	public function setUp()
 	{
 		parent::setUp();

@@ -1,0 +1,2 @@
+parameters:
+    phpbb.topicprefixes.tables.topic_prefixes: '%core.table_prefix%topic_prefixes'

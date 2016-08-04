@@ -19,48 +19,48 @@ use phpbb\user;
 /**
  * Class admin_controller
  */
-class admin_controller implements admin_controller_interface
+class admin_controller
 {
-	/** @var manager */
+	/** @var manager Topic prefixes manager object */
 	protected $manager;
 
-	/** @var log */
+	/** @var log phpBB log object */
 	protected $log;
 
-	/** @var request */
+	/** @var request phpBB request object */
 	protected $request;
 
-	/** @var template */
+	/** @var template phpBB template object */
 	protected $template;
 
-	/** @var user */
+	/** @var user phpBB user object */
 	protected $user;
 
-	/** @var string */
+	/** @var string phpBB root path */
 	protected $root_path;
 
-	/** @var string */
+	/** @var string PHP extension */
 	protected $php_ext;
 
-	/** @var string */
+	/** @var string Form key used for form validation */
 	protected $form_key;
 
-	/** @var int */
+	/** @var int Forum identifier */
 	protected $forum_id;
 
-	/** @var string */
+	/** @var string Form action string */
 	protected $u_action;
 
 	/**
 	 * Constructor
 	 *
-	 * @param manager  $manager
-	 * @param log      $log
-	 * @param request  $request
-	 * @param template $template
-	 * @param user     $user
-	 * @param string   $phpbb_root_path
-	 * @param string   $phpEx
+	 * @param manager  $manager         Topic prefixes manager object
+	 * @param log      $log             phpBB log object
+	 * @param request  $request         phpBB request object
+	 * @param template $template        phpBB template object
+	 * @param user     $user            phpBB user object
+	 * @param string   $phpbb_root_path phpBB root path
+	 * @param string   $phpEx           PHP extension
 	 */
 	public function __construct(manager $manager, log $log, request $request, template $template, user $user, $phpbb_root_path, $phpEx)
 	{
@@ -73,6 +73,11 @@ class admin_controller implements admin_controller_interface
 		$this->php_ext = $phpEx;
 	}
 
+	/**
+	 * Main handler, called by the ACP module
+	 *
+	 * @return null
+	 */
 	public function main()
 	{
 		$this->form_key = 'acp_topic_prefixes';
@@ -103,7 +108,9 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Display topic prefix settings
+	 *
+	 * @return null
 	 */
 	public function display_settings()
 	{
@@ -127,7 +134,9 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Add a prefix
+	 *
+	 * @return null
 	 */
 	public function add_prefix()
 	{
@@ -145,7 +154,10 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Edit a prefix
+	 *
+	 * @param int $prefix_id The prefix identifier to edit
+	 * @return null
 	 */
 	public function edit_prefix($prefix_id)
 	{
@@ -166,7 +178,10 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Delete a prefix
+	 *
+	 * @param int $prefix_id The prefix identifier to delete
+	 * @return null
 	 */
 	public function delete_prefix($prefix_id)
 	{
@@ -195,7 +210,11 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Move a prefix up/down
+	 *
+	 * @param int    $prefix_id The prefix identifier to move
+	 * @param string $action The action (move_up|move_down)
+	 * @return null
 	 */
 	public function move_prefix($prefix_id, $direction, $amount = 1)
 	{
@@ -221,7 +240,10 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Set u_action
+	 *
+	 * @param string $u_action Custom form action
+	 * @return null
 	 */
 	public function set_u_action($u_action)
 	{
@@ -230,7 +252,9 @@ class admin_controller implements admin_controller_interface
 	}
 
 	/**
-	 * @inheritdoc
+	 * Set forum ID
+	 *
+	 * @param int $forum_id Forum identifier
 	 */
 	public function set_forum_id($forum_id)
 	{

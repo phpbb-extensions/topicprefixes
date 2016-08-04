@@ -93,6 +93,14 @@ function confirm_box()
 }
 
 /**
+ * Mock add_form_key()
+ * Note: use the same namespace as the admin_controller
+ */
+function add_form_key()
+{
+}
+
+/**
  * Mock check_form_key()
  * Note: use the same namespace as the admin_controller
  *

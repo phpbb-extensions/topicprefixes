@@ -48,7 +48,7 @@ class admin_controller
 	/** @var int Forum identifier */
 	protected $forum_id;
 
-	/** @var string Form action string */
+	/** @var string Custom form action */
 	protected $u_action;
 
 	/**
@@ -213,7 +213,8 @@ class admin_controller
 	 * Move a prefix up/down
 	 *
 	 * @param int    $prefix_id The prefix identifier to move
-	 * @param string $action The action (move_up|move_down)
+	 * @param string $direction The direction (up|down)
+	 * @param int    $amount    The amount of places to move (default: 1)
 	 * @return null
 	 */
 	public function move_prefix($prefix_id, $direction, $amount = 1)
@@ -243,7 +244,7 @@ class admin_controller
 	 * Set u_action
 	 *
 	 * @param string $u_action Custom form action
-	 * @return null
+	 * @return admin_controller
 	 */
 	public function set_u_action($u_action)
 	{
@@ -255,6 +256,7 @@ class admin_controller
 	 * Set forum ID
 	 *
 	 * @param int $forum_id Forum identifier
+	 * @return admin_controller
 	 */
 	public function set_forum_id($forum_id)
 	{
@@ -290,6 +292,7 @@ class admin_controller
 	 *
 	 * @param string $tag     The topic prefix tag
 	 * @param string $message The log action language key
+	 * @return null
 	 */
 	protected function log($tag, $message)
 	{

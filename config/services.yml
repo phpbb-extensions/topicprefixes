@@ -11,6 +11,17 @@ services:
         tags:
             - { name: event.listener }
 
+    phpbb.topicprefixes.admin_controller:
+        class: phpbb\topicprefixes\controller\admin_controller
+        arguments:
+            - '@phpbb.topicprefixes.manager'
+            - '@log'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+
     phpbb.topicprefixes.manager:
         class: phpbb\topicprefixes\prefixes\manager
         arguments:

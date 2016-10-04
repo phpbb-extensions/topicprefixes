@@ -70,7 +70,7 @@ interface manager_interface
 	 * @param int    $id        The prefix identifier to move
 	 * @param string $direction The direction (up|down)
 	 * @param int    $amount    The number of places to move the rule
-	 * @return null
+	 * @return void
 	 * @throws \OutOfBoundsException
 	 */
 	public function move_prefix($id, $direction = 'up', $amount = 1);

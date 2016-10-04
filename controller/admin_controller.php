@@ -76,7 +76,7 @@ class admin_controller
 	/**
 	 * Main handler, called by the ACP module
 	 *
-	 * @return null
+	 * @return void
 	 */
 	public function main()
 	{
@@ -110,7 +110,7 @@ class admin_controller
 	/**
 	 * Display topic prefix settings
 	 *
-	 * @return null
+	 * @return void
 	 */
 	public function display_settings()
 	{
@@ -136,7 +136,7 @@ class admin_controller
 	/**
 	 * Add a prefix
 	 *
-	 * @return null
+	 * @return void
 	 */
 	public function add_prefix()
 	{
@@ -157,7 +157,7 @@ class admin_controller
 	 * Edit a prefix
 	 *
 	 * @param int $prefix_id The prefix identifier to edit
-	 * @return null
+	 * @return void
 	 */
 	public function edit_prefix($prefix_id)
 	{
@@ -181,7 +181,7 @@ class admin_controller
 	 * Delete a prefix
 	 *
 	 * @param int $prefix_id The prefix identifier to delete
-	 * @return null
+	 * @return void
 	 */
 	public function delete_prefix($prefix_id)
 	{
@@ -215,7 +215,7 @@ class admin_controller
 	 * @param int    $prefix_id The prefix identifier to move
 	 * @param string $direction The direction (up|down)
 	 * @param int    $amount    The amount of places to move (default: 1)
-	 * @return null
+	 * @return void
 	 */
 	public function move_prefix($prefix_id, $direction, $amount = 1)
 	{
@@ -280,7 +280,7 @@ class admin_controller
 	 *
 	 * @param string $message A language key
 	 * @param int    $error   Error type constant, optional
-	 * @return null
+	 * @return void
 	 */
 	protected function trigger_message($message = '', $error = E_USER_NOTICE)
 	{
@@ -292,7 +292,7 @@ class admin_controller
 	 *
 	 * @param string $tag     The topic prefix tag
 	 * @param string $message The log action language key
-	 * @return null
+	 * @return void
 	 */
 	protected function log($tag, $message)
 	{

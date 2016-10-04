@@ -66,7 +66,7 @@ class listener implements EventSubscriberInterface
 	 * for the topic prefix drop-down menu.
 	 *
 	 * @param \phpbb\event\data $event Event data object
-	 * @return null
+	 * @return void
 	 */
 	public function add_to_posting_form($event)
 	{
@@ -93,7 +93,7 @@ class listener implements EventSubscriberInterface
 	 * Prepare topic prefix data for post submission
 	 *
 	 * @param \phpbb\event\data $event Event data object
-	 * @return null
+	 * @return void
 	 */
 	public function submit_prefix_data($event)
 	{
@@ -120,7 +120,7 @@ class listener implements EventSubscriberInterface
 	 * Save the topic prefix id with the associated topic
 	 *
 	 * @param \phpbb\event\data $event Event data object
-	 * @return null
+	 * @return void
 	 */
 	public function save_prefix_to_topic($event)
 	{

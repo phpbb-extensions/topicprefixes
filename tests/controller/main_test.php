@@ -58,6 +58,8 @@ class main_test extends admin_controller_base
 	 * Test main()
 	 *
 	 * @dataProvider data_main
+	 * @param $action
+	 * @param $expected
 	 */
 	public function test_main($action, $expected)
 	{

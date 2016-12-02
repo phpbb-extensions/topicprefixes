@@ -170,7 +170,7 @@ class listener implements EventSubscriberInterface
 		// If still no prefix was identified, look in existing topic title (ie: editing a post)
 		if (!$prefix_id && !empty($event['post_data']['topic_title']))
 		{
-			$prefix_id = $this->find_prefix_from_title($event['post_data']['topic_title']);
+			$prefix_id = $this->find_prefix_in_title($event['post_data']['topic_title']);
 		}
 
 		return $prefix_id;
@@ -182,7 +182,7 @@ class listener implements EventSubscriberInterface
 	 * @param string $title The post title
 	 * @return int   Identifier for the found prefix
 	 */
-	protected function find_prefix_from_title($title)
+	protected function find_prefix_in_title($title)
 	{
 		foreach ($this->prefixes as $prefix_id => $prefix_data)
 		{

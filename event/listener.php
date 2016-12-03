@@ -36,6 +36,11 @@ class listener implements EventSubscriberInterface
 	protected $user;
 
 	/**
+	 * @var array An array of topic prefixes
+	 */
+	protected $prefixes;
+
+	/**
 	 * @inheritdoc
 	 */
 	public static function getSubscribedEvents()
@@ -78,14 +83,14 @@ class listener implements EventSubscriberInterface
 		$this->user->add_lang_ext('phpbb/topicprefixes', 'topic_prefixes');
 
 		// Get prefixes for the current forum
-		$prefixes = $this->manager->get_active_prefixes($event['forum_id']);
+		$this->prefixes = $this->manager->get_active_prefixes($event['forum_id']);
 
 		// Get the current prefix selected
 		$selected = $this->get_selected_prefix($event);
 
 		$event['page_data'] = array_merge($event['page_data'], [
-			'PREFIXES'			=> $prefixes,
-			'SELECTED_PREFIX'	=> array_key_exists($selected, $prefixes) ? $prefixes[$selected]['prefix_tag'] : '',
+			'PREFIXES'			=> $this->prefixes,
+			'SELECTED_PREFIX'	=> array_key_exists($selected, $this->prefixes) ? $this->prefixes[$selected]['prefix_tag'] : '',
 		]);
 	}
 
@@ -162,6 +167,31 @@ class listener implements EventSubscriberInterface
 			$prefix_id = (int) $event['post_data']['topic_prefix_id'];
 		}
 
+		// If still no prefix was identified, look in existing topic title (ie: editing a post)
+		if (!$prefix_id && !empty($event['post_data']['topic_title']))
+		{
+			$prefix_id = $this->find_prefix_in_title($event['post_data']['topic_title']);
+		}
+
 		return $prefix_id;
+	}
+
+	/**
+	 * Find an active topic prefix in the topic title
+	 *
+	 * @param string $title The post title
+	 * @return int   Identifier for the found prefix
+	 */
+	protected function find_prefix_in_title($title)
+	{
+		foreach ($this->prefixes as $prefix_id => $prefix_data)
+		{
+			if (strpos($title, $prefix_data['prefix_tag']) === 0)
+			{
+				return (int) $prefix_id;
+			}
+		}
+
+		return 0;
 	}
 }

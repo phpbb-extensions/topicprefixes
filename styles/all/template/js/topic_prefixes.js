@@ -13,8 +13,10 @@
 			prefix = getPrefix($prefixMenu);
 
 		$prefixMenu.on("change", function() {
-			var title = $topicTitle.val().replace(prefix, "").trim();
+			var title = $topicTitle.val();
+			title = title.replace(prefix, "").trim();
 			prefix = getPrefix($(this));
+			title = title.replace(prefix, "").trim();
 			$topicTitle.val(prefix ? prefix + " " + title : title).focus();
 		});
 

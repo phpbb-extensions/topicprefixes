@@ -33,7 +33,7 @@ $lang = array_merge($lang, array(
 	'DELETE_TOPIC_PREFIX_CONFIRM'	=> 'Are you sure you want to delete the topic prefix?',
 	'TOPIC_PREFIX_DELETED'			=> 'The topic prefix has been deleted.',
 
-	'TOPIC_PREVIEW_TOGGLE_STATE'	=> array(
+	'TOPIC_PREFIX_TOGGLE_STATE'	=> array(
 		0	=> 'Click to enable',
 		1	=> 'Click to disable',
 	),

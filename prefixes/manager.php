@@ -34,7 +34,7 @@ class manager implements manager_interface
 	{
 		$prefix = $this->nestedset->get_subtree_data($id);
 
-		return sizeof($prefix) ? $prefix[$id] : false;
+		return count($prefix) ? $prefix[$id] : false;
 	}
 
 	/**

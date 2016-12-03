@@ -159,6 +159,38 @@ class listener_test extends \phpbb_test_case
 					'SELECTED_PREFIX'	=> '',
 				),
 			),
+			array( // test finding prefixes in title when editing first post
+				$prefix_data,
+				array(
+					'mode' => 'edit',
+					'post_data'	=> array(
+						'post_id'             => 20,
+						'topic_first_post_id' => 20,
+						'topic_title' => '[foo] bar was here',
+					),
+				),
+				0,
+				array(
+					'PREFIXES'			=> $prefix_data,
+					'SELECTED_PREFIX'	=> '[foo]',
+				),
+			),
+			array( // test not finding prefixes in title when editing first post
+				$prefix_data,
+				array(
+					'mode' => 'edit',
+					'post_data'	=> array(
+						'post_id'             => 30,
+						'topic_first_post_id' => 30,
+						'topic_title' => '[bar] bar was here',
+					),
+				),
+				0,
+				array(
+					'PREFIXES'			=> $prefix_data,
+					'SELECTED_PREFIX'	=> '',
+				),
+			),
 			array( // test adding selected prefix when posting new topic
 				$prefix_data,
 				array('mode' => 'post'),

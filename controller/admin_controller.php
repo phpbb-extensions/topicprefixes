@@ -298,7 +298,7 @@ class admin_controller
 	{
 		$forum_data = $this->get_forum_info($this->forum_id);
 
-		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), array($tag, $forum_data['forum_name']));
+		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$tag, $forum_data['forum_name']]);
 	}
 
 	/**

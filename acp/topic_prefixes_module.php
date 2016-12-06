@@ -17,6 +17,8 @@ class topic_prefixes_module
 {
 	/** @var string */
 	public $u_action;
+	public $tpl_name;
+	public $page_title;
 
 	/**
 	 * Main ACP module

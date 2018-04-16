@@ -1,11 +1,11 @@
 {
-    "name": "phpbb/topicprefixes",
-    "type": "phpbb-extension",
-    "description": "A phpBB extension for topic prefixes.",
-    "homepage": "https://www.phpbb.com",
-    "version": "1.0.0-a1",
-    "license": "GPL-2.0",
-    "authors": [
+	"name": "phpbb/topicprefixes",
+	"type": "phpbb-extension",
+	"description": "A phpBB extension for topic prefixes.",
+	"homepage": "https://www.phpbb.com",
+	"version": "1.0.0-a1",
+	"license": "GPL-2.0-only",
+	"authors": [
 		{
 			"name": "Matt Friedman",
 			"homepage": "http://mattfriedman.me",
@@ -16,14 +16,14 @@
 			"homepage": "http://www.phpbbguru.net",
 			"role": "Extensions Development Team"
 		}
-    ],
-    "require": {
-        "php": ">=5.4",
+	],
+	"require": {
+		"php": ">=5.4",
 		"composer/installers": "~1.0"
 	},
-    "require-dev": {
-        "phing/phing": "2.4.*"
-    },
+	"require-dev": {
+		"phing/phing": "2.4.*"
+	},
 	"extra": {
 		"display-name": "phpBB Topic Prefixes",
 		"soft-require": {

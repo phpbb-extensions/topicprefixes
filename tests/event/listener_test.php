@@ -46,13 +46,16 @@ class listener_test extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->request = $this->getMock('\phpbb\request\request');
+		$this->request = $this->getMockBuilder('\phpbb\request\request')
+			->disableOriginalConstructor()
+			->getMock();
 
-		$this->user = $this->getMock('\phpbb\user', array(), array(
-			new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx)),
-			'\phpbb\datetime'
-		));
-
+		$this->user = $this->getMockBuilder('\phpbb\user')
+			->setConstructorArgs(array(
+				new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx)),
+				'\phpbb\datetime'
+			))
+			->getMock();
 	}
 
 	/**

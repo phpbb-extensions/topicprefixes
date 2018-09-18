@@ -29,7 +29,9 @@ class simple_test extends \phpbb_test_case
 		parent::setUp();
 
 		// Stub the container
-		$this->container = $this->getMock('\Symfony\Component\DependencyInjection\ContainerInterface');
+		$this->container = $this->getMockBuilder('\Symfony\Component\DependencyInjection\ContainerInterface')
+			->disableOriginalConstructor()
+			->getMock();
 
 		// Stub the ext finder and disable its constructor
 		$this->extension_finder = $this->getMockBuilder('\phpbb\finder')

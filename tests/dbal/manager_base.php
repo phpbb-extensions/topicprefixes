@@ -25,7 +25,7 @@ class manager_base extends \phpbb_database_test_case
 	/**
 	 * @inheritdoc
 	 */
-	static protected function setup_extensions()
+	protected static function setup_extensions()
 	{
 		return ['phpbb/topicprefixes'];
 	}

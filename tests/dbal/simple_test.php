@@ -21,7 +21,7 @@ class simple_test extends \phpbb_database_test_case
 	/**
 	 * @inheritdoc
 	 */
-	static protected function setup_extensions()
+	protected static function setup_extensions()
 	{
 		return ['phpbb/topicprefixes'];
 	}

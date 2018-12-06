@@ -46,7 +46,7 @@ class move_prefix_test extends admin_controller_base
 	 */
 	public function test_move_prefix($prefix_id, $direction, $valid_form)
 	{
-		$this->request->expects(static::any())
+		$this->request->expects(static::once())
 			->method('variable')
 			->with(static::anything())
 			->will(static::returnValueMap(array(
@@ -60,22 +60,19 @@ class move_prefix_test extends admin_controller_base
 			$this->manager->expects(static::never())
 				->method('move_prefix');
 		}
+		else if ($prefix_id === 0)
+		{
+			$this->setExpectedTriggerError(E_USER_WARNING);
+			$this->manager->expects(static::once())
+				->method('move_prefix')
+				->with(static::equalTo(0), static::stringContains($direction))
+				->will(static::throwException(new \OutOfBoundsException));
+		}
 		else
 		{
-			if ($prefix_id === 0)
-			{
-				$this->setExpectedTriggerError(E_USER_WARNING);
-				$this->manager->expects(static::once())
-					->method('move_prefix')
-					->with(static::equalTo(0), static::stringContains($direction))
-					->will(static::throwException(new \OutOfBoundsException));
-			}
-			else
-			{
-				$this->manager->expects(static::once())
-					->method('move_prefix')
-					->with(static::equalTo($prefix_id), static::stringContains($direction));
-			}
+			$this->manager->expects(static::once())
+				->method('move_prefix')
+				->with(static::equalTo($prefix_id), static::stringContains($direction));
 		}
 
 		$this->controller->move_prefix($prefix_id, $direction);

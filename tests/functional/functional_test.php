@@ -19,7 +19,7 @@ class functional_test extends \phpbb_functional_test_case
 {
 	const FORUM_ID = 2;
 
-	static protected function setup_extensions()
+	protected static function setup_extensions()
 	{
 		return array('phpbb/topicprefixes');
 	}
@@ -128,7 +128,7 @@ class functional_test extends \phpbb_functional_test_case
 		$crawler = $crawler
 			->filter('table > tbody > tr')
 			->reduce(function (Crawler $node) use ($prefix_tag) {
-				return $node->filter('strong')->text() == $prefix_tag;
+				return $node->filter('strong')->text() === $prefix_tag;
 			});
 		$url = $crawler->selectLink($this->lang('ENABLED'))->link()->getUri();
 

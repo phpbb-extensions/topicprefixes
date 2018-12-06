@@ -228,7 +228,7 @@ class listener_test extends \phpbb_test_case
 
 		$data = new \phpbb\event\data($test_data);
 
-		$this->manager->expects($this->any())
+		$this->manager->expects($this->atMost(1))
 			->method('get_active_prefixes')
 			->will($this->returnValue($prefixes));
 
@@ -348,7 +348,7 @@ class listener_test extends \phpbb_test_case
 				array('topic_prefix', 0, false, \phpbb\request\request_interface::REQUEST, $prefix_id),
 			)));
 
-		$this->manager->expects($this->any())
+		$this->manager->expects($this->atMost(1))
 			->method('get_prefix')
 			->will($this->returnValue($prefix));
 

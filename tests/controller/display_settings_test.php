@@ -41,14 +41,14 @@ class display_settings_test extends admin_controller_base
 	 */
 	public function test_display_settings($prefix_count, $forum_id)
 	{
-		$this->manager->expects(static::any())
+		$this->manager->expects(static::once())
 			->method('get_prefixes')
 			->will(static::returnValue(array_pad(array(), $prefix_count, 0)));
 
 		$this->template->expects(static::exactly($prefix_count))
 			->method('assign_block_vars');
 
-		$this->template->expects(static::any())
+		$this->template->expects(static::once())
 			->method('assign_vars')
 			->with(array(
 				'S_FORUM_OPTIONS'	=> '#select menu#',

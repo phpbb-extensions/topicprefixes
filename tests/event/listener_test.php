@@ -28,9 +28,9 @@ class listener_test extends \phpbb_test_case
 	protected $request;
 
 	/**
-	 * @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\user
+	 * @var \phpbb\language\language
 	 */
-	protected $user;
+	protected $language;
 
 	/**
 	 * @inheritdoc
@@ -50,12 +50,7 @@ class listener_test extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->user = $this->getMockBuilder('\phpbb\user')
-			->setConstructorArgs(array(
-				new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx)),
-				'\phpbb\datetime'
-			))
-			->getMock();
+		$this->language = new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx));
 	}
 
 	/**
@@ -85,7 +80,7 @@ class listener_test extends \phpbb_test_case
 		$this->listener = new \phpbb\topicprefixes\event\listener(
 			$this->manager,
 			$this->request,
-			$this->user
+			$this->language
 		);
 	}
 

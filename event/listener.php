@@ -10,9 +10,9 @@
 
 namespace phpbb\topicprefixes\event;
 
+use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\topicprefixes\prefixes\manager;
-use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -31,9 +31,9 @@ class listener implements EventSubscriberInterface
 	protected $request;
 
 	/**
-	 * @var user User object
+	 * @var language Language object
 	 */
-	protected $user;
+	protected $language;
 
 	/**
 	 * @var array An array of topic prefixes
@@ -55,15 +55,15 @@ class listener implements EventSubscriberInterface
 	/**
 	 * Listener constructor
 	 *
-	 * @param manager $manager Topic prefixes manager
-	 * @param request $request Request object
-	 * @param user    $user    Language object
+	 * @param manager  $manager  Topic prefixes manager
+	 * @param request  $request  Request object
+	 * @param language $language Language object
 	 */
-	public function __construct(manager $manager, request $request, user $user)
+	public function __construct(manager $manager, request $request, language $language)
 	{
 		$this->manager = $manager;
 		$this->request = $request;
-		$this->user = $user;
+		$this->language = $language;
 	}
 
 	/**
@@ -80,7 +80,7 @@ class listener implements EventSubscriberInterface
 			return;
 		}
 
-		$this->user->add_lang_ext('phpbb/topicprefixes', 'topic_prefixes');
+		$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
 
 		// Get prefixes for the current forum
 		$this->prefixes = $this->manager->get_active_prefixes($event['forum_id']);

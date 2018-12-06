@@ -27,11 +27,11 @@ class topic_prefixes_module
 	{
 		global $phpbb_container;
 
-		$user = $phpbb_container->get('user');
-		$user->add_lang('acp/forums');
-		$user->add_lang_ext('phpbb/topicprefixes', 'acp_topic_prefixes');
+		$lang = $phpbb_container->get('language');
+		$lang->add_lang('acp/forums');
+		$lang->add_lang('acp_topic_prefixes', 'phpbb/topicprefixes');
 		$this->tpl_name   = 'acp_topic_prefixes';
-		$this->page_title = $user->lang('TOPIC_PREFIXES');
+		$this->page_title = $lang->lang('TOPIC_PREFIXES');
 
 		$admin_controller = $phpbb_container->get('phpbb.topicprefixes.admin_controller');
 		$admin_controller->set_u_action($this->u_action)->main();

@@ -59,7 +59,7 @@ class admin_controller
 	 * Constructor
 	 *
 	 * @param manager  $manager         Topic prefixes manager object
-	 * @param language $language        [h[BB language object
+	 * @param language $language        phpBB language object
 	 * @param log      $log             phpBB log object
 	 * @param request  $request         phpBB request object
 	 * @param template $template        phpBB template object

@@ -41,7 +41,7 @@ class edit_prefix_test extends admin_controller_base
 	 */
 	public function test_edit_prefix($prefix_id, $valid_form)
 	{
-		$this->request->expects(static::any())
+		$this->request->expects(static::once())
 			->method('variable')
 			->with(static::anything())
 			->will(static::returnValueMap(array(

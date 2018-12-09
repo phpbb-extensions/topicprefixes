@@ -10,6 +10,7 @@
 
 namespace phpbb\topicprefixes\controller;
 
+use phpbb\language\language;
 use phpbb\log\log;
 use phpbb\request\request;
 use phpbb\template\template;
@@ -23,6 +24,9 @@ class admin_controller
 {
 	/** @var manager Topic prefixes manager object */
 	protected $manager;
+
+	/** @var language phpBB language object */
+	protected $language;
 
 	/** @var log phpBB log object */
 	protected $log;
@@ -55,6 +59,7 @@ class admin_controller
 	 * Constructor
 	 *
 	 * @param manager  $manager         Topic prefixes manager object
+	 * @param language $language        phpBB language object
 	 * @param log      $log             phpBB log object
 	 * @param request  $request         phpBB request object
 	 * @param template $template        phpBB template object
@@ -62,9 +67,10 @@ class admin_controller
 	 * @param string   $phpbb_root_path phpBB root path
 	 * @param string   $phpEx           PHP extension
 	 */
-	public function __construct(manager $manager, log $log, request $request, template $template, user $user, $phpbb_root_path, $phpEx)
+	public function __construct(manager $manager, language $language, log $log, request $request, template $template, user $user, $phpbb_root_path, $phpEx)
 	{
 		$this->manager = $manager;
+		$this->language = $language;
 		$this->log = $log;
 		$this->request = $request;
 		$this->template = $template;
@@ -201,7 +207,7 @@ class admin_controller
 			$this->trigger_message('TOPIC_PREFIX_DELETED');
 		}
 
-		confirm_box(false, $this->user->lang('DELETE_TOPIC_PREFIX_CONFIRM'), build_hidden_fields([
+		confirm_box(false, $this->language->lang('DELETE_TOPIC_PREFIX_CONFIRM'), build_hidden_fields([
 			'mode'		=> 'manage',
 			'action'	=> 'delete',
 			'prefix_id'	=> $prefix_id,
@@ -284,7 +290,7 @@ class admin_controller
 	 */
 	protected function trigger_message($message = '', $error = E_USER_NOTICE)
 	{
-		trigger_error($this->user->lang($message) . adm_back_link("{$this->u_action}&amp;forum_id={$this->forum_id}"), $error);
+		trigger_error($this->language->lang($message) . adm_back_link("{$this->u_action}&amp;forum_id={$this->forum_id}"), $error);
 	}
 
 	/**

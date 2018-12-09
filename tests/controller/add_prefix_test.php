@@ -45,7 +45,7 @@ class add_prefix_test extends admin_controller_base
 		{
 			self::$valid_form = $valid_form;
 
-			$this->request->expects(static::any())
+			$this->request->expects(static::once())
 				->method('is_set_post')
 				->will(static::returnValue($submit));
 

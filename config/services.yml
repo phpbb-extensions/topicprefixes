@@ -7,7 +7,7 @@ services:
         arguments:
             - '@phpbb.topicprefixes.manager'
             - '@request'
-            - '@user'
+            - '@language'
         tags:
             - { name: event.listener }
 
@@ -15,6 +15,7 @@ services:
         class: phpbb\topicprefixes\controller\admin_controller
         arguments:
             - '@phpbb.topicprefixes.manager'
+            - '@language'
             - '@log'
             - '@request'
             - '@template'

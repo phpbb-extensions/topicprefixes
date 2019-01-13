@@ -1,7 +1,7 @@
 {% if PREFIXES and S_NEW_MESSAGE and not S_PRIVMSGS %}
 	{% INCLUDEJS '@phpbb_topicprefixes/js/topic_prefixes.js' %}
 	<dl style="clear: left;">
-		<dt><label for="topic_prefix">{{ lang('TOPIC_PREFIX') }}{{ lang('COLON') }}</label></dt>
+		<dt><label for="topic_prefix">{{ lang('TOPIC_PREFIX') ~ lang('COLON') }}</label></dt>
 		<dd>
 			<select name="topic_prefix" id="topic_prefix">
 				<option value="">-----</option>

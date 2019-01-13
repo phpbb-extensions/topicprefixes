@@ -28,6 +28,7 @@ $lang = array_merge($lang, array(
 	'TOPIC_PREFIX_TAG'			=> 'Prefix Tag',
 	'TOPIC_PREFIX_ENABLED'		=> 'Prefix Enabled',
 	'TOPIC_PREFIXES_EMPTY'		=> 'There are no prefixes for this forum.',
+	'TOPIC_PREFIX_PLACEHOLDER'	=> '[My Prefix]',
 
 	'CREATE_TOPIC_PREFIX'			=> 'Create a new topic prefix',
 	'DELETE_TOPIC_PREFIX_CONFIRM'	=> 'Are you sure you want to delete the topic prefix?',

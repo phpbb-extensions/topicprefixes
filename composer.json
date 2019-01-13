@@ -1,9 +1,9 @@
 {
 	"name": "phpbb/topicprefixes",
 	"type": "phpbb-extension",
-	"description": "A phpBB extension for topic prefixes.",
+	"description": "An official phpBB extension for topic prefixes.",
 	"homepage": "https://www.phpbb.com",
-	"version": "1.0.0-a1",
+	"version": "1.0.0",
 	"license": "GPL-2.0-only",
 	"authors": [
 		{
@@ -28,6 +28,11 @@
 		"display-name": "phpBB Topic Prefixes",
 		"soft-require": {
 			"phpbb/phpbb": ">=3.2.0"
+		},
+		"version-check": {
+			"host": "www.phpbb.com",
+			"directory": "/customise/db/extension/topicprefixes",
+			"filename": "version_check"
 		}
 	}
 }

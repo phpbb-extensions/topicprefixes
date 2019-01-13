@@ -14,6 +14,12 @@ The phpBB Topic Prefixes extension allows phpBB board administrators to create t
 - Because the topic prefix is added directly to the topic title, if an admin disables or deletes a topic prefix, existing topic titles using the deleted prefix will not be changed.
 - This is the same extension currently in use at phpbb.com in the Extensions and Styles in development forums.
 
+📦 [Download](https://www.phpbb.com/customise/db/extension/topicprefixes/) the latest release of this extension.
+
+🐞 [Report bugs](https://github.com/phpbb-extensions/topicprefixes/issues) to our Issue Tracker.
+
+💬 [Support](https://www.phpbb.com/customise/db/extension/topicprefixes/support) can be requested and discussed in this extension's support forum at phpBB.com.
+
 ## License
 
 [GPLv2](license.txt)

@@ -17,7 +17,7 @@
 			title = title.replace(prefix, "").trim();
 			prefix = getPrefix($(this));
 			title = title.replace(prefix, "").trim();
-			$topicTitle.val(prefix ? prefix + " " + title : title).focus();
+			$topicTitle.val(prefix ? prefix + " " + title : title).trigger('focus');
 		});
 
 	});

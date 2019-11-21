@@ -44,9 +44,9 @@ class edit_prefix_test extends admin_controller_base
 		$this->request->expects(static::once())
 			->method('variable')
 			->with(static::anything())
-			->will(static::returnValueMap(array(
+			->willReturnMap(array(
 				array('hash', '', false, \phpbb\request\request_interface::REQUEST, generate_link_hash('edit' . $prefix_id))
-			)));
+			));
 
 		if (!$valid_form)
 		{

@@ -24,7 +24,7 @@ class functional_test extends \phpbb_functional_test_case
 		return array('phpbb/topicprefixes');
 	}
 
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
 

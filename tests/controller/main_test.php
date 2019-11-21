@@ -66,9 +66,9 @@ class main_test extends admin_controller_base
 	{
 		$this->request->expects(static::any())
 			->method('variable')
-			->will(static::returnValueMap(array(
+			->willReturnMap(array(
 				array('action', '', false, \phpbb\request\request_interface::REQUEST, $action),
-			)));
+			));
 
 		$this->controller->expects(static::once())
 			->method($expected);

@@ -22,6 +22,8 @@ class topic_prefixes_module
 
 	/**
 	 * Main ACP module
+	 *
+	 * @throws \Exception
 	 */
 	public function main()
 	{

@@ -3,7 +3,7 @@
 	"use strict";
 
 	$("#select_forum").on("change", function() {
-		$(this).closest("form").submit();
+		$(this).closest("form").trigger('submit');
 	});
 
 })(jQuery);

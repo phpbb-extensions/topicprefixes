@@ -41,7 +41,7 @@ class manager_base extends \phpbb_database_test_case
 	/**
 	 * @inheritdoc
 	 */
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
 

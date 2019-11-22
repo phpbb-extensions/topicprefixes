@@ -50,7 +50,7 @@ class admin_controller_base extends \phpbb_test_case
 	 */
 	public function setUp()
 	{
-		global $phpbb_root_path, $phpEx;
+		global $user, $phpbb_root_path, $phpEx;
 
 		parent::setUp();
 
@@ -72,7 +72,7 @@ class admin_controller_base extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->user = $this->getMockBuilder('\phpbb\user')
+		$this->user = $user = $this->getMockBuilder('\phpbb\user')
 			->setConstructorArgs(array(
 				$this->language,
 				'\phpbb\datetime'

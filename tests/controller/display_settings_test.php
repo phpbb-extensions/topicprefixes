@@ -43,7 +43,7 @@ class display_settings_test extends admin_controller_base
 	{
 		$this->manager->expects(static::once())
 			->method('get_prefixes')
-			->will(static::returnValue(array_pad(array(), $prefix_count, 0)));
+			->willReturn(array_pad(array(), $prefix_count, 0));
 
 		$this->template->expects(static::exactly($prefix_count))
 			->method('assign_block_vars');

@@ -230,11 +230,11 @@ class listener_test extends \phpbb_test_case
 
 		$this->manager->expects($this->atMost(1))
 			->method('get_active_prefixes')
-			->will($this->returnValue($prefixes));
+			->willReturn($prefixes);
 
-		$this->request->expects($this->any())
+		$this->request->expects(isset($expected['SELECTED_PREFIX']) ? $this->once() : $this->never())
 			->method('variable')
-			->will($this->returnValue($selected));
+			->willReturn($selected);
 
 		$this->listener->add_to_posting_form($data);
 
@@ -340,17 +340,17 @@ class listener_test extends \phpbb_test_case
 
 		$data = new \phpbb\event\data($test_data);
 
-		$prefix_id = isset($prefix['prefix_id']) ? $prefix['prefix_id'] : 0;
+		$prefix_id = $prefix['prefix_id'] ?? 0;
 
-		$this->request->expects($this->any())
+		$this->request->expects($this->once())
 			->method('variable')
-			->will($this->returnValueMap(array(
+			->willReturnMap(array(
 				array('topic_prefix', 0, false, \phpbb\request\request_interface::REQUEST, $prefix_id),
-			)));
+			));
 
 		$this->manager->expects($this->atMost(1))
 			->method('get_prefix')
-			->will($this->returnValue($prefix));
+			->willReturn($prefix);
 
 		$this->listener->submit_prefix_data($data);
 

@@ -22,4 +22,4 @@ The phpBB Topic Prefixes extension allows phpBB board administrators to create t
 
 ## License
 
-[GPLv2](license.txt)
+[GNU General Public License v2](license.txt)

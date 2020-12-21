@@ -38,6 +38,6 @@ class manager_add_prefix_test extends manager_base
 	public function test_add_prefix($tag, $forum_id, $expected)
 	{
 		$result = $this->manager->add_prefix($tag, $forum_id);
-		$this->assertEquals($expected, $result['prefix_id']);
+		self::assertEquals($expected, $result['prefix_id']);
 	}
 }

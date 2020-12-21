@@ -48,7 +48,7 @@ class admin_controller_base extends \phpbb_test_case
 	/**
 	 * @inheritdoc
 	 */
-	public function setUp()
+	protected function setUp(): void
 	{
 		global $user, $phpbb_root_path, $phpEx;
 

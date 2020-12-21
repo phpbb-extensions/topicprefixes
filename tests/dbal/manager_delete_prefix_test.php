@@ -17,7 +17,7 @@ class manager_delete_prefix_test extends manager_base
 	 */
 	public function test_delete_prefix()
 	{
-		$this->assertEquals(array(1), $this->manager->delete_prefix(1));
+		self::assertEquals(array(1), $this->manager->delete_prefix(1));
 	}
 
 	/**
@@ -37,12 +37,12 @@ class manager_delete_prefix_test extends manager_base
 	 * Test delete_prefix() method
 	 *
 	 * @dataProvider data_delete_prefix_fails
-	 * @expectedException \OutOfBoundsException
-	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
 	 * @param $id
 	 */
 	public function test_delete_prefix_fails($id)
 	{
+		$this->expectException(\OutOfBoundsException::class);
+		$this->expectExceptionMessage('TOPIC_PREFIXES_INVALID_ITEM');
 		$this->manager->delete_prefix($id);
 	}
 }

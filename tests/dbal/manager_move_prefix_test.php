@@ -105,18 +105,17 @@ class manager_move_prefix_test extends manager_base
 			FROM phpbb_topic_prefixes
 			ORDER BY prefix_left_id ASC');
 
-		$this->assertEquals($expected, $this->db->sql_fetchrowset($result));
+		self::assertEquals($expected, $this->db->sql_fetchrowset($result));
 		$this->db->sql_freeresult($result);
 	}
 
 	/**
 	 * Test move_prefix() method
-	 *
-	 * @expectedException \OutOfBoundsException
-	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
 	 */
 	public function test_move_prefix_fails()
 	{
+		$this->expectException(\OutOfBoundsException::class);
+		$this->expectExceptionMessage('TOPIC_PREFIXES_INVALID_ITEM');
 		$this->manager->move_prefix(123, 'up');
 	}
 }

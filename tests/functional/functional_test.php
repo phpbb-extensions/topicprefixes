@@ -24,7 +24,7 @@ class functional_test extends \phpbb_functional_test_case
 		return array('phpbb/topicprefixes');
 	}
 
-	public function setUp(): void
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -63,7 +63,7 @@ class functional_test extends \phpbb_functional_test_case
 		$this->login();
 		$this->admin_login();
 
-		$this->assertEquals(1, $this->create_prefix('[foo1]', self::FORUM_ID));
+		self::assertEquals(1, $this->create_prefix('[foo1]', self::FORUM_ID));
 	}
 
 	public function test_acp_disable_prefix()
@@ -76,11 +76,11 @@ class functional_test extends \phpbb_functional_test_case
 
 		// Disable the prefix
 		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=edit&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&hash={$hash}&sid={$this->sid}");
-		$this->assertCount(1, $crawler->filter('.never'));
+		self::assertCount(1, $crawler->filter('.never'));
 
 		// Enable the prefix
 		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=edit&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&hash={$hash}&sid={$this->sid}");
-		$this->assertCount(0, $crawler->filter('.never'));
+		self::assertCount(0, $crawler->filter('.never'));
 	}
 
 	public function test_acp_delete_prefix()
@@ -98,7 +98,7 @@ class functional_test extends \phpbb_functional_test_case
 		$crawler = self::submit($form);
 
 		// Assert deletion was success
-		$this->assertGreaterThan(0, $crawler->filter('.successbox')->count());
+		self::assertGreaterThan(0, $crawler->filter('.successbox')->count());
 		$this->assertContainsLang('TOPIC_PREFIX_DELETED', $crawler->text());
 	}
 
@@ -122,7 +122,7 @@ class functional_test extends \phpbb_functional_test_case
 		$crawler = self::submit($form);
 
 		// Assert new tag appears
-		$this->assertContains($prefix_tag, $crawler->filter('table')->text());
+		self::assertStringContainsString($prefix_tag, $crawler->filter('table')->text());
 
 		// Get and return the new tag's id
 		$crawler = $crawler
@@ -180,6 +180,6 @@ class functional_test extends \phpbb_functional_test_case
 		$crawler = self::request('GET', 'posting.php?mode=edit&f=' . self::FORUM_ID . "&p={$topic['topic_id']}&sid={$this->sid}");
 		$form = $crawler->selectButton($this->lang('SUBMIT'))->form();
 		$values = $form->getValues();
-		$this->assertEquals($prefix['id'], $values['topic_prefix']);
+		self::assertEquals($prefix['id'], $values['topic_prefix']);
 	}
 }

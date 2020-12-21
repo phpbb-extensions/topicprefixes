@@ -43,6 +43,6 @@ class manager_get_prefix_test extends manager_base
 	{
 		$prefix = $this->manager->get_prefix($prefix_id);
 
-		$this->assertEquals($expected, $prefix['prefix_tag'], 'Assert get_prefix() gets the expected prefix data');
+		self::assertEquals($expected, $prefix['prefix_tag'], 'Assert get_prefix() gets the expected prefix data');
 	}
 }

@@ -51,17 +51,17 @@ class edit_prefix_test extends admin_controller_base
 		if (!$valid_form)
 		{
 			$prefix_id = 0;
-			$this->setExpectedTriggerError(E_USER_WARNING);
 			$this->manager->expects(static::never())
 				->method('update_prefix');
+			$this->setExpectedTriggerError(E_USER_WARNING);
 		}
 		else
 		{
-			$this->setExpectedTriggerError(E_USER_WARNING);
 			$this->manager->expects(static::once())
 				->method('update_prefix')
 				->with(static::equalTo(0))
 				->will(static::throwException(new \OutOfBoundsException));
+			$this->setExpectedTriggerError(E_USER_WARNING);
 		}
 
 		$this->controller->edit_prefix($prefix_id);

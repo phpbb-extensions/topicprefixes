@@ -52,20 +52,20 @@ class delete_prefix_test extends admin_controller_base
 		}
 		else if ($prefix_id === 0)
 		{
-			$this->setExpectedTriggerError(E_USER_WARNING);
 			$this->manager->expects(static::once())
 				->method('delete_prefix')
 				->will(static::throwException(new \OutOfBoundsException()));
 			$this->controller->expects(static::never())
 				->method('log');
+			$this->setExpectedTriggerError(E_USER_WARNING);
 		}
 		else
 		{
-			$this->setExpectedTriggerError(E_USER_NOTICE);
 			$this->manager->expects(static::once())
 				->method('delete_prefix');
 			$this->controller->expects(static::once())
 				->method('log');
+			$this->setExpectedTriggerError(E_USER_NOTICE);
 		}
 
 		$this->controller->delete_prefix($prefix_id);

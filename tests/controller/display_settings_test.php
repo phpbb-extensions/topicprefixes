@@ -25,27 +25,39 @@ class display_settings_test extends admin_controller_base
 	 */
 	public function data_display_settings()
 	{
-		return array(
-			array(0, 1),
-			array(1, 2),
-			array(2, 3),
-		);
+		return [
+			[[], 1],
+			[[1 => [
+				'prefix_id'      => 1,
+				'prefix_tag'     => 'foo',
+				'prefix_enabled' => true,
+			]], 2],
+			[[1 => [
+				'prefix_id'      => 1,
+				'prefix_tag'     => 'foo',
+				'prefix_enabled' => true,
+			], 2 => [
+				'prefix_id'      => 2,
+				'prefix_tag'     => 'bar',
+				'prefix_enabled' => true,
+			]], 3],
+		];
 	}
 
 	/**
 	 * Test display_settings()
 	 *
 	 * @dataProvider data_display_settings
-	 * @param $prefix_count
+	 * @param $prefixes
 	 * @param $forum_id
 	 */
-	public function test_display_settings($prefix_count, $forum_id)
+	public function test_display_settings($prefixes, $forum_id)
 	{
 		$this->manager->expects(static::once())
 			->method('get_prefixes')
-			->willReturn(array_pad(array(), $prefix_count, 0));
+			->willReturn($prefixes);
 
-		$this->template->expects(static::exactly($prefix_count))
+		$this->template->expects(static::exactly(count($prefixes)))
 			->method('assign_block_vars');
 
 		$this->template->expects(static::once())

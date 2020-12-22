@@ -53,7 +53,11 @@ class edit_prefix_test extends admin_controller_base
 			$prefix_id = 0;
 			$this->manager->expects(static::never())
 				->method('update_prefix');
-			$this->setExpectedTriggerError(E_USER_WARNING);
+			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
+			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
+			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
+			$this->expectException($exceptionName);
+			$this->expectExceptionCode($errno);
 		}
 		else
 		{
@@ -61,7 +65,11 @@ class edit_prefix_test extends admin_controller_base
 				->method('update_prefix')
 				->with(static::equalTo(0))
 				->will(static::throwException(new \OutOfBoundsException));
-			$this->setExpectedTriggerError(E_USER_WARNING);
+			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
+			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
+			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
+			$this->expectException($exceptionName);
+			$this->expectExceptionCode($errno);
 		}
 
 		$this->controller->edit_prefix($prefix_id);

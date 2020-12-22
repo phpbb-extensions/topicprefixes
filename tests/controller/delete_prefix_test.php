@@ -57,7 +57,11 @@ class delete_prefix_test extends admin_controller_base
 				->will(static::throwException(new \OutOfBoundsException()));
 			$this->controller->expects(static::never())
 				->method('log');
-			$this->setExpectedTriggerError(E_USER_WARNING);
+			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
+			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
+			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
+			$this->expectException($exceptionName);
+			$this->expectExceptionCode($errno);
 		}
 		else
 		{
@@ -65,7 +69,11 @@ class delete_prefix_test extends admin_controller_base
 				->method('delete_prefix');
 			$this->controller->expects(static::once())
 				->method('log');
-			$this->setExpectedTriggerError(E_USER_NOTICE);
+			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
+			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
+			$errno = PHP_VERSION_ID < 80000 ? E_USER_NOTICE : E_WARNING;
+			$this->expectException($exceptionName);
+			$this->expectExceptionCode($errno);
 		}
 
 		$this->controller->delete_prefix($prefix_id);

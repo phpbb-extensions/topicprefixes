@@ -45,17 +45,23 @@ class delete_prefix_test extends admin_controller_base
 
 		if (!$confirm)
 		{
-			$this->manager->expects(static::never())
+			$this->manager->expects(self::never())
+				->method('get_prefix');
+			$this->manager->expects(self::never())
 				->method('delete_prefix');
-			$this->controller->expects(static::never())
+			$this->controller->expects(self::never())
 				->method('log');
 		}
 		else if ($prefix_id === 0)
 		{
-			$this->manager->expects(static::once())
+			$this->manager->expects(self::once())
+				->method('get_prefix')
+				->with($prefix_id)
+				->willReturn(false);
+			$this->manager->expects(self::once())
 				->method('delete_prefix')
-				->will(static::throwException(new \OutOfBoundsException()));
-			$this->controller->expects(static::never())
+				->will(self::throwException(new \OutOfBoundsException()));
+			$this->controller->expects(self::never())
 				->method('log');
 			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
 			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
@@ -65,9 +71,13 @@ class delete_prefix_test extends admin_controller_base
 		}
 		else
 		{
-			$this->manager->expects(static::once())
+			$this->manager->expects(self::once())
+				->method('get_prefix')
+				->with($prefix_id)
+				->willReturn(['prefix_id' => $prefix_id]);
+			$this->manager->expects(self::once())
 				->method('delete_prefix');
-			$this->controller->expects(static::once())
+			$this->controller->expects(self::once())
 				->method('log');
 			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
 			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;

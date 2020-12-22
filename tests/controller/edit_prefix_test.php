@@ -41,18 +41,34 @@ class edit_prefix_test extends admin_controller_base
 	 */
 	public function test_edit_prefix($prefix_id, $valid_form)
 	{
-		$this->request->expects(static::once())
+		$this->request->expects(self::once())
 			->method('variable')
-			->with(static::anything())
+			->with(self::anything())
 			->willReturnMap(array(
-				array('hash', '', false, \phpbb\request\request_interface::REQUEST, generate_link_hash('edit' . $prefix_id))
+				array('hash', '', false, \phpbb\request\request_interface::REQUEST, generate_link_hash(($valid_form ? 'edit' : '') . $prefix_id))
 			));
 
 		if (!$valid_form)
 		{
-			$prefix_id = 0;
-			$this->manager->expects(static::never())
+			$this->manager->expects(self::never())
+				->method('get_prefix');
+			$this->manager->expects(self::never())
 				->method('update_prefix');
+			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
+			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
+			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
+			$this->expectException($exceptionName);
+			$this->expectExceptionCode($errno);
+		}
+		else if ($prefix_id === 0)
+		{
+			$this->manager->expects(self::once())
+				->method('get_prefix')
+				->with($prefix_id)
+				->willReturn(false);
+			$this->manager->expects(self::once())
+				->method('update_prefix')
+				->will(self::throwException(new \OutOfBoundsException));
 			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
 			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
 			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
@@ -61,15 +77,12 @@ class edit_prefix_test extends admin_controller_base
 		}
 		else
 		{
-			$this->manager->expects(static::once())
-				->method('update_prefix')
-				->with(static::equalTo(0))
-				->will(static::throwException(new \OutOfBoundsException));
-			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
-			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
-			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
-			$this->expectException($exceptionName);
-			$this->expectExceptionCode($errno);
+			$this->manager->expects(self::once())
+				->method('get_prefix')
+				->with($prefix_id)
+				->willReturn(['prefix_id' => $prefix_id, 'prefix_enabled' => true]);
+			$this->manager->expects(self::once())
+				->method('update_prefix');
 		}
 
 		$this->controller->edit_prefix($prefix_id);

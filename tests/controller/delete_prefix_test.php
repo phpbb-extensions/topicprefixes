@@ -74,7 +74,7 @@ class delete_prefix_test extends admin_controller_base
 			$this->manager->expects(self::once())
 				->method('get_prefix')
 				->with($prefix_id)
-				->willReturn(['prefix_id' => $prefix_id]);
+				->willReturn(['prefix_id' => $prefix_id, 'prefix_tag' => 'topic_prefix']);
 			$this->manager->expects(self::once())
 				->method('delete_prefix');
 			$this->controller->expects(self::once())

@@ -175,7 +175,7 @@ class admin_controller
 		try
 		{
 			$prefix = $this->manager->get_prefix($prefix_id);
-			$this->manager->update_prefix($prefix['prefix_id'], ['prefix_enabled' => !$prefix['prefix_enabled']]);
+			$this->manager->update_prefix(!$prefix ?: $prefix['prefix_id'], !$prefix ? [] : ['prefix_enabled' => !$prefix['prefix_enabled']]);
 		}
 		catch (\OutOfBoundsException $e)
 		{
@@ -196,7 +196,7 @@ class admin_controller
 			try
 			{
 				$prefix = $this->manager->get_prefix($prefix_id);
-				$this->manager->delete_prefix($prefix['prefix_id']);
+				$this->manager->delete_prefix(!$prefix ?: $prefix['prefix_id']);
 				$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_DELETED');
 			}
 			catch (\OutOfBoundsException $e)

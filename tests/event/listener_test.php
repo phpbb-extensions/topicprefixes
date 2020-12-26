@@ -35,7 +35,7 @@ class listener_test extends \phpbb_test_case
 	/**
 	 * @inheritdoc
 	 */
-	public function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -90,7 +90,7 @@ class listener_test extends \phpbb_test_case
 	public function test_construct()
 	{
 		$this->set_listener();
-		$this->assertInstanceOf('\Symfony\Component\EventDispatcher\EventSubscriberInterface', $this->listener);
+		self::assertInstanceOf('\Symfony\Component\EventDispatcher\EventSubscriberInterface', $this->listener);
 	}
 
 	/**
@@ -98,7 +98,7 @@ class listener_test extends \phpbb_test_case
 	 */
 	public function test_getSubscribedEvents()
 	{
-		$this->assertEquals(array(
+		self::assertEquals(array(
 			'core.posting_modify_template_vars',
 			'core.posting_modify_submit_post_before',
 			'core.submit_post_modify_sql_data',
@@ -228,17 +228,17 @@ class listener_test extends \phpbb_test_case
 
 		$data = new \phpbb\event\data($test_data);
 
-		$this->manager->expects($this->atMost(1))
+		$this->manager->expects(self::atMost(1))
 			->method('get_active_prefixes')
 			->willReturn($prefixes);
 
-		$this->request->expects(isset($expected['SELECTED_PREFIX']) ? $this->once() : $this->never())
+		$this->request->expects(isset($expected['SELECTED_PREFIX']) ? self::once() : self::never())
 			->method('variable')
 			->willReturn($selected);
 
 		$this->listener->add_to_posting_form($data);
 
-		$this->assertSame($expected, $data['page_data']);
+		self::assertSame($expected, $data['page_data']);
 	}
 
 	/**
@@ -342,20 +342,20 @@ class listener_test extends \phpbb_test_case
 
 		$prefix_id = $prefix['prefix_id'] ?? 0;
 
-		$this->request->expects($this->once())
+		$this->request->expects(self::once())
 			->method('variable')
 			->willReturnMap(array(
 				array('topic_prefix', 0, false, \phpbb\request\request_interface::REQUEST, $prefix_id),
 			));
 
-		$this->manager->expects($this->atMost(1))
+		$this->manager->expects(self::atMost(1))
 			->method('get_prefix')
 			->willReturn($prefix);
 
 		$this->listener->submit_prefix_data($data);
 
-		$this->assertSame($expected['data'], $data['data']);
-		$this->assertSame($expected['post_data'], $data['post_data']);
+		self::assertSame($expected['data'], $data['data']);
+		self::assertSame($expected['post_data'], $data['post_data']);
 	}
 
 	/**
@@ -416,6 +416,6 @@ class listener_test extends \phpbb_test_case
 
 		$this->listener->save_prefix_to_topic($data);
 
-		$this->assertSame($expected, $data['sql_data']);
+		self::assertSame($expected, $data['sql_data']);
 	}
 }

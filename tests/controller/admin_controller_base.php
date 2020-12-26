@@ -48,7 +48,7 @@ class admin_controller_base extends \phpbb_test_case
 	/**
 	 * @inheritdoc
 	 */
-	public function setUp()
+	protected function setUp(): void
 	{
 		global $user, $phpbb_root_path, $phpEx;
 
@@ -78,6 +78,7 @@ class admin_controller_base extends \phpbb_test_case
 				'\phpbb\datetime'
 			))
 			->getMock();
+		$user->data['user_form_salt'] = '';
 
 		$this->controller = $this->getMockBuilder('\phpbb\topicprefixes\controller\admin_controller')
 			->setMethods(array('get_forum_info', 'log'))

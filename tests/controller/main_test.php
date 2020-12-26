@@ -18,7 +18,7 @@ require_once __DIR__ . '/admin_controller_base.php';
 
 class main_test extends admin_controller_base
 {
-	public function setUp()
+	protected function setUp(): void
 	{
 		global $phpbb_root_path, $phpEx;
 

@@ -24,7 +24,7 @@ class simple_test extends \phpbb_test_case
 	/**
 	 * @inheritdoc
 	 */
-	public function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
 
@@ -52,6 +52,6 @@ class simple_test extends \phpbb_test_case
 	{
 		$ext = new \phpbb\topicprefixes\ext($this->container, $this->extension_finder, $this->migrator, 'phpbb/topicprefixes', '');
 
-		$this->assertTrue($ext->is_enableable(), 'Asserting that the extension is enableable.');
+		self::assertTrue($ext->is_enableable(), 'Asserting that the extension is enableable.');
 	}
 }

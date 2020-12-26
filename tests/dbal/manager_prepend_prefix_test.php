@@ -40,6 +40,6 @@ class manager_prepend_prefix_test extends manager_base
 	 */
 	public function test_prepend_prefix($prefix, $subject, $expected)
 	{
-		$this->assertEquals($expected, $this->manager->prepend_prefix($prefix, $subject));
+		self::assertEquals($expected, $this->manager->prepend_prefix($prefix, $subject));
 	}
 }

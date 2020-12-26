@@ -40,6 +40,6 @@ class manager_get_prefixes_test extends manager_base
 	{
 		$prefixes = $this->manager->get_prefixes($forum_id);
 
-		$this->assertEquals($expected, array_column($prefixes, 'prefix_tag'));
+		self::assertEquals($expected, array_column($prefixes, 'prefix_tag'));
 	}
 }

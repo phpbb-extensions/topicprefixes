@@ -36,17 +36,16 @@ class manager_update_prefix_test extends manager_base
 	 */
 	public function test_update_prefix($id, $data, $expected)
 	{
-		$this->assertEquals($expected, $this->manager->update_prefix($id, $data));
+		self::assertEquals($expected, $this->manager->update_prefix($id, $data));
 	}
 
 	/**
 	 * Test the update_prefix() method
-	 *
-	 * @expectedException \OutOfBoundsException
-	 * @expectedExceptionMessage TOPIC_PREFIXES_INVALID_ITEM
 	 */
 	public function test_update_prefix_fails()
 	{
+		$this->expectException(\OutOfBoundsException::class);
+		$this->expectExceptionMessage('TOPIC_PREFIXES_INVALID_ITEM');
 		$this->manager->update_prefix(0, array());
 	}
 }

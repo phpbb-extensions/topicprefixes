@@ -10,7 +10,7 @@
 
 namespace phpbb\topicprefixes\tests\functional;
 
-use \Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * @group functional

@@ -24,25 +24,25 @@ class admin_controller_base extends \phpbb_test_case
 	/** @var bool A return value for check_form_key() */
 	public static $valid_form = false;
 
-	/** @var \phpbb\topicprefixes\controller\admin_controller|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \phpbb\topicprefixes\controller\admin_controller|\PHPUnit\Framework\MockObject\MockObject */
 	protected $controller;
 
-	/** @var \phpbb\topicprefixes\prefixes\manager|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \phpbb\topicprefixes\prefixes\manager|\PHPUnit\Framework\MockObject\MockObject */
 	protected $manager;
 
 	/** @var \phpbb\language\language */
 	protected $language;
 
-	/** @var \phpbb\log\log|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \phpbb\log\log|\PHPUnit\Framework\MockObject\MockObject */
 	protected $log;
 
-	/** @var \phpbb\request\request|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \phpbb\request\request|\PHPUnit\Framework\MockObject\MockObject */
 	protected $request;
 
-	/** @var \phpbb\template\template|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \phpbb\template\template|\PHPUnit\Framework\MockObject\MockObject */
 	protected $template;
 
-	/** @var \phpbb\user|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \phpbb\user|\PHPUnit\Framework\MockObject\MockObject */
 	protected $user;
 
 	/**

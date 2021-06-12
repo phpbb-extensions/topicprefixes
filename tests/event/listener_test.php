@@ -18,12 +18,12 @@ class listener_test extends \phpbb_test_case
 	protected $listener;
 
 	/**
-	 * @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\topicprefixes\prefixes\manager
+	 * @var \PHPUnit\Framework\MockObject\MockObject|\phpbb\topicprefixes\prefixes\manager
 	 */
 	protected $manager;
 
 	/**
-	 * @var \PHPUnit_Framework_MockObject_MockObject|\phpbb\request\request
+	 * @var \PHPUnit\Framework\MockObject\MockObject|\phpbb\request\request
 	 */
 	protected $request;
 

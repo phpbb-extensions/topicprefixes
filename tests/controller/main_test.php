@@ -25,7 +25,7 @@ class main_test extends admin_controller_base
 		parent::setUp();
 
 		$this->controller = $this->getMockBuilder('\phpbb\topicprefixes\controller\admin_controller')
-			->setMethods(array('add_prefix', 'edit_prefix', 'delete_prefix', 'move_prefix', 'display_settings'))
+			->onlyMethods(array('add_prefix', 'edit_prefix', 'delete_prefix', 'move_prefix', 'display_settings'))
 			->setConstructorArgs(array(
 				$this->manager,
 				$this->language,

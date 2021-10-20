@@ -81,7 +81,7 @@ class admin_controller_base extends \phpbb_test_case
 		$user->data['user_form_salt'] = '';
 
 		$this->controller = $this->getMockBuilder('\phpbb\topicprefixes\controller\admin_controller')
-			->setMethods(array('get_forum_info', 'log'))
+			->onlyMethods(array('get_forum_info', 'log'))
 			->setConstructorArgs(array(
 				$this->manager,
 				$this->language,

@@ -3,6 +3,7 @@
 This is the repository for the development of the Topic Prefixes phpBB extension.
 
 [![Build Status](https://github.com/phpbb-extensions/topicprefixes/workflows/Tests/badge.svg)](https://github.com/phpbb-extensions/topicprefixes/actions)
+[![codecov](https://codecov.io/gh/phpbb-extensions/topicprefixes/branch/master/graph/badge.svg?token=Dc0GWOeQWj)](https://codecov.io/gh/phpbb-extensions/topicprefixes)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phpbb-extensions/topicprefixes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phpbb-extensions/topicprefixes/?branch=master)
 
 The phpBB Topic Prefixes extension allows phpBB board administrators to create topic prefix tags that users can easily add to their topic titles. Features include:

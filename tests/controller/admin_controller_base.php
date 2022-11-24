@@ -24,7 +24,7 @@ class admin_controller_base extends \phpbb_test_case
 	/** @var bool A return value for check_form_key() */
 	public static $valid_form = false;
 
-	/** @var \phpbb\topicprefixes\controller\admin_controller|\PHPUnit\Framework\MockObject\MockObject */
+	/** @var \phpbb\topicprefixes\controller\admin_controller */
 	protected $controller;
 
 	/** @var \phpbb\topicprefixes\prefixes\manager|\PHPUnit\Framework\MockObject\MockObject */
@@ -45,12 +45,15 @@ class admin_controller_base extends \phpbb_test_case
 	/** @var \phpbb\user|\PHPUnit\Framework\MockObject\MockObject */
 	protected $user;
 
+	/** @var \phpbb\db\driver\driver_interface|\PHPUnit\Framework\MockObject\MockObject */
+	protected $db;
+
 	/**
 	 * @inheritdoc
 	 */
 	protected function setUp(): void
 	{
-		global $user, $phpbb_root_path, $phpEx;
+		global $db, $user, $phpbb_root_path, $phpEx;
 
 		parent::setUp();
 
@@ -72,27 +75,30 @@ class admin_controller_base extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->user = $user = $this->getMockBuilder('\phpbb\user')
+		$this->user = $this->getMockBuilder('\phpbb\user')
 			->setConstructorArgs(array(
 				$this->language,
 				'\phpbb\datetime'
 			))
 			->getMock();
-		$user->data['user_form_salt'] = '';
-
-		$this->controller = $this->getMockBuilder('\phpbb\topicprefixes\controller\admin_controller')
-			->onlyMethods(array('get_forum_info', 'log'))
-			->setConstructorArgs(array(
-				$this->manager,
-				$this->language,
-				$this->log,
-				$this->request,
-				$this->template,
-				$this->user,
-				$phpbb_root_path,
-				$phpEx,
-			))
+		$this->user->data['user_form_salt'] = '';
+		$this->user->data['user_id'] = '';
+		$this->user->ip = '';
+		$user = $this->user;
+		$db = $this->db = $this->getMockBuilder('\phpbb\db\driver\driver_interface')
+			->disableOriginalConstructor()
 			->getMock();
+
+		$this->controller = new \phpbb\topicprefixes\controller\admin_controller(
+			$this->manager,
+			$this->language,
+			$this->log,
+			$this->request,
+			$this->template,
+			$this->user,
+			$phpbb_root_path,
+			$phpEx
+		);
 	}
 }
 

@@ -49,8 +49,8 @@ class delete_prefix_test extends admin_controller_base
 				->method('get_prefix');
 			$this->manager->expects(self::never())
 				->method('delete_prefix');
-			$this->controller->expects(self::never())
-				->method('log');
+			$this->log->expects(self::never())
+				->method('add');
 		}
 		else if ($prefix_id === 0)
 		{
@@ -61,8 +61,8 @@ class delete_prefix_test extends admin_controller_base
 			$this->manager->expects(self::once())
 				->method('delete_prefix')
 				->will(self::throwException(new \OutOfBoundsException()));
-			$this->controller->expects(self::never())
-				->method('log');
+			$this->log->expects(self::never())
+				->method('add');
 			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
 			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
 			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
@@ -77,8 +77,12 @@ class delete_prefix_test extends admin_controller_base
 				->willReturn(['prefix_id' => $prefix_id, 'prefix_tag' => 'topic_prefix']);
 			$this->manager->expects(self::once())
 				->method('delete_prefix');
-			$this->controller->expects(self::once())
-				->method('log');
+			$this->log->expects(self::once())
+				->method('add')
+				->with('admin', static::anything(), static::anything(), 'ACP_LOG_PREFIX_DELETED', static::anything(), ['topic_prefix', 'Test Forum']);
+			$this->db->expects(static::once())
+				->method('sql_fetchrow')
+				->willReturn(['forum_name' => 'Test Forum']);
 			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
 			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
 			$errno = PHP_VERSION_ID < 80000 ? E_USER_NOTICE : E_WARNING;

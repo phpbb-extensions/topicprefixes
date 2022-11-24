@@ -27,12 +27,14 @@ class move_prefix_test extends admin_controller_base
 	{
 		return array(
 			// prefix id, direction, valid form/hash, is ajax
-			array(1, 'up', true),
-			array(1, 'down', true),
-			array(2, 'up', true),
-			array(2, 'down', true),
-			array(1, 'up', false),
-			array(0, 'up', true),
+			array(1, 'up', true, false),
+			array(1, 'down', true, false),
+			array(2, 'up', true, false),
+			array(2, 'down', true, false),
+			array(3, 'up', true, true),
+			array(3, 'down', true, true),
+			array(1, 'up', false, false),
+			array(0, 'up', true, false),
 		);
 	}
 
@@ -44,7 +46,7 @@ class move_prefix_test extends admin_controller_base
 	 * @param $direction
 	 * @param $valid_form
 	 */
-	public function test_move_prefix($prefix_id, $direction, $valid_form)
+	public function test_move_prefix($prefix_id, $direction, $valid_form, $is_ajax)
 	{
 		$this->request->expects(static::once())
 			->method('variable')
@@ -78,6 +80,16 @@ class move_prefix_test extends admin_controller_base
 		}
 		else
 		{
+			$this->request->expects(static::once())
+				->method('is_ajax')
+				->willReturn($is_ajax);
+
+			if ($is_ajax)
+			{
+				// Handle trigger_error() output called from json_response
+				$this->setExpectedTriggerError(E_WARNING);
+			}
+
 			$this->manager->expects(static::once())
 				->method('move_prefix')
 				->with(static::equalTo($prefix_id), static::stringContains($direction));

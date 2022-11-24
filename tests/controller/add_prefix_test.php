@@ -61,18 +61,21 @@ class add_prefix_test extends admin_controller_base
 			{
 				$this->manager->expects(static::once())
 					->method('add_prefix')
-					->willReturn(['prefix_tag' => 'foo']);
-				$this->controller->expects(static::once())
-					->method('log')
-					->with('foo', 'ACP_LOG_PREFIX_ADDED');
+					->willReturn(['prefix_tag' => 'topic_prefix']);
+				$this->log->expects(static::once())
+					->method('add')
+					->with('admin', static::anything(), static::anything(), 'ACP_LOG_PREFIX_ADDED', static::anything(), ['topic_prefix', 'Test Forum']);
+				$this->db->expects(static::once())
+					->method('sql_fetchrow')
+					->willReturn(['forum_name' => 'Test Forum']);
 			}
 		}
 		else
 		{
 			$this->manager->expects(static::never())
 				->method('add_prefix');
-			$this->controller->expects(static::never())
-				->method('log');
+			$this->log->expects(static::never())
+				->method('add');
 		}
 
 		$this->controller->add_prefix();

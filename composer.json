@@ -2,7 +2,7 @@
 	"name": "phpbb/topicprefixes",
 	"type": "phpbb-extension",
 	"description": "An official phpBB extension for topic prefixes.",
-	"homepage": "https://www.phpbb.com",
+	"homepage": "https://www.phpbb.com/customise/db/extension/topicprefixes/",
 	"version": "1.0.1-dev",
 	"license": "GPL-2.0-only",
 	"authors": [

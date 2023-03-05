@@ -50,6 +50,9 @@ class functional_test extends \phpbb_functional_test_case
 		$this->assertContainsLang('TOPIC_PREFIXES', $crawler->filter('#main h1')->text());
 		$this->assertContainsLang('TOPIC_PREFIXES_EXPLAIN', $crawler->filter('#main')->text());
 
+		// Assert included template JS appears
+		$this->assertStringContainsString("./../ext/phpbb/topicprefixes/adm/style/acp_topic_prefixes.js", $crawler->filter('body')->html());
+
 		// Jump to the create page
 		$form = $crawler->selectButton($this->lang('GO'))->form(['forum_id' => self::FORUM_ID]);
 		$crawler = self::submit($form);

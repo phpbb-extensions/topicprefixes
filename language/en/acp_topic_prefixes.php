@@ -34,10 +34,7 @@ $lang = array_merge($lang, array(
 	'DELETE_TOPIC_PREFIX_CONFIRM'	=> 'Are you sure you want to delete the topic prefix?',
 	'TOPIC_PREFIX_DELETED'			=> 'The topic prefix has been deleted.',
 
-	'TOPIC_PREFIX_TOGGLE_STATE'	=> array(
-		0	=> 'Click to enable',
-		1	=> 'Click to disable',
-	),
+	'TOPIC_PREFIX_TOGGLE_STATE'		=> 'Click to enable or disable this topic prefix',
 
 	// Nested set exception messages
 	'TOPIC_PREFIXES_LOCK_FAILED_ACQUIRE'	=> 'Topic prefixes extension failed to acquire a lock on the table.',

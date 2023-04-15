@@ -23,8 +23,8 @@
 	<table class="table1 zebra-table fixed-width-table">
 		<thead>
 			<tr>
-				<th style="width:45%">{{ lang('TOPIC_PREFIX_TAG') }}</th>
-				<th style="width:45%">{{ lang('TOPIC_PREFIX_ENABLED') }}</th>
+				<th style="width:75%">{{ lang('TOPIC_PREFIX_TAG') }}</th>
+				<th>{{ lang('TOPIC_PREFIX_ENABLED') }}</th>
 				<th>{{ lang('ACTION') }}</th>
 			</tr>
 		</thead>
@@ -32,7 +32,11 @@
 		{% for prefix in loops.prefixes %}
 			<tr>
 				<td><strong>{{ prefix.PREFIX_TAG }}</strong></td>
-				<td class="{{ prefix.PREFIX_ENABLED ? 'yes' : 'never' }}"><a href="{{ prefix.U_EDIT }}" title="{{ lang('TOPIC_PREFIX_TOGGLE_STATE', prefix.PREFIX_ENABLED) }}">{{ lang(prefix.PREFIX_ENABLED ? 'ENABLED' : 'DISABLED') }}</a></td>
+				<td>
+					<a href="{{ prefix.U_EDIT }}" style="text-decoration: none" title="{{ lang('TOPIC_PREFIX_TOGGLE_STATE') }}" data-ajax="tp_toggle">
+						<i class="icon acp-icon fa-toggle-{{ prefix.PREFIX_ENABLED ? 'on' : 'off' }} fa-fw"></i>
+					</a>
+				</td>
 				<td class="actions">
 					<span class="up-disabled" style="display:none;">{{ ICON_MOVE_UP_DISABLED }}</span>
 					<span class="up"><a href="{{ prefix.U_MOVE_UP }}" data-ajax="row_up">{{ ICON_MOVE_UP }}</a></span>

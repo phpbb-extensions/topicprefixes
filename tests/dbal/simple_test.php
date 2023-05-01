@@ -39,7 +39,7 @@ class simple_test extends \phpbb_database_test_case
 	 */
 	public function test_table_exists()
 	{
-		$this->db = $this->new_dbal();
+		$this->db = $this->new_doctrine_dbal();
 		$factory = new \phpbb\db\tools\factory();
 		$db_tools = $factory->get($this->db);
 

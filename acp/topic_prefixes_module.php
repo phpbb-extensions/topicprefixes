@@ -33,7 +33,7 @@ class topic_prefixes_module
 		$lang->add_lang('acp/forums');
 		$lang->add_lang('acp_topic_prefixes', 'phpbb/topicprefixes');
 		$this->tpl_name   = 'acp_topic_prefixes';
-		$this->page_title = $lang->lang('TOPIC_PREFIXES');
+		$this->page_title = 'TOPIC_PREFIXES';
 
 		$admin_controller = $phpbb_container->get('phpbb.topicprefixes.admin_controller');
 		$admin_controller->set_u_action($this->u_action)->main();

@@ -181,6 +181,12 @@ class admin_controller
 		{
 			$this->trigger_message($e->getMessage(), E_USER_WARNING);
 		}
+
+		if ($this->request->is_ajax())
+		{
+			$json_response = new \phpbb\json_response;
+			$json_response->send(['success' => true]);
+		}
 	}
 
 	/**

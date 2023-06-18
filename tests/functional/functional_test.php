@@ -79,11 +79,11 @@ class functional_test extends \phpbb_functional_test_case
 
 		// Disable the prefix
 		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=edit&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&hash={$hash}&sid={$this->sid}");
-		self::assertCount(1, $crawler->filter('.never'));
+		self::assertCount(1, $crawler->filter('tr')->eq(2)->filter('.fa-toggle-off'));
 
 		// Enable the prefix
 		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=edit&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&hash={$hash}&sid={$this->sid}");
-		self::assertCount(0, $crawler->filter('.never'));
+		self::assertCount(1, $crawler->filter('tr')->eq(2)->filter('.fa-toggle-on'));
 	}
 
 	public function test_acp_delete_prefix()
@@ -133,7 +133,7 @@ class functional_test extends \phpbb_functional_test_case
 			->reduce(function (Crawler $node) use ($prefix_tag) {
 				return $node->filter('strong')->text() === $prefix_tag;
 			});
-		$url = $crawler->selectLink($this->lang('ENABLED'))->link()->getUri();
+		$url = $crawler->filter('a')->first()->link()->getUri();
 
 		return (int) $this->get_parameter_from_link($url, 'prefix_id');
 	}

@@ -26,9 +26,10 @@ class edit_prefix_test extends admin_controller_base
 	public function data_edit_prefix()
 	{
 		return array(
-			array(1, true), // valid prefix, valid form/hash
-			array(1, false), // valid prefix, invalid form/hash
-			array(0, true), // invalid prefix, valid form/hash
+			array(1, true, false), // valid prefix, valid form/hash, not ajax
+			array(1, true, true), // valid prefix, valid form/hash, valid ajax
+			array(1, false, false), // valid prefix, invalid form/hash, not ajax
+			array(0, true, false), // invalid prefix, valid form/hash, not ajax
 		);
 	}
 
@@ -39,7 +40,7 @@ class edit_prefix_test extends admin_controller_base
 	 * @param $prefix_id
 	 * @param $valid_form
 	 */
-	public function test_edit_prefix($prefix_id, $valid_form)
+	public function test_edit_prefix($prefix_id, $valid_form, $is_ajax)
 	{
 		$this->request->expects(self::once())
 			->method('variable')
@@ -83,6 +84,16 @@ class edit_prefix_test extends admin_controller_base
 				->willReturn(['prefix_id' => $prefix_id, 'prefix_enabled' => true]);
 			$this->manager->expects(self::once())
 				->method('update_prefix');
+
+			$this->request->expects(self::atMost(1))
+				->method('is_ajax')
+				->willReturn($is_ajax);
+
+			if ($is_ajax)
+			{
+				// Handle trigger_error() output called from json_response
+				$this->setExpectedTriggerError(E_WARNING);
+			}
 		}
 
 		$this->controller->edit_prefix($prefix_id);

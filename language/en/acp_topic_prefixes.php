@@ -40,4 +40,5 @@ $lang = array_merge($lang, array(
 	'TOPIC_PREFIXES_LOCK_FAILED_ACQUIRE'	=> 'Topic prefixes extension failed to acquire a lock on the table.',
 	'TOPIC_PREFIXES_INVALID_ITEM'			=> 'The requested topic prefix does not exist.',
 	'TOPIC_PREFIXES_INVALID_PARENT'			=> 'The requested topic prefix has no parent.',
+	'TOPIC_PREFIXES_INPUT_EMPTY'			=> 'The input field for a new topic prefix must not be empty!',
 ));

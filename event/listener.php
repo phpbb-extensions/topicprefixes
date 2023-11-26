@@ -161,6 +161,12 @@ class listener implements EventSubscriberInterface
 		// Get the prefix from the select menu
 		$prefix_id = $this->request->variable('topic_prefix', 0);
 
+		// If we are in preview mode, send back the prefix from the form
+		if (!empty($event['preview']))
+		{
+			return $prefix_id;
+		}
+
 		// If no prefix was selected, get one if it already exists (ie: editing a post)
 		if (!$prefix_id && !empty($event['post_data']['topic_prefix_id']))
 		{

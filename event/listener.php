@@ -143,7 +143,7 @@ class listener implements EventSubscriberInterface
 	 * Is a new topic being posted/edited?
 	 *
 	 * @param \phpbb\event\data $event Event data object
-	 * @return bool
+	 * @return bool Return true if starting a new post or editing the first post, false otherwise
 	 */
 	protected function is_new_topic($event)
 	{

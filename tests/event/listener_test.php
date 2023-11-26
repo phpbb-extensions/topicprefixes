@@ -223,6 +223,30 @@ class listener_test extends \phpbb_test_case
 					'SELECTED_PREFIX'	=> '',
 				),
 			),
+			array( // test post preview mode shows the expected prefix when no prefix is selected
+				$prefix_data,
+				array(
+					'mode' => 'edit',
+					'preview' => true,
+				),
+				0,
+				array(
+					'PREFIXES'			=> $prefix_data,
+					'SELECTED_PREFIX'	=> '',
+				),
+			),
+			array( // test post preview mode shows the expected prefix when a prefix is selected
+				$prefix_data,
+				array(
+					'mode' => 'edit',
+					'preview' => true,
+				),
+				1,
+				array(
+					'PREFIXES'			=> $prefix_data,
+					'SELECTED_PREFIX'	=> '[foo]',
+				),
+			),
 		);
 	}
 
@@ -320,7 +344,7 @@ class listener_test extends \phpbb_test_case
 					),
 				),
 				array(
-					'data'		=> array(),
+					'data'		=> array('topic_prefix_id' => 0),
 					'post_data'	=> array('post_subject' => 'test subject'),
 				),
 			),
@@ -333,7 +357,7 @@ class listener_test extends \phpbb_test_case
 					),
 				),
 				array(
-					'data'		=> array(),
+					'data'		=> array('topic_prefix_id' => 0),
 					'post_data'	=> array('post_subject' => 'test subject'),
 				),
 			),

@@ -102,23 +102,23 @@ class listener implements EventSubscriberInterface
 	 */
 	public function submit_prefix_data($event)
 	{
-		if (!($selected = $this->request->variable('topic_prefix', 0)))
-		{
-			return;
-		}
+		$selected = $this->request->variable('topic_prefix', 0);
 
 		// Get data for the prefix selected by the user
 		$prefix = $this->manager->get_prefix($selected);
 
 		// First, add the topic prefix id to the data to be stored with the db
 		$data = $event['data'];
-		$data['topic_prefix_id'] = (int) $prefix['prefix_id'];
+		$data['topic_prefix_id'] = $prefix ? (int) $prefix['prefix_id'] : 0;
 		$event['data'] = $data;
 
 		// Next, prepend the topic prefix to the subject (if necessary)
-		$post_data = $event['post_data'];
-		$post_data['post_subject'] = $this->manager->prepend_prefix($prefix['prefix_tag'], $post_data['post_subject']);
-		$event['post_data'] = $post_data;
+		if (isset($prefix['prefix_tag']))
+		{
+			$post_data = $event['post_data'];
+			$post_data['post_subject'] = $this->manager->prepend_prefix($prefix['prefix_tag'], $post_data['post_subject']);
+			$event['post_data'] = $post_data;
+		}
 	}
 
 	/**

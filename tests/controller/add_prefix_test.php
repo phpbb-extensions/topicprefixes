@@ -25,21 +25,25 @@ class add_prefix_test extends admin_controller_base
 	 */
 	public function data_add_prefix()
 	{
-		return array(
-			array(true, true),
-			array(true, false),
-			array(false, false),
-		);
+		return [
+			['topic_prefix1', true, true], // all should work fine
+			['topic_prefix2', true, false], // form invalid error
+			['topic_prefix3', false, false], // no action taken
+			['', true, true], // prefix invalid error
+			['', true, false], // form invalid error
+			['', false, true], // no action taken
+		];
 	}
 
 	/**
 	 * Test add_prefix()
 	 *
 	 * @dataProvider data_add_prefix
+	 * @param $prefix_id
 	 * @param $submit
 	 * @param $valid_form
 	 */
-	public function test_add_prefix($submit, $valid_form)
+	public function test_add_prefix($prefix_id, $submit, $valid_form)
 	{
 		if ($submit)
 		{
@@ -51,21 +55,29 @@ class add_prefix_test extends admin_controller_base
 
 			if (!$valid_form)
 			{
-				// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
-				$exceptionName = version_compare(PHP_VERSION, '8.0', '<') ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
-				$errno = version_compare(PHP_VERSION, '8.0', '<') ? E_USER_WARNING : E_WARNING;
-				$this->expectException($exceptionName);
-				$this->expectExceptionCode($errno);
+				$this->setExpectedTriggerError(E_USER_WARNING, $this->language->lang('FORM_INVALID'));
 			}
 			else
 			{
-				$this->manager->expects(static::once())
+				$valid_prefix = $prefix_id !== '';
+
+				$this->request->expects(static::once())
+					->method('variable')
+					->willReturnMap([
+						['prefix_tag', '', true, \phpbb\request\request_interface::REQUEST, $prefix_id],
+					]);
+
+				if (!$valid_prefix) // Empty string prefixes should trigger error
+				{
+					$this->setExpectedTriggerError(E_USER_WARNING, $this->language->lang('TOPIC_PREFIXES_INPUT_EMPTY'));
+				}
+				$this->manager->expects($valid_prefix ? static::once() : static::never())
 					->method('add_prefix')
-					->willReturn(['prefix_tag' => 'topic_prefix']);
-				$this->log->expects(static::once())
+					->willReturn(['prefix_tag' => $prefix_id]);
+				$this->log->expects($valid_prefix ? static::once() : static::never())
 					->method('add')
-					->with('admin', static::anything(), static::anything(), 'ACP_LOG_PREFIX_ADDED', static::anything(), ['topic_prefix', 'Test Forum']);
-				$this->db->expects(static::once())
+					->with('admin', static::anything(), static::anything(), 'ACP_LOG_PREFIX_ADDED', static::anything(), [$prefix_id, 'Test Forum']);
+				$this->db->expects($valid_prefix ? static::once() : static::never())
 					->method('sql_fetchrow')
 					->willReturn(['forum_name' => 'Test Forum']);
 			}

@@ -53,7 +53,11 @@ class add_prefix_test extends admin_controller_base
 
 			if (!$valid_form)
 			{
-				$this->setExpectedTriggerError(E_USER_WARNING, 'The submitted form was invalid. Try submitting again.');
+				// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
+				$exceptionName = version_compare(PHP_VERSION, '8.0', '<') ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
+				$errno = version_compare(PHP_VERSION, '8.0', '<') ? E_USER_WARNING : E_WARNING;
+				$this->expectException($exceptionName);
+				$this->expectExceptionCode($errno);
 			}
 			else
 			{

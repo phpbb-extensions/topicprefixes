@@ -155,7 +155,11 @@ class admin_controller
 
 			$tag = $this->request->variable('prefix_tag', '', true);
 			$prefix = $this->manager->add_prefix($tag, $this->forum_id);
-			$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_ADDED');
+
+			if ($prefix)
+			{
+				$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_ADDED');
+			}
 		}
 	}
 

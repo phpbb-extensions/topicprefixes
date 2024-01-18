@@ -25,21 +25,23 @@ class add_prefix_test extends admin_controller_base
 	 */
 	public function data_add_prefix()
 	{
-		return array(
-			array(true, true),
-			array(true, false),
-			array(false, false),
-		);
+		return [
+			['', true, true],
+			['topic_prefix1', true, true],
+			['topic_prefix2', true, false],
+			['topic_prefix3', false, false],
+		];
 	}
 
 	/**
 	 * Test add_prefix()
 	 *
 	 * @dataProvider data_add_prefix
+	 * @param $prefix
 	 * @param $submit
 	 * @param $valid_form
 	 */
-	public function test_add_prefix($submit, $valid_form)
+	public function test_add_prefix($prefix, $submit, $valid_form)
 	{
 		if ($submit)
 		{
@@ -59,13 +61,19 @@ class add_prefix_test extends admin_controller_base
 			}
 			else
 			{
+				$valid_prefix = $prefix !== '';
+				$this->request->expects(static::once())
+					->method('variable')
+					->willReturnMap([
+						['prefix_tag', '', true, \phpbb\request\request_interface::REQUEST, $prefix],
+					]);
 				$this->manager->expects(static::once())
 					->method('add_prefix')
-					->willReturn(['prefix_tag' => 'topic_prefix']);
-				$this->log->expects(static::once())
+					->willReturn($valid_prefix ? ['prefix_tag' => $prefix] : false);
+				$this->log->expects($valid_prefix ? static::once() : static::never())
 					->method('add')
-					->with('admin', static::anything(), static::anything(), 'ACP_LOG_PREFIX_ADDED', static::anything(), ['topic_prefix', 'Test Forum']);
-				$this->db->expects(static::once())
+					->with('admin', static::anything(), static::anything(), 'ACP_LOG_PREFIX_ADDED', static::anything(), [$prefix, 'Test Forum']);
+				$this->db->expects($valid_prefix ? static::once() : static::never())
 					->method('sql_fetchrow')
 					->willReturn(['forum_name' => 'Test Forum']);
 			}

@@ -53,7 +53,7 @@ class add_prefix_test extends admin_controller_base
 
 			if (!$valid_form)
 			{
-				$this->setExpectedTriggerError(E_USER_WARNING, $this->language->lang('FORM_INVALID'));
+				$this->setExpectedTriggerError(E_USER_WARNING, 'The submitted form was invalid. Try submitting again.');
 			}
 			else
 			{

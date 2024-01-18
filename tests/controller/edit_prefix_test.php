@@ -55,7 +55,7 @@ class edit_prefix_test extends admin_controller_base
 				->method('get_prefix');
 			$this->manager->expects(self::never())
 				->method('update_prefix');
-			$this->setExpectedTriggerError(E_USER_WARNING, $this->language->lang('FORM_INVALID'));
+			$this->setExpectedTriggerError(E_USER_WARNING, 'The submitted form was invalid. Try submitting again.');
 		}
 		else if ($prefix_id === 0)
 		{

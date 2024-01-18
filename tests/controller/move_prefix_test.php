@@ -58,7 +58,7 @@ class move_prefix_test extends admin_controller_base
 		if (!$valid_form)
 		{
 			$prefix_id = 0;
-			$this->setExpectedTriggerError(E_USER_WARNING, $this->language->lang('FORM_INVALID'));
+			$this->setExpectedTriggerError(E_USER_WARNING, 'The submitted form was invalid. Try submitting again.');
 			$this->manager->expects(static::never())
 				->method('move_prefix');
 		}

@@ -79,7 +79,7 @@ class delete_prefix_test extends admin_controller_base
 			$this->db->expects(static::once())
 				->method('sql_fetchrow')
 				->willReturn(['forum_name' => 'Test Forum']);
-			$this->setExpectedTriggerError(E_USER_NOTICE, $this->language->lang('TOPIC_PREFIX_DELETED'));
+			$this->setExpectedTriggerError(E_USER_NOTICE, 'TOPIC_PREFIX_DELETED');
 		}
 
 		$this->controller->delete_prefix($prefix_id);

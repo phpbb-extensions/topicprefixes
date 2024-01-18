@@ -32,7 +32,8 @@
 		"version-check": {
 			"host": "www.phpbb.com",
 			"directory": "/customise/db/extension/topicprefixes",
-			"filename": "version_check"
+			"filename": "version_check",
+			"ssl": true
 		}
 	}
 }

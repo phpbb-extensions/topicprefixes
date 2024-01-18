@@ -65,7 +65,7 @@ class manager implements manager_interface
 	{
 		$data = [
 			'prefix_tag'		=> $tag,
-			'forum_id'			=> (int) $forum_id,
+			'forum_id'		=> (int) $forum_id,
 			'prefix_enabled'	=> true,
 		];
 

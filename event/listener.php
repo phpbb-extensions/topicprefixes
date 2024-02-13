@@ -102,23 +102,23 @@ class listener implements EventSubscriberInterface
 	 */
 	public function submit_prefix_data($event)
 	{
-		if (!($selected = $this->request->variable('topic_prefix', 0)))
-		{
-			return;
-		}
+		$selected = $this->request->variable('topic_prefix', 0);
 
 		// Get data for the prefix selected by the user
 		$prefix = $this->manager->get_prefix($selected);
 
 		// First, add the topic prefix id to the data to be stored with the db
 		$data = $event['data'];
-		$data['topic_prefix_id'] = (int) $prefix['prefix_id'];
+		$data['topic_prefix_id'] = $prefix ? (int) $prefix['prefix_id'] : 0;
 		$event['data'] = $data;
 
 		// Next, prepend the topic prefix to the subject (if necessary)
-		$post_data = $event['post_data'];
-		$post_data['post_subject'] = $this->manager->prepend_prefix($prefix['prefix_tag'], $post_data['post_subject']);
-		$event['post_data'] = $post_data;
+		if (isset($prefix['prefix_tag']))
+		{
+			$post_data = $event['post_data'];
+			$post_data['post_subject'] = $this->manager->prepend_prefix($prefix['prefix_tag'], $post_data['post_subject']);
+			$event['post_data'] = $post_data;
+		}
 	}
 
 	/**
@@ -143,7 +143,7 @@ class listener implements EventSubscriberInterface
 	 * Is a new topic being posted/edited?
 	 *
 	 * @param \phpbb\event\data $event Event data object
-	 * @return bool
+	 * @return bool Return true if starting a new post or editing the first post, false otherwise
 	 */
 	protected function is_new_topic($event)
 	{
@@ -160,6 +160,12 @@ class listener implements EventSubscriberInterface
 	{
 		// Get the prefix from the select menu
 		$prefix_id = $this->request->variable('topic_prefix', 0);
+
+		// If we are in preview mode, send back the prefix from the form
+		if (!empty($event['preview']))
+		{
+			return $prefix_id;
+		}
 
 		// If no prefix was selected, get one if it already exists (ie: editing a post)
 		if (!$prefix_id && !empty($event['post_data']['topic_prefix_id']))

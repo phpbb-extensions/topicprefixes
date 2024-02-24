@@ -34,7 +34,10 @@
 				<td><strong>{{ prefix.PREFIX_TAG }}</strong></td>
 				<td>
 					<a href="{{ prefix.U_EDIT }}" style="text-decoration: none" title="{{ lang('TOPIC_PREFIX_TOGGLE_STATE') }}" data-ajax="tp_toggle">
-						<i class="icon acp-icon fa-toggle-{{ prefix.PREFIX_ENABLED ? 'on' : 'off' }} fa-fw"></i>
+						{{ Icon('font', {
+							'toggle-on': prefix.PREFIX_ENABLED,
+							'toggle-off': true
+						}, '', true, 'fas acp-icon') }}
 					</a>
 				</td>
 				<td class="actions">

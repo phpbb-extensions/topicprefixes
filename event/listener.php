@@ -162,7 +162,7 @@ class listener implements EventSubscriberInterface
 		$prefix_id = $this->request->variable('topic_prefix', 0);
 
 		// If we are in preview mode, send back the prefix from the form
-		if (!empty($event['preview']))
+		if (!empty($event['preview']) && $event['mode'] !== 'edit')
 		{
 			return $prefix_id;
 		}

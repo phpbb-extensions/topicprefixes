@@ -214,9 +214,33 @@ class listener_test extends \phpbb_test_case
 					'SELECTED_PREFIX'	=> '[foo]',
 				),
 			),
+			array( // test adding selected prefix when previewing a new topic
+				$prefix_data,
+				array(
+					'mode' => 'post',
+					'preview' => true,
+				),
+				1,
+				array(
+					'PREFIXES'			=> $prefix_data,
+					'SELECTED_PREFIX'	=> '[foo]',
+				),
+			),
 			array( // test adding null selected prefix when posting new topic with bad data
 				$prefix_data,
 				array('mode' => 'post'),
+				2,
+				array(
+					'PREFIXES'			=> $prefix_data,
+					'SELECTED_PREFIX'	=> '',
+				),
+			),
+			array( // test adding null selected prefix when previewing new topic with bad data
+				$prefix_data,
+				array(
+					'mode' => 'post',
+					'preview' => true,
+				),
 				2,
 				array(
 					'PREFIXES'			=> $prefix_data,

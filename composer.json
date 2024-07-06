@@ -27,7 +27,7 @@
 	"extra": {
 		"display-name": "phpBB Topic Prefixes",
 		"soft-require": {
-			"phpbb/phpbb": ">=3.2.0"
+			"phpbb/phpbb": ">=3.2.0,<4.0.0@dev"
 		},
 		"version-check": {
 			"host": "www.phpbb.com",

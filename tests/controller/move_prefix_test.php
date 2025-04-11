@@ -58,21 +58,13 @@ class move_prefix_test extends admin_controller_base
 		if (!$valid_form)
 		{
 			$prefix_id = 0;
-			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
-			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
-			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
-			$this->expectException($exceptionName);
-			$this->expectExceptionCode($errno);
+			$this->expectException(\PHPUnit\Framework\Error\Warning::class);
 			$this->manager->expects(static::never())
 				->method('move_prefix');
 		}
 		else if ($prefix_id === 0)
 		{
-			// Throws E_WARNING in PHP 8.0+ and E_USER_WARNING in earlier versions
-			$exceptionName = PHP_VERSION_ID < 80000 ? \PHPUnit\Framework\Error\Error::class : \PHPUnit\Framework\Error\Warning::class;
-			$errno = PHP_VERSION_ID < 80000 ? E_USER_WARNING : E_WARNING;
-			$this->expectException($exceptionName);
-			$this->expectExceptionCode($errno);
+			$this->expectException(\PHPUnit\Framework\Error\Warning::class);
 			$this->manager->expects(static::once())
 				->method('move_prefix')
 				->with(static::equalTo(0), static::stringContains($direction))

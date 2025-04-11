@@ -53,7 +53,7 @@ class admin_controller_base extends \phpbb_test_case
 	 */
 	protected function setUp(): void
 	{
-		global $db, $user, $phpbb_root_path, $phpEx;
+		global $db, $language, $user, $phpbb_root_path, $phpEx;
 
 		parent::setUp();
 
@@ -61,7 +61,7 @@ class admin_controller_base extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->language = new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx));
+		$language = $this->language = new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx));
 
 		$this->log = $this->getMockBuilder('\phpbb\log\log')
 			->disableOriginalConstructor()

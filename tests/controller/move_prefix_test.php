@@ -58,13 +58,13 @@ class move_prefix_test extends admin_controller_base
 		if (!$valid_form)
 		{
 			$prefix_id = 0;
-			$this->expectException(\PHPUnit\Framework\Error\Warning::class);
+			$this->expectException(\PHPUnit\Framework\Exception::class);
 			$this->manager->expects(static::never())
 				->method('move_prefix');
 		}
 		else if ($prefix_id === 0)
 		{
-			$this->expectException(\PHPUnit\Framework\Error\Warning::class);
+			$this->expectException(\PHPUnit\Framework\Exception::class);
 			$this->manager->expects(static::once())
 				->method('move_prefix')
 				->with(static::equalTo(0), static::stringContains($direction))

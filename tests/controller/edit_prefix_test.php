@@ -55,7 +55,7 @@ class edit_prefix_test extends admin_controller_base
 				->method('get_prefix');
 			$this->manager->expects(self::never())
 				->method('update_prefix');
-			$this->expectException(\PHPUnit\Framework\Error\Warning::class);
+			$this->expectException(\PHPUnit\Framework\Exception::class);
 		}
 		else if ($prefix_id === 0)
 		{
@@ -66,7 +66,7 @@ class edit_prefix_test extends admin_controller_base
 			$this->manager->expects(self::once())
 				->method('update_prefix')
 				->will(self::throwException(new \OutOfBoundsException));
-			$this->expectException(\PHPUnit\Framework\Error\Warning::class);
+			$this->expectException(\PHPUnit\Framework\Exception::class);
 		}
 		else
 		{

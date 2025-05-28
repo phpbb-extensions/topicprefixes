@@ -26,6 +26,6 @@ $lang = array_merge($lang, array(
 	'ACP_MANAGE_PREFIXES'	=> 'Manage prefixes',
 
 	// ACP Log messages
-	'ACP_LOG_PREFIX_ADDED'		=> '<strong>Created new topic prefix</strong><br />» %1$s in forum: %2$s',
-	'ACP_LOG_PREFIX_DELETED'	=> '<strong>Deleted topic prefix</strong><br />» %1$s in forum: %2$s',
+	'ACP_LOG_PREFIX_ADDED'		=> '<strong>Created new topic prefix</strong><br>» %1$s in forum: %2$s',
+	'ACP_LOG_PREFIX_DELETED'	=> '<strong>Deleted topic prefix</strong><br>» %1$s in forum: %2$s',
 ));

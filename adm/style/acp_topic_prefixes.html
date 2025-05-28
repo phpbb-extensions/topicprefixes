@@ -59,10 +59,10 @@
 	<form id="acp_add_topic_prefix" method="post" action="{{ U_ACTION }}">
 		<fieldset class="quick">
 			{{ lang('CREATE_TOPIC_PREFIX') ~ lang('COLON') }}
-			<input type="text" name="prefix_tag" value="" maxlength="200" placeholder="{{ lang('TOPIC_PREFIX_PLACEHOLDER') }}" />
-			<input class="button2" name="submit" type="submit" value="{{ lang('SUBMIT') }}" />
-			<input type="hidden" name="action" value="add" />
-			<input type="hidden" name="forum_id" value="{{ FORUM_ID }}" />
+			<input type="text" name="prefix_tag" value="" maxlength="200" placeholder="{{ lang('TOPIC_PREFIX_PLACEHOLDER') }}">
+			<input class="button2" name="submit" type="submit" value="{{ lang('SUBMIT') }}">
+			<input type="hidden" name="action" value="add">
+			<input type="hidden" name="forum_id" value="{{ FORUM_ID }}">
 			{{ S_FORM_TOKEN }}
 			{{ S_HIDDEN_FIELDS }}
 		</fieldset>

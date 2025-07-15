@@ -104,15 +104,16 @@ class acp_module_test extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
+		$services = ['language', 'phpbb.topicprefixes.admin_controller'];
+		$returns = [$language, $admin_controller];
+		$callCount = 0;
 		$phpbb_container
 			->expects(self::exactly(2))
 			->method('get')
-			->withConsecutive(
-				['language'], ['phpbb.topicprefixes.admin_controller']
-			)
-			->willReturnOnConsecutiveCalls(
-				$language, $admin_controller
-			);
+			->willReturnCallback(function($service) use ($services, $returns, &$callCount) {
+				$this->assertEquals($services[$callCount], $service);
+				return $returns[$callCount++];
+			});
 
 		$admin_controller
 			->expects(self::once())

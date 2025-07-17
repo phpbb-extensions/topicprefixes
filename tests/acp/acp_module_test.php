@@ -94,7 +94,7 @@ class acp_module_test extends \phpbb_test_case
 		$template = $this->getMockBuilder('\phpbb\template\template')
 			->disableOriginalConstructor()
 			->getMock();
-		$language = $this->language = $this->getMockBuilder('\phpbb\language\language')
+		$language = $this->getMockBuilder('\phpbb\language\language')
 			->disableOriginalConstructor()
 			->getMock();
 		$phpbb_container = $this->getMockBuilder('Symfony\Component\DependencyInjection\ContainerInterface')

@@ -10,6 +10,7 @@
 
 namespace phpbb\topicprefixes\controller;
 
+use phpbb\json_response;
 use phpbb\language\language;
 use phpbb\log\log;
 use phpbb\request\request;
@@ -188,8 +189,7 @@ class admin_controller
 
 		if ($this->request->is_ajax())
 		{
-			$json_response = new \phpbb\json_response;
-			$json_response->send(['success' => true]);
+			$this->send_json_response(true);
 		}
 	}
 
@@ -251,8 +251,7 @@ class admin_controller
 
 		if ($this->request->is_ajax())
 		{
-			$json_response = new \phpbb\json_response;
-			$json_response->send(['success' => true]);
+			$this->send_json_response(true);
 		}
 	}
 
@@ -333,5 +332,22 @@ class admin_controller
 		$acp_forums = new \acp_forums();
 
 		return $acp_forums->get_forum_info($forum_id);
+	}
+
+	/**
+	 * Send a JSON response
+	 *
+	 * @param bool $content The content of the JSON response (true|false)
+	 * @access protected
+	 */
+	protected function send_json_response(bool $content): void
+	{
+		if ($this->request->is_ajax())
+		{
+			$json_response = new json_response;
+			$json_response->send([
+				'success' => (bool) $content,
+			]);
+		}
 	}
 }

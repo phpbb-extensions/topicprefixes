@@ -53,9 +53,11 @@ class admin_controller_base extends \phpbb_test_case
 	 */
 	protected function setUp(): void
 	{
-		global $db, $language, $user, $phpbb_root_path, $phpEx;
+		global $db, $language, $user, $phpbb_root_path, $phpEx, $phpbb_dispatcher;
 
 		parent::setUp();
+
+		$phpbb_dispatcher = new \phpbb_mock_event_dispatcher();
 
 		$this->manager = $this->getMockBuilder('\phpbb\topicprefixes\prefixes\manager')
 			->disableOriginalConstructor()
@@ -89,6 +91,9 @@ class admin_controller_base extends \phpbb_test_case
 			->disableOriginalConstructor()
 			->getMock();
 
+		$this->phpbb_root_path = $phpbb_root_path;
+		$this->phpEx = $phpEx;
+
 		$this->controller = new \phpbb\topicprefixes\controller\admin_controller(
 			$this->manager,
 			$this->language,
@@ -99,6 +104,19 @@ class admin_controller_base extends \phpbb_test_case
 			$phpbb_root_path,
 			$phpEx
 		);
+	}
+
+	protected function get_testable_controller(): \phpbb\topicprefixes\controller\admin_controller
+	{
+		return new class($this->manager, $this->language, $this->log, $this->request, $this->template, $this->user, $this->phpbb_root_path, $this->phpEx) extends \phpbb\topicprefixes\controller\admin_controller {
+			protected function send_json_response(bool $content): void
+			{
+				if ($this->request->is_ajax())
+				{
+					echo json_encode(['success' => (bool) $content]);
+				}
+			}
+		};
 	}
 }
 

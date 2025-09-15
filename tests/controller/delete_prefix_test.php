@@ -63,7 +63,7 @@ class delete_prefix_test extends admin_controller_base
 				->will(self::throwException(new \OutOfBoundsException()));
 			$this->log->expects(self::never())
 				->method('add');
-			$this->expectException(\PHPUnit\Framework\Exception::class);
+			$this->setExpectedTriggerError(E_USER_WARNING);
 		}
 		else
 		{
@@ -79,7 +79,7 @@ class delete_prefix_test extends admin_controller_base
 			$this->db->expects(static::once())
 				->method('sql_fetchrow')
 				->willReturn(['forum_name' => 'Test Forum']);
-			$this->expectException(\PHPUnit\Framework\Exception::class);
+			$this->setExpectedTriggerError(E_USER_NOTICE);
 		}
 
 		$this->controller->delete_prefix($prefix_id);

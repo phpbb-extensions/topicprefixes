@@ -55,7 +55,7 @@ class edit_prefix_test extends admin_controller_base
 				->method('get_prefix');
 			$this->manager->expects(self::never())
 				->method('update_prefix');
-			$this->expectException(\PHPUnit\Framework\Exception::class);
+			$this->setExpectedTriggerError(E_USER_WARNING);
 		}
 		else if ($prefix_id === 0)
 		{
@@ -66,7 +66,7 @@ class edit_prefix_test extends admin_controller_base
 			$this->manager->expects(self::once())
 				->method('update_prefix')
 				->will(self::throwException(new \OutOfBoundsException));
-			$this->expectException(\PHPUnit\Framework\Exception::class);
+			$this->setExpectedTriggerError(E_USER_WARNING);
 		}
 		else
 		{
@@ -77,17 +77,19 @@ class edit_prefix_test extends admin_controller_base
 			$this->manager->expects(self::once())
 				->method('update_prefix');
 
-			$this->request->expects(self::atMost(1))
+			$this->request->expects(self::atMost(2))
 				->method('is_ajax')
 				->willReturn($is_ajax);
 
 			if ($is_ajax)
 			{
 				// Handle trigger_error() output called from json_response
-				$this->setExpectedTriggerError(E_WARNING);
+				$this->expectOutputString('{"success":true}');
 			}
 		}
 
-		$this->controller->edit_prefix($prefix_id);
+		$controller = $this->get_testable_controller();
+
+		$controller->edit_prefix($prefix_id);
 	}
 }

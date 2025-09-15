@@ -53,7 +53,7 @@ class add_prefix_test extends admin_controller_base
 
 			if (!$valid_form)
 			{
-				$this->expectException(\PHPUnit\Framework\Exception::class);
+				$this->setExpectedTriggerError(E_USER_WARNING);
 			}
 			else
 			{

@@ -58,13 +58,13 @@ class move_prefix_test extends admin_controller_base
 		if (!$valid_form)
 		{
 			$prefix_id = 0;
-			$this->expectException(\PHPUnit\Framework\Exception::class);
+			$this->setExpectedTriggerError(E_USER_WARNING);
 			$this->manager->expects(static::never())
 				->method('move_prefix');
 		}
 		else if ($prefix_id === 0)
 		{
-			$this->expectException(\PHPUnit\Framework\Exception::class);
+			$this->setExpectedTriggerError(E_USER_WARNING);
 			$this->manager->expects(static::once())
 				->method('move_prefix')
 				->with(static::equalTo(0), static::stringContains($direction))
@@ -72,14 +72,14 @@ class move_prefix_test extends admin_controller_base
 		}
 		else
 		{
-			$this->request->expects(static::once())
+			$this->request->expects(static::atMost(2))
 				->method('is_ajax')
 				->willReturn($is_ajax);
 
 			if ($is_ajax)
 			{
 				// Handle trigger_error() output called from json_response
-				$this->setExpectedTriggerError(E_WARNING);
+				$this->expectOutputString('{"success":true}');
 			}
 
 			$this->manager->expects(static::once())
@@ -87,6 +87,7 @@ class move_prefix_test extends admin_controller_base
 				->with(static::equalTo($prefix_id), static::stringContains($direction));
 		}
 
-		$this->controller->move_prefix($prefix_id, $direction);
+		$controller = $this->get_testable_controller();
+		$controller->move_prefix($prefix_id, $direction);
 	}
 }

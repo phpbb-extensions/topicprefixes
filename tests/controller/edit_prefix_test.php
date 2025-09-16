@@ -23,7 +23,7 @@ class edit_prefix_test extends admin_controller_base
 	 *
 	 * @return array
 	 */
-	public function data_edit_prefix()
+	public static function data_edit_prefix()
 	{
 		return array(
 			array(1, true, false), // valid prefix, valid form/hash, not ajax

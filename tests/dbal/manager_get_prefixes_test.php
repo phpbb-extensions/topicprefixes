@@ -17,7 +17,7 @@ class manager_get_prefixes_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_get_prefixes()
+	public static function data_get_prefixes()
 	{
 		return array(
 			array(null, array('[TAG 1]', '[TAG 2]', '[TAG 3]', '[TAG 4]', '[TAG 5]')),

@@ -342,12 +342,9 @@ class admin_controller
 	 */
 	protected function send_json_response(bool $content): void
 	{
-		if ($this->request->is_ajax())
-		{
-			$json_response = new json_response;
-			$json_response->send([
-				'success' => (bool) $content,
-			]);
-		}
+		$json_response = new json_response;
+		$json_response->send([
+			'success' => (bool) $content,
+		]);
 	}
 }

@@ -25,7 +25,7 @@ class manager_delete_prefix_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_delete_prefix_fails()
+	public static function data_delete_prefix_fails()
 	{
 		return array(
 			array(0),

@@ -17,7 +17,7 @@ class manager_move_prefix_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_move_prefix()
+	public static function data_move_prefix()
 	{
 		return array(
 			array(

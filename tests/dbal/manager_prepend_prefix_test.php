@@ -17,7 +17,7 @@ class manager_prepend_prefix_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_prepend_prefix()
+	public static function data_prepend_prefix()
 	{
 		return array(
 			array('[FOO]', 'Test subject', '[FOO] Test subject'),

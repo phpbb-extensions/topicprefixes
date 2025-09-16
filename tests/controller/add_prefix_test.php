@@ -23,7 +23,7 @@ class add_prefix_test extends admin_controller_base
 	 *
 	 * @return array
 	 */
-	public function data_add_prefix()
+	public static function data_add_prefix()
 	{
 		return [
 			['', true, true],

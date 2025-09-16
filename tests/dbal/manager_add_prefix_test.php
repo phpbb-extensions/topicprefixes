@@ -17,7 +17,7 @@ class manager_add_prefix_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_add_prefix()
+	public static function data_add_prefix()
 	{
 		return array(
 			array('[TEST 1]', 2, 6),

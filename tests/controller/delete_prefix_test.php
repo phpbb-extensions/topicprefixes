@@ -23,7 +23,7 @@ class delete_prefix_test extends admin_controller_base
 	 *
 	 * @return array
 	 */
-	public function data_delete_prefix()
+	public static function data_delete_prefix()
 	{
 		return array(
 			array(1, false), // valid prefix, not confirmed

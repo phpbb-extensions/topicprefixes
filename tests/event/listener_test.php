@@ -110,7 +110,7 @@ class listener_test extends \phpbb_test_case
 	 *
 	 * @return array
 	 */
-	public function data_add_to_posting_form()
+	public static function data_add_to_posting_form()
 	{
 		$prefix_data = array(
 			1 => array(
@@ -310,7 +310,7 @@ class listener_test extends \phpbb_test_case
 	 *
 	 * @return array
 	 */
-	public function data_submit_prefix_data()
+	public static function data_submit_prefix_data()
 	{
 		return array(
 			array( // test adding prefix to a subject when posting
@@ -427,7 +427,7 @@ class listener_test extends \phpbb_test_case
 	 *
 	 * @return array
 	 */
-	public function data_save_prefix_to_topic()
+	public static function data_save_prefix_to_topic()
 	{
 		return array(
 			array( // test updating the sql when posting new topic

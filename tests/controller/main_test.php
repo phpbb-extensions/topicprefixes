@@ -44,7 +44,7 @@ class main_test extends admin_controller_base
 	 *
 	 * @return array
 	 */
-	public function data_main()
+	public static function data_main()
 	{
 		return array(
 			array('add', 'add_prefix'),

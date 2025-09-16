@@ -17,7 +17,7 @@ class manager_update_prefix_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_update_prefix()
+	public static function data_update_prefix()
 	{
 		return array(
 			array(1, array('prefix_enabled' => 0), 1),

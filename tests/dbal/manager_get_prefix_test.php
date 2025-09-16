@@ -17,7 +17,7 @@ class manager_get_prefix_test extends manager_base
 	 *
 	 * @return array
 	 */
-	public function data_get_prefix()
+	public static function data_get_prefix()
 	{
 		return array(
 			array(0, false),

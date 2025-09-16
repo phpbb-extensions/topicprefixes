@@ -23,7 +23,7 @@ class display_settings_test extends admin_controller_base
 	 *
 	 * @return array
 	 */
-	public function data_display_settings()
+	public static function data_display_settings()
 	{
 		return [
 			[[], 1],

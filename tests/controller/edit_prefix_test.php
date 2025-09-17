@@ -77,7 +77,7 @@ class edit_prefix_test extends admin_controller_base
 			$this->manager->expects(self::once())
 				->method('update_prefix');
 
-			$this->request->expects(self::atMost(2))
+			$this->request->expects(self::atMost(1))
 				->method('is_ajax')
 				->willReturn($is_ajax);
 
@@ -88,8 +88,6 @@ class edit_prefix_test extends admin_controller_base
 			}
 		}
 
-		$controller = $this->get_testable_controller();
-
-		$controller->edit_prefix($prefix_id);
+		$this->controller->edit_prefix($prefix_id);
 	}
 }

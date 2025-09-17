@@ -72,7 +72,7 @@ class move_prefix_test extends admin_controller_base
 		}
 		else
 		{
-			$this->request->expects(static::atMost(2))
+			$this->request->expects(static::once())
 				->method('is_ajax')
 				->willReturn($is_ajax);
 
@@ -87,7 +87,6 @@ class move_prefix_test extends admin_controller_base
 				->with(static::equalTo($prefix_id), static::stringContains($direction));
 		}
 
-		$controller = $this->get_testable_controller();
-		$controller->move_prefix($prefix_id, $direction);
+		$this->controller->move_prefix($prefix_id, $direction);
 	}
 }

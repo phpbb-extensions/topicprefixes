@@ -85,6 +85,7 @@ class edit_prefix_test extends admin_controller_base
 			{
 				// Handle trigger_error() output called from json_response
 				$this->expectOutputString('{"success":true}');
+				$this->expectException(\RuntimeException::class);
 			}
 		}
 

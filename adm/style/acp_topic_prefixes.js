@@ -1,9 +1,8 @@
-(function($) {
-
+(function() {
 	'use strict';
 
-	$('#select_forum').on('change', function() {
-		$(this).closest('form').trigger('submit');
+	document.getElementById('select_forum').addEventListener('change', function() {
+		this.closest('form').submit();
 	});
 
 	phpbb.addAjaxCallback('tp_toggle', function(res) {
@@ -12,8 +11,7 @@
 		}
 
 		const icon = this.querySelector('i');
-		icon.classList.toggle('fa-toggle-on');
-		icon.classList.toggle('fa-toggle-off');
+		icon.classList.toggle('tp-toggle-on');
+		icon.classList.toggle('tp-toggle-off');
 	});
-
-})(jQuery);
+})();

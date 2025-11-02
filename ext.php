@@ -25,12 +25,12 @@ class ext extends \phpbb\extension\base
 	 * The current phpBB version should meet or exceed
 	 * the minimum version required by this extension:
 	 *
-	 * Requires phpBB 4.0.0 and PHP 8.1
+	 * Requires phpBB 3.2.0 and PHP 5.4
 	 *
 	 * @return bool
 	 */
 	public function is_enableable()
 	{
-		return PHP_VERSION_ID >= 80100 && phpbb_version_compare(PHPBB_VERSION, '4.0.0-dev', '>=');
+		return phpbb_version_compare(PHPBB_VERSION, '3.2.0', '>=') && PHP_VERSION_ID >= 50400;
 	}
 }

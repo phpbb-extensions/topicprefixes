@@ -340,7 +340,7 @@ class admin_controller
 	 * @param bool $content The content of the JSON response (true|false)
 	 * @access protected
 	 */
-	protected function send_json_response(bool $content): void
+	protected function send_json_response($content)
 	{
 		$json_response = new json_response;
 		$json_response->send([

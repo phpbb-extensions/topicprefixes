@@ -34,10 +34,7 @@
 				<td><strong>{{ prefix.PREFIX_TAG }}</strong></td>
 				<td>
 					<a href="{{ prefix.U_EDIT }}" style="text-decoration: none" title="{{ lang('TOPIC_PREFIX_TOGGLE_STATE') }}" data-ajax="tp_toggle">
-						{{ Icon('font', {
-							'toggle-on': prefix.PREFIX_ENABLED,
-							'toggle-off': true
-						}, '', true, 'fas acp-icon') }}
+						<i class="fa fa-fw tp-toggle-{{ prefix.PREFIX_ENABLED ? 'on' : 'off' }} acp-icon"></i>
 					</a>
 				</td>
 				<td class="actions">
@@ -71,4 +68,5 @@
 {% endif %}
 
 {% INCLUDEJS '@phpbb_topicprefixes/acp_topic_prefixes.js' %}
+{% INCLUDECSS '@phpbb_topicprefixes/acp_topic_prefixes.css' %}
 {% include 'overall_footer.html' %}

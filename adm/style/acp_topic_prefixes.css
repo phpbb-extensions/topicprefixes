@@ -1,0 +1,12 @@
+.tp-toggle-on,
+.tp-toggle-off {
+	font-weight: 900;
+}
+
+.tp-toggle-on:before {
+	content: "\f205";
+}
+
+.tp-toggle-off:before {
+	content: "\f204";
+}

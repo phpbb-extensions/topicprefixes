@@ -23,6 +23,10 @@ class display_listener_test extends \phpbb_test_case
 			'core.search_modify_tpl_ary',
 			'core.mcp_forum_topic_data_modify_sql',
 			'core.mcp_view_forum_modify_topicrow',
+			'core.ucp_main_front_modify_topic_data',
+			'core.ucp_main_front_modify_template_vars',
+			'core.ucp_main_topiclist_modify_topic_data',
+			'core.ucp_main_topiclist_topic_modify_template_vars',
 		], array_keys(\phpbb\topicprefixes\event\display_listener::getSubscribedEvents()));
 	}
 
@@ -181,5 +185,49 @@ class display_listener_test extends \phpbb_test_case
 		$listener->add_mcp_tags($event);
 
 		self::assertSame($rendered, $event['topic_row']['MCP_TOPIC_TAGS']);
+	}
+
+	/**
+	 * Test UCP tags are batch-loaded and added to both topic-row formats.
+	 */
+	public function test_ucp_tags_are_batch_loaded_and_rendered(): void
+	{
+		$assignments = $this->getMockBuilder('\phpbb\topicprefixes\tags\assignment_manager')
+			->disableOriginalConstructor()
+			->getMock();
+		$renderer = $this->getMockBuilder('\phpbb\topicprefixes\tags\renderer')
+			->disableOriginalConstructor()
+			->getMock();
+		$template = $this->getMockBuilder('\phpbb\template\template')->getMock();
+		$tag = ['prefix_id' => 1, 'prefix_tag' => 'Bug', 'prefix_color' => 'D4351C'];
+		$rendered = [['TAG_ID' => 1, 'TAG_NAME' => 'Bug']];
+
+		$assignments->expects(self::once())
+			->method('get_tags_for_topics')
+			->with([42, 43])
+			->willReturn([42 => [1 => $tag]]);
+		$renderer->expects(self::exactly(2))
+			->method('render')
+			->with([1 => $tag], 2)
+			->willReturn($rendered);
+
+		$listener = new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template);
+		$listener->load_ucp_tags(new \phpbb\event\data(['topic_list' => [42, 43]]));
+
+		$front_event = new \phpbb\event\data([
+			'row' => ['topic_id' => 42],
+			'forum_id' => 2,
+			'topicrow' => ['TOPIC_TITLE' => 'Tagged topic'],
+		]);
+		$listener->add_ucp_front_tags($front_event);
+		self::assertSame($rendered, $front_event['topicrow']['TOPIC_TAGS']);
+
+		$list_event = new \phpbb\event\data([
+			'topic_id' => 42,
+			'forum_id' => 2,
+			'template_vars' => ['TOPIC_TITLE' => 'Tagged topic'],
+		]);
+		$listener->add_ucp_topiclist_tags($list_event);
+		self::assertSame($rendered, $list_event['template_vars']['TOPIC_TAGS']);
 	}
 }

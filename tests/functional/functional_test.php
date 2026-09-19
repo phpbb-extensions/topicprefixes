@@ -101,7 +101,37 @@ class functional_test extends \phpbb_functional_test_case
 		self::assertStringContainsString('Structured tag title', $crawler->filter('.topiclist.topics')->text());
 		self::assertCount(1, $crawler->filter('.topic-tag-filter-panel .topic-tag-selected'));
 
+		$crawler = self::request('GET', 'search.php?author_id=2&sr=posts' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('.postprofile .topic-tag')->text());
+
 		$crawler = self::request('GET', 'mcp.php?i=main&mode=forum_view&f=' . self::FORUM_ID . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+
+		$this->db->sql_query('DELETE FROM phpbb_topics_watch
+			WHERE topic_id = ' . (int) $topic['topic_id'] . '
+				AND user_id = 2');
+		$this->db->sql_query('INSERT INTO phpbb_topics_watch ' . $this->db->sql_build_array('INSERT', array(
+			'topic_id' => (int) $topic['topic_id'],
+			'user_id' => 2,
+			'notify_status' => 0,
+		)));
+		$this->db->sql_query('DELETE FROM phpbb_bookmarks
+			WHERE topic_id = ' . (int) $topic['topic_id'] . '
+				AND user_id = 2');
+		$this->db->sql_query('INSERT INTO phpbb_bookmarks ' . $this->db->sql_build_array('INSERT', array(
+			'topic_id' => (int) $topic['topic_id'],
+			'user_id' => 2,
+		)));
+
+		$crawler = self::request('GET', 'ucp.php?i=ucp_main&mode=subscribed' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+		$crawler = self::request('GET', 'ucp.php?i=ucp_main&mode=bookmarks' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+
+		$this->db->sql_query('UPDATE phpbb_topics
+			SET topic_type = 3
+			WHERE topic_id = ' . (int) $topic['topic_id']);
+		$crawler = self::request('GET', 'ucp.php?i=ucp_main&mode=front' . "&sid={$this->sid}");
 		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
 	}
 

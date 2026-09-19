@@ -35,6 +35,9 @@ class display_listener implements EventSubscriberInterface
 	/** @var array Tags grouped by MCP topic */
 	protected $mcp_tags = [];
 
+	/** @var array Tags grouped by UCP topic */
+	protected $ucp_tags = [];
+
 	/**
 	 * Constructor.
 	 *
@@ -60,6 +63,10 @@ class display_listener implements EventSubscriberInterface
 			'core.search_modify_tpl_ary' => 'add_search_tags',
 			'core.mcp_forum_topic_data_modify_sql' => 'load_mcp_tags',
 			'core.mcp_view_forum_modify_topicrow' => 'add_mcp_tags',
+			'core.ucp_main_front_modify_topic_data' => 'load_ucp_tags',
+			'core.ucp_main_front_modify_template_vars' => 'add_ucp_front_tags',
+			'core.ucp_main_topiclist_modify_topic_data' => 'load_ucp_tags',
+			'core.ucp_main_topiclist_topic_modify_template_vars' => 'add_ucp_topiclist_tags',
 		];
 	}
 
@@ -137,5 +144,50 @@ class display_listener implements EventSubscriberInterface
 			(int) $event['row']['forum_id']
 		);
 		$event['topic_row'] = $topic_row;
+	}
+
+	/**
+	 * Batch-load tags for topics displayed in a UCP topic list.
+	 *
+	 * @param \phpbb\event\data $event Event data
+	 * @return void
+	 */
+	public function load_ucp_tags($event): void
+	{
+		$this->ucp_tags = $this->assignments->get_tags_for_topics($event['topic_list']);
+	}
+
+	/**
+	 * Add tag badge data to one UCP front-page topic row.
+	 *
+	 * @param \phpbb\event\data $event Event data
+	 * @return void
+	 */
+	public function add_ucp_front_tags($event): void
+	{
+		$topic_id = (int) $event['row']['topic_id'];
+		$topic_row = $event['topicrow'];
+		$topic_row['TOPIC_TAGS'] = $this->renderer->render(
+			$this->ucp_tags[$topic_id] ?? [],
+			(int) $event['forum_id']
+		);
+		$event['topicrow'] = $topic_row;
+	}
+
+	/**
+	 * Add tag badge data to one UCP watched/bookmarked topic row.
+	 *
+	 * @param \phpbb\event\data $event Event data
+	 * @return void
+	 */
+	public function add_ucp_topiclist_tags($event): void
+	{
+		$topic_id = (int) $event['topic_id'];
+		$template_vars = $event['template_vars'];
+		$template_vars['TOPIC_TAGS'] = $this->renderer->render(
+			$this->ucp_tags[$topic_id] ?? [],
+			(int) $event['forum_id']
+		);
+		$event['template_vars'] = $template_vars;
 	}
 }

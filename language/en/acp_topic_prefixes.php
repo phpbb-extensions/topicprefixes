@@ -8,9 +8,6 @@
  *
  */
 
-/**
- * DO NOT CHANGE
- */
 if (!defined('IN_PHPBB'))
 {
 	exit;
@@ -18,26 +15,32 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = array();
+	$lang = [];
 }
 
-$lang = array_merge($lang, array(
-	'TOPIC_PREFIXES'			=> 'Topic prefixes',
-	'TOPIC_PREFIXES_EXPLAIN'	=> 'From this page you can manage topic prefixes for forums.',
+$lang = array_merge($lang, [
+	'TOPIC_TAGS' => 'Topic tags',
+	'TOPIC_TAGS_EXPLAIN' => 'Create administrator-curated topic tags, set their display order, and choose where each tag is available.',
+	'TOPIC_TAG' => 'Tag',
+	'TOPIC_TAG_TEXT' => 'Tag text',
+	'TOPIC_TAG_COLOR' => 'Badge color',
+	'TOPIC_TAG_COLOR_EXPLAIN' => 'Choose the badge background color. Badge text color is selected automatically for contrast.',
+	'TOPIC_TAG_ENABLED' => 'Enabled',
+	'TOPIC_TAG_FORUMS' => 'Available forums',
+	'TOPIC_TAG_FORUMS_EXPLAIN' => 'Select one or more forums. Use Ctrl/Cmd to select multiple forums.',
+	'TOPIC_TAG_NO_FORUMS' => 'No forums',
+	'TOPIC_TAGS_EMPTY' => 'No topic tags have been created.',
+	'CREATE_TOPIC_TAG' => 'Create topic tag',
+	'EDIT_TOPIC_TAG' => 'Edit topic tag',
+	'DELETE_TOPIC_TAG_CONFIRM' => 'Delete this topic tag? Existing topic assignments will also be removed.',
+	'TOPIC_TAG_DELETED' => 'Topic tag deleted.',
+	'TOPIC_TAG_SAVED' => 'Topic tag saved.',
+	'TOPIC_TAG_TOGGLE_STATE' => 'Enable or disable this topic tag',
+	'TOPIC_TAG_NAME_REQUIRED' => 'Tag text is required.',
+	'TOPIC_TAG_COLOR_INVALID' => 'Badge color must be a six-digit hexadecimal color.',
+	'TOPIC_TAG_NOT_FOUND' => 'Requested topic tag does not exist.',
 
-	'TOPIC_PREFIX_TAG'			=> 'Prefix Tag',
-	'TOPIC_PREFIX_ENABLED'		=> 'Prefix Enabled',
-	'TOPIC_PREFIXES_EMPTY'		=> 'There are no prefixes for this forum.',
-	'TOPIC_PREFIX_PLACEHOLDER'	=> '[My Prefix]',
-
-	'CREATE_TOPIC_PREFIX'			=> 'Create a new topic prefix',
-	'DELETE_TOPIC_PREFIX_CONFIRM'	=> 'Are you sure you want to delete the topic prefix?',
-	'TOPIC_PREFIX_DELETED'			=> 'The topic prefix has been deleted.',
-
-	'TOPIC_PREFIX_TOGGLE_STATE'		=> 'Click to enable or disable this topic prefix',
-
-	// Nested set exception messages
-	'TOPIC_PREFIXES_LOCK_FAILED_ACQUIRE'	=> 'Topic prefixes extension failed to acquire a lock on the table.',
-	'TOPIC_PREFIXES_INVALID_ITEM'			=> 'The requested topic prefix does not exist.',
-	'TOPIC_PREFIXES_INVALID_PARENT'			=> 'The requested topic prefix has no parent.',
-));
+	// Legacy keys remain for migration/module lineage and third-party language packs.
+	'TOPIC_PREFIXES' => 'Topic tags',
+	'TOPIC_PREFIXES_EXPLAIN' => 'Manage administrator-curated topic tags.',
+]);

@@ -1,9 +1,9 @@
 {
 	"name": "phpbb/topicprefixes",
 	"type": "phpbb-extension",
-	"description": "An official phpBB extension for topic prefixes.",
+	"description": "An official phpBB extension for administrator-curated topic tags.",
 	"homepage": "https://www.phpbb.com/customise/db/extension/topicprefixes/",
-	"version": "1.0.2",
+	"version": "2.0.0",
 	"license": "GPL-2.0-only",
 	"authors": [
 		{
@@ -18,7 +18,7 @@
 		}
 	],
 	"require": {
-		"php": ">=5.4",
+		"php": ">=7.1",
 		"composer/installers": "^1.0 || ^2.0"
 	},
 	"require-dev": {
@@ -27,7 +27,7 @@
 	"extra": {
 		"display-name": "phpBB Topic Prefixes",
 		"soft-require": {
-			"phpbb/phpbb": ">=3.2.0"
+			"phpbb/phpbb": ">=3.3.0"
 		},
 		"version-check": {
 			"host": "www.phpbb.com",

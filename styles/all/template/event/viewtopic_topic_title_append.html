@@ -1,0 +1,7 @@
+{% if TOPIC_TAGS %}
+	<span class="topic-tags viewtopic-tags">
+	{% for tag in TOPIC_TAGS %}
+		<a class="topic-tag" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</a>
+	{% endfor %}
+	</span>
+{% endif %}

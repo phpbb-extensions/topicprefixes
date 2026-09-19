@@ -1,5 +1,15 @@
 # Changelog
 
+### 2.0.0 - 2026-09-19
+
+- Replaced title text prefixes with relational topic tag metadata.
+- Added multiple colored tags per topic and automatic badge text contrast.
+- Added global ACP tag management with forum availability controls.
+- Added accessible tag selection when creating topics and editing first posts.
+- Added tag badges to forum, topic, and search displays.
+- Added multi-tag AND filtering to forum topic lists.
+- Added conservative migration of legacy definitions, assignments, titles, and first-post subjects.
+
 ### 1.0.2 - 2025-12-17
 
 - Strengthened compatibility with both phpBB3 and phpBB4-alpha-1.

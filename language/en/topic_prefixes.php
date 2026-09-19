@@ -8,9 +8,6 @@
  *
  */
 
-/**
- * DO NOT CHANGE
- */
 if (!defined('IN_PHPBB'))
 {
 	exit;
@@ -18,9 +15,12 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = array();
+	$lang = [];
 }
 
-$lang = array_merge($lang, array(
-	'TOPIC_PREFIX'			=> 'Topic prefix',
-));
+$lang = array_merge($lang, [
+	'TOPIC_TAGS' => 'Topic tags',
+	'TOPIC_TAGS_FILTER' => 'Filter by tag',
+	'TOPIC_TAGS_CLEAR_FILTERS' => 'Clear tag filters',
+	'TOPIC_TAGS_INVALID' => 'One or more selected topic tags are disabled or unavailable in this forum.',
+]);

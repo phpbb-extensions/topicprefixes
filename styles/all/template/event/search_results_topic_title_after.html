@@ -1,0 +1,7 @@
+{% if searchresults.TOPIC_TAGS %}
+	<dd class="topic-tags search-topic-tags">
+	{% for tag in searchresults.TOPIC_TAGS %}
+		<a class="topic-tag" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</a>
+	{% endfor %}
+	</dd>
+{% endif %}

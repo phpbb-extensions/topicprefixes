@@ -2,42 +2,76 @@ imports:
     - { resource: tables.yml }
 
 services:
-    phpbb.topicprefixes.listener:
-        class: phpbb\topicprefixes\event\listener
+    phpbb.topicprefixes.posting_listener:
+        class: phpbb\topicprefixes\event\posting_listener
         arguments:
-            - '@phpbb.topicprefixes.manager'
+            - '@phpbb.topicprefixes.tags.manager'
+            - '@phpbb.topicprefixes.tags.assignment_manager'
+            - '@phpbb.topicprefixes.tags.renderer'
             - '@request'
             - '@language'
+        tags:
+            - { name: event.listener }
+
+    phpbb.topicprefixes.viewforum_listener:
+        class: phpbb\topicprefixes\event\viewforum_listener
+        arguments:
+            - '@phpbb.topicprefixes.tags.manager'
+            - '@phpbb.topicprefixes.tags.assignment_manager'
+            - '@phpbb.topicprefixes.tags.filter'
+            - '@phpbb.topicprefixes.tags.renderer'
+            - '@request'
+            - '@template'
+            - '@language'
+        tags:
+            - { name: event.listener }
+
+    phpbb.topicprefixes.display_listener:
+        class: phpbb\topicprefixes\event\display_listener
+        arguments:
+            - '@phpbb.topicprefixes.tags.assignment_manager'
+            - '@phpbb.topicprefixes.tags.renderer'
+            - '@template'
         tags:
             - { name: event.listener }
 
     phpbb.topicprefixes.admin_controller:
         class: phpbb\topicprefixes\controller\admin_controller
         arguments:
-            - '@phpbb.topicprefixes.manager'
+            - '@phpbb.topicprefixes.tags.manager'
+            - '@phpbb.topicprefixes.tags.renderer'
             - '@language'
             - '@log'
             - '@request'
             - '@template'
             - '@user'
+
+    phpbb.topicprefixes.tags.manager:
+        class: phpbb\topicprefixes\tags\manager
+        arguments:
+            - '@dbal.conn'
+            - '%phpbb.topicprefixes.tables.topic_prefixes%'
+            - '%phpbb.topicprefixes.tables.topic_prefixes_forums%'
+            - '%phpbb.topicprefixes.tables.topic_prefixes_topics%'
+            - '%tables.forums%'
+
+    phpbb.topicprefixes.tags.assignment_manager:
+        class: phpbb\topicprefixes\tags\assignment_manager
+        arguments:
+            - '@dbal.conn'
+            - '%phpbb.topicprefixes.tables.topic_prefixes_topics%'
+            - '%phpbb.topicprefixes.tables.topic_prefixes%'
+
+    phpbb.topicprefixes.tags.renderer:
+        class: phpbb\topicprefixes\tags\renderer
+        arguments:
             - '%core.root_path%'
             - '%core.php_ext%'
 
-    phpbb.topicprefixes.manager:
-        class: phpbb\topicprefixes\prefixes\manager
-        arguments:
-            - '@phpbb.topicprefixes.nestedset_prefixes'
-
-    phpbb.topicprefixes.nestedset_prefixes:
-        class: phpbb\topicprefixes\prefixes\nestedset_prefixes
+    phpbb.topicprefixes.tags.filter:
+        class: phpbb\topicprefixes\tags\filter
         arguments:
             - '@dbal.conn'
-            - '@phpbb.topicprefixes.table_lock'
-            - '%phpbb.topicprefixes.tables.topic_prefixes%'
-
-    phpbb.topicprefixes.table_lock:
-        class: phpbb\lock\db
-        arguments:
-            - topicprefixes.table_lock.topic_prefixes_table
-            - '@config'
-            - '@dbal.conn'
+            - '@content.visibility'
+            - '%phpbb.topicprefixes.tables.topic_prefixes_topics%'
+            - '%tables.topics%'

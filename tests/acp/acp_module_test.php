@@ -3,10 +3,12 @@
  *
  * Topic Prefixes extension for the phpBB Forum Software package.
  *
- * @copyright (c) 2016, 2022 phpBB Limited <https://www.phpbb.com>
+ * @copyright (c) 2016 phpBB Limited <https://www.phpbb.com>
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
  */
+
+namespace phpbb\topicprefixes\tests\acp;
 
 require_once __DIR__ . '/../../../../../includes/functions_module.php';
 
@@ -18,6 +20,9 @@ class acp_module_test extends \phpbb_test_case
 	/** @var \phpbb\module\module_manager */
 	protected $module_manager;
 
+	/**
+	 * Set up module manager dependencies.
+	 */
 	protected function setUp(): void
 	{
 		global $phpbb_dispatcher, $phpbb_extension_manager, $phpbb_root_path, $phpEx;
@@ -45,6 +50,9 @@ class acp_module_test extends \phpbb_test_case
 		$phpbb_dispatcher = new \phpbb_mock_event_dispatcher();
 	}
 
+	/**
+	 * Test ACP module metadata.
+	 */
 	public function test_module_info()
 	{
 		self::assertEquals([
@@ -62,6 +70,11 @@ class acp_module_test extends \phpbb_test_case
 		], $this->module_manager->get_module_infos('acp', 'acp_topic_prefixes_module'));
 	}
 
+	/**
+	 * Provide module authorization cases.
+	 *
+	 * @return array Test cases
+	 */
 	public function module_auth_test_data()
 	{
 		return [
@@ -76,9 +89,12 @@ class acp_module_test extends \phpbb_test_case
 	 */
 	public function test_module_auth($module_auth, $expected)
 	{
-		self::assertEquals($expected, p_master::module_auth($module_auth, 0));
+		self::assertEquals($expected, \p_master::module_auth($module_auth, 0));
 	}
 
+	/**
+	 * Test module controller dispatch.
+	 */
 	public function test_main_module()
 	{
 		global $phpbb_container, $request, $template;
@@ -123,7 +139,7 @@ class acp_module_test extends \phpbb_test_case
 			->expects(self::once())
 			->method('main');
 
-		$p_master = new p_master();
+		$p_master = new \p_master();
 		$p_master->module_ary[0]['is_duplicate'] = 0;
 		$p_master->module_ary[0]['url_extra'] = '';
 		$p_master->load('acp', '\phpbb\topicprefixes\acp\topic_prefixes_module', 'manage');

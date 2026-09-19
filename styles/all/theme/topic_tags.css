@@ -1,0 +1,79 @@
+.topic-tags {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.topic-tag {
+	border: 2px solid transparent;
+	border-radius: 3px;
+	box-sizing: border-box;
+	display: inline-block;
+	font-size: 0.85em;
+	font-weight: 600;
+	line-height: 1.35;
+	padding: 1px 6px;
+	text-decoration: none;
+}
+
+a.topic-tag:hover,
+a.topic-tag:focus {
+	filter: brightness(0.9);
+	text-decoration: none;
+}
+
+.topic-tag-selected {
+	box-shadow: 0 0 0 2px currentColor;
+}
+
+.topic-tag-choices {
+	border: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	margin: 0;
+	padding: 0;
+}
+
+.topic-tag-checkbox {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+.topic-tag-checkbox:checked + .topic-tag {
+	box-shadow: 0 0 0 2px currentColor;
+}
+
+.topic-tag-checkbox:checked + .topic-tag::before {
+	content: "\2713\00a0";
+}
+
+.topic-tag-checkbox:focus + .topic-tag {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+.topic-tag-filter-panel {
+	margin-bottom: 10px;
+}
+
+.topic-tag-filter-panel strong,
+.topic-tag-clear {
+	margin-right: 8px;
+}
+
+.topic-row-tags {
+	margin-right: 5px;
+	vertical-align: 1px;
+}
+
+.viewtopic-tags {
+	font-size: 0.7em;
+	margin-left: 8px;
+	vertical-align: middle;
+}

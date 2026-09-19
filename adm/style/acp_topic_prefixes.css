@@ -3,10 +3,32 @@
 	font-weight: 900;
 }
 
-.tp-toggle-on:before {
+.tp-toggle-on::before {
 	content: "\f205";
 }
 
-.tp-toggle-off:before {
+.tp-toggle-off::before {
 	content: "\f204";
+}
+
+.topic-tag {
+	border-radius: 3px;
+	display: inline-block;
+	font-weight: 600;
+	line-height: 1.5;
+	padding: 1px 7px;
+}
+
+.topic-tags-empty {
+	text-align: center;
+}
+
+.topic-tag-forums {
+	list-style: disc;
+	margin: 0 0 0 1.25em;
+	padding: 0;
+}
+
+#forum_ids {
+	min-width: 22em;
 }

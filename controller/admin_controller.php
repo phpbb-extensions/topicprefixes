@@ -15,240 +15,242 @@ use phpbb\language\language;
 use phpbb\log\log;
 use phpbb\request\request;
 use phpbb\template\template;
-use phpbb\topicprefixes\prefixes\manager;
+use phpbb\topicprefixes\tags\manager;
+use phpbb\topicprefixes\tags\renderer;
 use phpbb\user;
 
 /**
- * Class admin_controller
+ * ACP topic tag management.
  */
 class admin_controller
 {
-	/** @var manager Topic prefixes manager object */
+	/** @var manager Topic tag manager */
 	protected $manager;
 
-	/** @var language phpBB language object */
+	/** @var renderer Topic tag renderer */
+	protected $renderer;
+
+	/** @var language Language object */
 	protected $language;
 
-	/** @var log phpBB log object */
+	/** @var log Log object */
 	protected $log;
 
-	/** @var request phpBB request object */
+	/** @var request Request object */
 	protected $request;
 
-	/** @var template phpBB template object */
+	/** @var template Template object */
 	protected $template;
 
-	/** @var user phpBB user object */
+	/** @var user User object */
 	protected $user;
 
-	/** @var string phpBB root path */
-	protected $root_path;
+	/** @var string Form key */
+	protected $form_key = 'acp_topic_tags';
 
-	/** @var string PHP extension */
-	protected $php_ext;
-
-	/** @var string Form key used for form validation */
-	protected $form_key;
-
-	/** @var int Forum identifier */
-	protected $forum_id;
-
-	/** @var string Custom form action */
-	protected $u_action;
+	/** @var string Module action URL */
+	protected $u_action = '';
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @param manager  $manager         Topic prefixes manager object
-	 * @param language $language        phpBB language object
-	 * @param log      $log             phpBB log object
-	 * @param request  $request         phpBB request object
-	 * @param template $template        phpBB template object
-	 * @param user     $user            phpBB user object
-	 * @param string   $phpbb_root_path phpBB root path
-	 * @param string   $phpEx           PHP extension
+	 * @param manager  $manager  Topic tag manager
+	 * @param renderer $renderer Topic tag renderer
+	 * @param language $language Language object
+	 * @param log      $log      Log object
+	 * @param request  $request  Request object
+	 * @param template $template Template object
+	 * @param user     $user     User object
 	 */
-	public function __construct(manager $manager, language $language, log $log, request $request, template $template, user $user, $phpbb_root_path, $phpEx)
+	public function __construct(manager $manager, renderer $renderer, language $language, log $log, request $request, template $template, user $user)
 	{
 		$this->manager = $manager;
+		$this->renderer = $renderer;
 		$this->language = $language;
 		$this->log = $log;
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
-		$this->root_path = $phpbb_root_path;
-		$this->php_ext = $phpEx;
 	}
 
 	/**
-	 * Main handler, called by the ACP module
+	 * Handle ACP actions and display tag settings.
 	 *
 	 * @return void
 	 */
-	public function main()
+	public function main(): void
 	{
-		$this->form_key = 'acp_topic_prefixes';
 		add_form_key($this->form_key);
-
 		$action = $this->request->variable('action', '');
-		$prefix_id = $this->request->variable('prefix_id', 0);
-		$this->set_forum_id($this->request->variable('forum_id', 0));
+		$tag_id = $this->request->variable('tag_id', 0);
+		$editing = false;
 
 		switch ($action)
 		{
-			case 'add':
-				$this->add_prefix();
+			case 'save':
+				$this->save_tag($tag_id);
 			break;
 
 			case 'edit':
+				$editing = $this->manager->get_tag($tag_id);
+				if (!$editing)
+				{
+					$this->trigger_message('TOPIC_TAG_NOT_FOUND', E_USER_WARNING);
+				}
+			break;
+
 			case 'delete':
-				$this->{$action . '_prefix'}($prefix_id);
+				$this->delete_tag($tag_id);
+			break;
+
+			case 'toggle':
+				$this->toggle_tag($tag_id);
 			break;
 
 			case 'move_up':
 			case 'move_down':
-				$this->move_prefix($prefix_id, str_replace('move_', '', $action));
+				$this->move_tag($tag_id, str_replace('move_', '', $action));
 			break;
 		}
 
-		$this->display_settings();
+		$this->display_settings($editing);
 	}
 
 	/**
-	 * Display topic prefix settings
+	 * Assign tag list and editor template variables.
 	 *
+	 * @param array|false $editing Tag being edited
 	 * @return void
 	 */
-	public function display_settings()
+	public function display_settings($editing = false): void
 	{
-		foreach ($this->manager->get_prefixes($this->forum_id) as $prefix)
+		$forum_names = $this->manager->get_forum_names_by_tag();
+		foreach ($this->manager->get_tags() as $tag)
 		{
-			$this->template->assign_block_vars('prefixes', [
-				'PREFIX_TAG'		=> $prefix['prefix_tag'],
-				'PREFIX_ENABLED'	=> (int) $prefix['prefix_enabled'],
-				'U_EDIT'			=> "{$this->u_action}&amp;action=edit&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id . '&amp;hash=' . generate_link_hash('edit' . $prefix['prefix_id']),
-				'U_DELETE'			=> "{$this->u_action}&amp;action=delete&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id,
-				'U_MOVE_UP'			=> "{$this->u_action}&amp;action=move_up&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id . '&amp;hash=' . generate_link_hash('up' . $prefix['prefix_id']),
-				'U_MOVE_DOWN'		=> "{$this->u_action}&amp;action=move_down&amp;prefix_id=" . $prefix['prefix_id'] . '&amp;forum_id=' . $this->forum_id . '&amp;hash=' . generate_link_hash('down' . $prefix['prefix_id']),
+			$tag_id = (int) $tag['prefix_id'];
+			$this->template->assign_block_vars('tags', [
+				'TAG_ID' => $tag_id,
+				'TAG_NAME' => $tag['prefix_tag'],
+				'TAG_COLOR' => '#' . $tag['prefix_color'],
+				'TAG_TEXT_COLOR' => $this->renderer->contrast_color($tag['prefix_color']),
+				'TAG_ENABLED' => (bool) $tag['prefix_enabled'],
+				'FORUM_NAMES' => $forum_names[$tag_id] ?? [],
+				'U_EDIT' => $this->u_action . '&amp;action=edit&amp;tag_id=' . $tag_id,
+				'U_DELETE' => $this->u_action . '&amp;action=delete&amp;tag_id=' . $tag_id,
+				'U_TOGGLE' => $this->u_action . '&amp;action=toggle&amp;tag_id=' . $tag_id . '&amp;hash=' . generate_link_hash('toggle' . $tag_id),
+				'U_MOVE_UP' => $this->u_action . '&amp;action=move_up&amp;tag_id=' . $tag_id . '&amp;hash=' . generate_link_hash('up' . $tag_id),
+				'U_MOVE_DOWN' => $this->u_action . '&amp;action=move_down&amp;tag_id=' . $tag_id . '&amp;hash=' . generate_link_hash('down' . $tag_id),
 			]);
 		}
 
+		$editing = $editing ?: [
+			'prefix_id' => 0,
+			'prefix_tag' => '',
+			'prefix_color' => manager::DEFAULT_COLOR,
+			'prefix_enabled' => 1,
+			'forum_ids' => [],
+		];
 		$this->template->assign_vars([
-			'S_FORUM_OPTIONS'	=> make_forum_select($this->forum_id, false, false, true),
-			'FORUM_ID'			=> $this->forum_id,
-			'U_ACTION'			=> $this->u_action,
+			'U_ACTION' => $this->u_action,
+			'S_EDIT_TAG' => !empty($editing['prefix_id']),
+			'TAG_ID' => (int) $editing['prefix_id'],
+			'TAG_NAME' => $editing['prefix_tag'],
+			'TAG_COLOR' => '#' . $editing['prefix_color'],
+			'TAG_ENABLED' => (bool) $editing['prefix_enabled'],
+			'S_FORUM_OPTIONS' => make_forum_select($editing['forum_ids'], false, false, true),
 		]);
 	}
 
 	/**
-	 * Add a prefix
+	 * Create or update one tag.
 	 *
+	 * @param int $tag_id Tag identifier, or zero for new tag
 	 * @return void
 	 */
-	public function add_prefix()
+	public function save_tag(int $tag_id): void
 	{
-		if ($this->request->is_set_post('submit'))
-		{
-			if (!check_form_key($this->form_key))
-			{
-				$this->trigger_message('FORM_INVALID', E_USER_WARNING);
-			}
-
-			$tag = $this->request->variable('prefix_tag', '', true);
-			$prefix = $this->manager->add_prefix($tag, $this->forum_id);
-
-			if ($prefix)
-			{
-				$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_ADDED');
-			}
-		}
-	}
-
-	/**
-	 * Edit a prefix
-	 *
-	 * @param int $prefix_id The prefix identifier to edit
-	 * @return void
-	 */
-	public function edit_prefix($prefix_id)
-	{
-		if (!$this->check_hash('edit' . $prefix_id))
+		if (!$this->request->is_set_post('submit') || !check_form_key($this->form_key))
 		{
 			$this->trigger_message('FORM_INVALID', E_USER_WARNING);
 		}
 
-		try
+		$name = $this->request->variable('tag_name', '', true);
+		$color = $this->request->variable('tag_color', manager::DEFAULT_COLOR);
+		$enabled = $this->request->variable('tag_enabled', 0);
+		$forum_ids = $this->request->variable('forum_ids', [0]);
+		if (trim($name) === '')
 		{
-			$prefix = $this->manager->get_prefix($prefix_id);
-			$this->manager->update_prefix(!$prefix ?: $prefix['prefix_id'], !$prefix ? [] : ['prefix_enabled' => !$prefix['prefix_enabled']]);
+			$this->trigger_message('TOPIC_TAG_NAME_REQUIRED', E_USER_WARNING);
 		}
-		catch (\OutOfBoundsException $e)
+		if ($this->manager->normalize_color($color) === false)
 		{
-			$this->trigger_message($e->getMessage(), E_USER_WARNING);
+			$this->trigger_message('TOPIC_TAG_COLOR_INVALID', E_USER_WARNING);
 		}
 
-		if ($this->request->is_ajax())
+		if ($tag_id)
 		{
-			$this->send_json_response(true);
+			$tag = $this->manager->update_tag($tag_id, $name, $color, $enabled, $forum_ids);
+			$message = 'ACP_LOG_TAG_UPDATED';
 		}
+		else
+		{
+			$tag = $this->manager->add_tag($name, $color, $enabled, $forum_ids);
+			$message = 'ACP_LOG_TAG_ADDED';
+		}
+		if (!$tag)
+		{
+			$this->trigger_message('TOPIC_TAG_NOT_FOUND', E_USER_WARNING);
+		}
+
+		$this->log($tag['prefix_tag'], $message);
+		$this->trigger_message('TOPIC_TAG_SAVED');
 	}
 
 	/**
-	 * Delete a prefix
+	 * Delete one tag after confirmation.
 	 *
-	 * @param int $prefix_id The prefix identifier to delete
+	 * @param int $tag_id Tag identifier
 	 * @return void
 	 */
-	public function delete_prefix($prefix_id)
+	public function delete_tag(int $tag_id): void
 	{
-		if (confirm_box(true))
+		$tag = $this->manager->get_tag($tag_id);
+		if (!$tag)
 		{
-			try
-			{
-				$prefix = $this->manager->get_prefix($prefix_id);
-				$this->manager->delete_prefix(!$prefix ?: $prefix['prefix_id']);
-				$this->log($prefix['prefix_tag'], 'ACP_LOG_PREFIX_DELETED');
-			}
-			catch (\OutOfBoundsException $e)
-			{
-				$this->trigger_message($e->getMessage(), E_USER_WARNING);
-			}
-
-			$this->trigger_message('TOPIC_PREFIX_DELETED');
+			$this->trigger_message('TOPIC_TAG_NOT_FOUND', E_USER_WARNING);
 		}
 
-		confirm_box(false, $this->language->lang('DELETE_TOPIC_PREFIX_CONFIRM'), build_hidden_fields([
-			'mode'		=> 'manage',
-			'action'	=> 'delete',
-			'prefix_id'	=> $prefix_id,
-			'forum_id'	=> $this->forum_id,
+		if (confirm_box(true))
+		{
+			$this->manager->delete_tag($tag_id);
+			$this->log($tag['prefix_tag'], 'ACP_LOG_TAG_DELETED');
+			$this->trigger_message('TOPIC_TAG_DELETED');
+		}
+
+		confirm_box(false, $this->language->lang('DELETE_TOPIC_TAG_CONFIRM'), build_hidden_fields([
+			'mode' => 'manage',
+			'action' => 'delete',
+			'tag_id' => $tag_id,
 		]));
 	}
 
 	/**
-	 * Move a prefix up/down
+	 * Toggle one tag's enabled state.
 	 *
-	 * @param int    $prefix_id The prefix identifier to move
-	 * @param string $direction The direction (up|down)
-	 * @param int    $amount    The amount of places to move (default: 1)
+	 * @param int $tag_id Tag identifier
 	 * @return void
 	 */
-	public function move_prefix($prefix_id, $direction, $amount = 1)
+	public function toggle_tag(int $tag_id): void
 	{
-		if (!$this->check_hash($direction . $prefix_id))
+		if (!$this->check_hash('toggle' . $tag_id))
 		{
 			$this->trigger_message('FORM_INVALID', E_USER_WARNING);
 		}
-
-		try
+		$tag = $this->manager->get_tag($tag_id);
+		if (!$tag || !$this->manager->set_enabled($tag_id, !$tag['prefix_enabled']))
 		{
-			$this->manager->move_prefix($prefix_id, $direction, $amount);
+			$this->trigger_message('TOPIC_TAG_NOT_FOUND', E_USER_WARNING);
 		}
-		catch (\OutOfBoundsException $e)
-		{
-			$this->trigger_message($e->getMessage(), E_USER_WARNING);
-		}
-
 		if ($this->request->is_ajax())
 		{
 			$this->send_json_response(true);
@@ -256,95 +258,84 @@ class admin_controller
 	}
 
 	/**
-	 * Set u_action
+	 * Move one tag in display order.
 	 *
-	 * @param string $u_action Custom form action
+	 * @param int    $tag_id    Tag identifier
+	 * @param string $direction Move direction
+	 * @return void
+	 */
+	public function move_tag(int $tag_id, string $direction): void
+	{
+		if (!$this->check_hash($direction . $tag_id))
+		{
+			$this->trigger_message('FORM_INVALID', E_USER_WARNING);
+		}
+		if (!$this->manager->move_tag($tag_id, $direction))
+		{
+			$this->trigger_message('TOPIC_TAG_NOT_FOUND', E_USER_WARNING);
+		}
+		if ($this->request->is_ajax())
+		{
+			$this->send_json_response(true);
+		}
+	}
+
+	/**
+	 * Set ACP module action URL.
+	 *
+	 * @param string $u_action Module action URL
 	 * @return admin_controller
 	 */
-	public function set_u_action($u_action)
+	public function set_u_action(string $u_action): self
 	{
 		$this->u_action = $u_action;
 		return $this;
 	}
 
 	/**
-	 * Set forum ID
+	 * Validate action link hash.
 	 *
-	 * @param int $forum_id Forum identifier
-	 * @return admin_controller
+	 * @param string $hash Expected hash key
+	 * @return bool
 	 */
-	public function set_forum_id($forum_id)
-	{
-		$this->forum_id = $forum_id;
-		return $this;
-	}
-
-	/**
-	 * Check link hash helper
-	 *
-	 * @param string $hash A hashed string
-	 * @return bool True if hash matches, false if not
-	 */
-	protected function check_hash($hash)
+	protected function check_hash(string $hash): bool
 	{
 		return check_link_hash($this->request->variable('hash', ''), $hash);
 	}
 
 	/**
-	 * Trigger a message and back link for error/success dialogs
+	 * Display localized ACP message and return link.
 	 *
-	 * @param string $message A language key
-	 * @param int    $error   Error type constant, optional
+	 * @param string $message Language key
+	 * @param int    $error   PHP user error level
 	 * @return void
 	 */
-	protected function trigger_message($message = '', $error = E_USER_NOTICE)
+	protected function trigger_message(string $message, int $error = E_USER_NOTICE): void
 	{
-		trigger_error($this->language->lang($message) . adm_back_link("{$this->u_action}&amp;forum_id={$this->forum_id}"), $error);
+		trigger_error($this->language->lang($message) . adm_back_link($this->u_action), $error);
 	}
 
 	/**
-	 * Helper for logging topic prefix admin actions
+	 * Add ACP log entry.
 	 *
-	 * @param string $tag     The topic prefix tag
-	 * @param string $message The log action language key
+	 * @param string $tag     Tag text
+	 * @param string $message Log language key
 	 * @return void
 	 */
-	protected function log($tag, $message)
+	protected function log(string $tag, string $message): void
 	{
-		$forum_data = $this->get_forum_info($this->forum_id);
-
-		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$tag, $forum_data['forum_name']]);
+		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$tag]);
 	}
 
 	/**
-	 * Get a forum's information
+	 * Send AJAX action result.
 	 *
-	 * @param int $forum_id
-	 * @return mixed Array with the current row, false, if the row does not exist
+	 * @param bool $content Action status
+	 * @return void
 	 */
-	protected function get_forum_info($forum_id)
+	protected function send_json_response(bool $content): void
 	{
-		if (!class_exists('acp_forums'))
-		{
-			include $this->root_path . 'includes/acp/acp_forums.' . $this->php_ext;
-		}
-
-		$acp_forums = new \acp_forums();
-
-		return $acp_forums->get_forum_info($forum_id);
-	}
-
-	/**
-	 * Send a JSON response
-	 *
-	 * @param bool $content The content of the JSON response (true|false)
-	 * @access protected
-	 */
-	protected function send_json_response($content)
-	{
-		$json_response = new json_response;
-		$json_response->send([
-			'success' => (bool) $content,
-		]);
+		$response = new json_response;
+		$response->send(['success' => $content]);
 	}
 }

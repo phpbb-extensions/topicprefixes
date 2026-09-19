@@ -76,6 +76,39 @@ class tag_manager_test extends tags_base
 	{
 		$manager = $this->create_tag_manager();
 		self::assertSame('AABBCC', $manager->normalize_color('#aabbcc'));
-		self::assertFalse($manager->normalize_color('red'));
+		self::assertSame('', $manager->normalize_color('red'));
+	}
+
+	/**
+	 * Test invalid writes and missing tag operations.
+	 */
+	public function test_invalid_and_missing_tag_operations(): void
+	{
+		$manager = $this->create_tag_manager();
+
+		self::assertFalse($manager->add_tag('', 'FFFFFF', true, [2]));
+		self::assertFalse($manager->add_tag('Invalid color', 'red', true, [2]));
+		self::assertFalse($manager->update_tag(999, 'Missing', 'FFFFFF', true, [2]));
+		self::assertFalse($manager->set_enabled(999, true));
+		self::assertFalse($manager->delete_tag(999));
+		self::assertFalse($manager->move_tag(999, 'up'));
+		self::assertTrue($manager->move_tag(1, 'up'));
+		self::assertSame([], $manager->get_assignable_tags(2, []));
+	}
+
+	/**
+	 * Test enabled state and ACP forum name lookup.
+	 */
+	public function test_enabled_state_and_forum_names(): void
+	{
+		$manager = $this->create_tag_manager();
+		self::assertTrue($manager->set_enabled(1, false));
+		self::assertArrayNotHasKey(1, $manager->get_available_tags(2));
+		self::assertSame([
+			1 => ['Forum Two', 'Forum Three'],
+			2 => ['Forum Two'],
+			3 => ['Forum Two'],
+			4 => ['Forum Three'],
+		], $manager->get_forum_names_by_tag());
 	}
 }

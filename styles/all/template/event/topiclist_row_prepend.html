@@ -1,13 +1,5 @@
 {% if topicrow.TOPIC_TAGS %}
-	<span class="topic-tags topic-row-tags">
-	{% for tag in topicrow.TOPIC_TAGS %}
-		<a class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</a>
-	{% endfor %}
-	</span>
+	{% include '@phpbb_topicprefixes/topic_tag_badges.html' with {'tags': topicrow.TOPIC_TAGS, 'badge_class': 'topic-row-tags'} only %}
 {% elseif searchresults.TOPIC_TAGS %}
-	<span class="topic-tags topic-row-tags">
-	{% for tag in searchresults.TOPIC_TAGS %}
-		<a class="topic-tag" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</a>
-	{% endfor %}
-	</span>
+	{% include '@phpbb_topicprefixes/topic_tag_badges.html' with {'tags': searchresults.TOPIC_TAGS, 'badge_class': 'topic-row-tags'} only %}
 {% endif %}

@@ -16,7 +16,7 @@ use phpbb\template\template;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Display topic tags on viewtopic and search result pages.
+ * Display topic tags on topic headings and topic-list pages outside viewforum.
  */
 class display_listener implements EventSubscriberInterface
 {
@@ -31,6 +31,9 @@ class display_listener implements EventSubscriberInterface
 
 	/** @var array Tags grouped by search result topic */
 	protected $search_tags = [];
+
+	/** @var array Tags grouped by MCP topic */
+	protected $mcp_tags = [];
 
 	/**
 	 * Constructor.
@@ -55,6 +58,8 @@ class display_listener implements EventSubscriberInterface
 			'core.viewtopic_assign_template_vars_before' => 'add_viewtopic_tags',
 			'core.search_modify_rowset' => 'load_search_tags',
 			'core.search_modify_tpl_ary' => 'add_search_tags',
+			'core.mcp_forum_topic_data_modify_sql' => 'load_mcp_tags',
+			'core.mcp_view_forum_modify_topicrow' => 'add_mcp_tags',
 		];
 	}
 
@@ -69,7 +74,10 @@ class display_listener implements EventSubscriberInterface
 		$topic_id = (int) $event['topic_id'];
 		$tags = $this->assignments->get_tags_for_topics([$topic_id]);
 		$topic_tags = $tags[$topic_id] ?? [];
-		$this->template->assign_var('TOPIC_TAGS', $this->renderer->render($topic_tags, (int) $event['forum_id']));
+		$this->template->assign_block_vars_array(
+			'topic_tags',
+			$this->renderer->render($topic_tags, (int) $event['forum_id'])
+		);
 	}
 
 	/**
@@ -101,5 +109,33 @@ class display_listener implements EventSubscriberInterface
 		$tpl = $event['tpl_ary'];
 		$tpl['TOPIC_TAGS'] = $this->renderer->render($tags, (int) $event['row']['forum_id']);
 		$event['tpl_ary'] = $tpl;
+	}
+
+	/**
+	 * Batch-load tags for topics displayed in MCP forum view.
+	 *
+	 * @param \phpbb\event\data $event Event data
+	 * @return void
+	 */
+	public function load_mcp_tags($event): void
+	{
+		$this->mcp_tags = $this->assignments->get_tags_for_topics($event['topic_list']);
+	}
+
+	/**
+	 * Add tag badge data to one MCP forum topic row.
+	 *
+	 * @param \phpbb\event\data $event Event data
+	 * @return void
+	 */
+	public function add_mcp_tags($event): void
+	{
+		$topic_id = (int) $event['row']['topic_id'];
+		$topic_row = $event['topic_row'];
+		$topic_row['MCP_TOPIC_TAGS'] = $this->renderer->render(
+			$this->mcp_tags[$topic_id] ?? [],
+			(int) $event['row']['forum_id']
+		);
+		$event['topic_row'] = $topic_row;
 	}
 }

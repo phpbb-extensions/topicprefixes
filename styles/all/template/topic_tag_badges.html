@@ -1,0 +1,7 @@
+{% if tags %}
+	<span class="topic-tags {{ badge_class }}">
+	{% for tag in tags %}
+		<a class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</a>
+	{% endfor %}
+	</span>
+{% endif %}

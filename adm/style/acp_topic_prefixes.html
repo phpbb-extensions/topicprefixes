@@ -20,9 +20,7 @@
 			<td><span class="topic-tag" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</span></td>
 			<td>
 				{% if tag.FORUM_NAMES %}
-				<ul class="topic-tag-forums">
-					{% for forum_name in tag.FORUM_NAMES %}<li>{{ forum_name }}</li>{% endfor %}
-				</ul>
+					{% for forum_name in tag.FORUM_NAMES %}{{ forum_name }}{% if not loop.last %}<br>{% endif %}{% endfor %}
 				{% else %}
 					{{ lang('TOPIC_TAG_NO_FORUMS') }}
 				{% endif %}

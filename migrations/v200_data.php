@@ -267,8 +267,7 @@ class v200_data extends \phpbb\db\migration\migration
 		}
 
 		$sql = 'UPDATE ' . $table . '
-			SET ' . $value_column . ' = CASE ' . $id_column . '
-				' . implode("\n\t\t\t\t", $cases) . '
+			SET ' . $value_column . ' = CASE ' . $id_column . ' ' . implode(' ', $cases) . '
 				ELSE ' . $value_column . '
 			END
 			WHERE ' . $this->db->sql_in_set($id_column, array_keys($changes));

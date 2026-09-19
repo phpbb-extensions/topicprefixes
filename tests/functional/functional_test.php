@@ -92,9 +92,17 @@ class functional_test extends \phpbb_functional_test_case
 		self::assertSame(array($php_id), array_map('intval', array_column($this->db->sql_fetchrowset($result), 'prefix_id')));
 		$this->db->sql_freeresult($result);
 
+		$crawler = self::request('GET', 'viewtopic.php?t=' . (int) $topic['topic_id'] . "&sid={$this->sid}");
+		self::assertCount(1, $crawler->filter('h2.topic-title .topic-tag'));
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('h2.topic-title .topic-tag')->text());
+		self::assertStringContainsString('topic-tags', $crawler->filter('h2.topic-title')->children()->eq(0)->attr('class'));
+
 		$crawler = self::request('GET', 'viewforum.php?f=' . self::FORUM_ID . '&tags=' . $php_id . "&sid={$this->sid}");
 		self::assertStringContainsString('Structured tag title', $crawler->filter('.topiclist.topics')->text());
 		self::assertCount(1, $crawler->filter('.topic-tag-filter-panel .topic-tag-selected'));
+
+		$crawler = self::request('GET', 'mcp.php?i=main&mode=forum_view&f=' . self::FORUM_ID . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
 	}
 
 	protected function create_tag($name, $color, array $forum_ids)

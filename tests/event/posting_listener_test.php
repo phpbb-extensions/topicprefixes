@@ -95,12 +95,94 @@ class posting_listener_test extends \phpbb_test_case
 		$this->manager->method('get_assignable_tags')->willReturn($this->tags());
 		$this->assignments->expects(self::once())->method('set_topic_tags')->with(42, array(1, 2));
 		$listener = $this->listener();
+		$validation = new \phpbb\event\data(array(
+			'submit' => true, 'mode' => 'post', 'forum_id' => 2, 'post_data' => array(), 'error' => array(),
+		));
+		$listener->validate_submission($validation);
+		self::assertSame(array(), $validation['error']);
 		$before = new \phpbb\event\data(array(
 			'mode' => 'post', 'forum_id' => 2, 'post_data' => array('post_subject' => 'Plain title'),
 		));
 		$listener->capture_submission($before);
 		self::assertSame('Plain title', $before['post_data']['post_subject']);
 		$listener->save_assignments(new \phpbb\event\data(array('data' => array('topic_id' => 42))));
+	}
+
+	/**
+	 * Test capture validates tags when submission-error event was not invoked.
+	 */
+	public function test_capture_validates_when_needed(): void
+	{
+		$this->request->method('is_set_post')->willReturn(true);
+		$this->request->method('variable')->willReturn(array(1, 2));
+		$this->manager->expects(self::once())
+			->method('get_assignable_tags')
+			->with(2, array(1, 2))
+			->willReturn($this->tags());
+		$this->assignments->expects(self::once())->method('set_topic_tags')->with(42, array(1, 2));
+		$listener = $this->listener();
+
+		$listener->capture_submission(new \phpbb\event\data(array(
+			'mode' => 'post', 'forum_id' => 2, 'post_data' => array(),
+		)));
+		$listener->save_assignments(new \phpbb\event\data(array('data' => array('topic_id' => 42))));
+	}
+
+	/**
+	 * Test absent controls and reply submissions are ignored.
+	 */
+	public function test_non_topic_or_absent_tag_submission_is_ignored(): void
+	{
+		$this->request->method('is_set_post')->willReturn(false);
+		$this->manager->expects(self::never())->method('get_assignable_tags');
+		$this->assignments->expects(self::never())->method('set_topic_tags');
+		$listener = $this->listener();
+
+		$listener->validate_submission(new \phpbb\event\data(array(
+			'submit' => false, 'mode' => 'post', 'forum_id' => 2, 'post_data' => array(), 'error' => array(),
+		)));
+		$listener->validate_submission(new \phpbb\event\data(array(
+			'submit' => true, 'mode' => 'post', 'forum_id' => 2, 'post_data' => array(), 'error' => array(),
+		)));
+		$listener->capture_submission(new \phpbb\event\data(array(
+			'mode' => 'reply', 'forum_id' => 2, 'post_data' => array(),
+		)));
+		$listener->capture_submission(new \phpbb\event\data(array(
+			'mode' => 'post', 'forum_id' => 2, 'post_data' => array(),
+		)));
+		$listener->save_assignments(new \phpbb\event\data(array('data' => array('topic_id' => 42))));
+	}
+
+	/**
+	 * Test topic form is hidden when forum has no available tags.
+	 */
+	public function test_topic_form_without_available_tags_is_untouched(): void
+	{
+		$this->manager->method('get_available_tags')->willReturn(array());
+		$event = new \phpbb\event\data(array(
+			'mode' => 'post', 'forum_id' => 2, 'topic_id' => 0, 'post_data' => array(), 'page_data' => array(),
+		));
+
+		$this->listener()->add_to_posting_form($event);
+
+		self::assertSame(array(), $event['page_data']);
+	}
+
+	/**
+	 * Test fresh topic form defaults to no selected tags.
+	 */
+	public function test_new_topic_defaults_to_no_selected_tags(): void
+	{
+		$this->manager->method('get_available_tags')->willReturn($this->tags());
+		$this->request->method('is_set_post')->willReturn(false);
+		$event = new \phpbb\event\data(array(
+			'mode' => 'post', 'forum_id' => 2, 'topic_id' => 0, 'post_data' => array(), 'page_data' => array(),
+		));
+
+		$this->listener()->add_to_posting_form($event);
+
+		self::assertFalse($event['page_data']['TOPIC_TAGS'][0]['S_SELECTED']);
+		self::assertFalse($event['page_data']['TOPIC_TAGS'][1]['S_SELECTED']);
 	}
 
 	protected function listener()

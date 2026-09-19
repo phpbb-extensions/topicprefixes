@@ -6,6 +6,9 @@
  * @copyright (c) 2016 phpBB Limited <https://www.phpbb.com>
  * @license GNU General Public License, version 2 (GPL-2.0)
  *
+ * @noinspection UnnecessaryCastingInspection
+ * @noinspection PhpCastIsUnnecessaryInspection
+ * @noinspection PhpRedundantOptionalArgumentInspection
  */
 
 namespace phpbb\topicprefixes\tags;
@@ -170,7 +173,7 @@ class manager
 	{
 		$name = trim($name);
 		$color = $this->normalize_color($color);
-		if ($name === '' || $color === false)
+		if ($name === '' || $color === '')
 		{
 			return false;
 		}
@@ -210,7 +213,7 @@ class manager
 		$tag_id = (int) $tag_id;
 		$name = trim($name);
 		$color = $this->normalize_color($color);
-		if (!$tag_id || $name === '' || $color === false || !$this->tag_exists($tag_id))
+		if (!$tag_id || $name === '' || $color === '' || !$this->tag_exists($tag_id))
 		{
 			return false;
 		}
@@ -374,12 +377,12 @@ class manager
 	 * Normalize and validate hexadecimal color.
 	 *
 	 * @param string $color Submitted color
-	 * @return string|false Normalized color, or false when invalid
+	 * @return string Normalized color, or empty string when invalid
 	 */
-	public function normalize_color(string $color)
+	public function normalize_color(string $color): string
 	{
 		$color = strtoupper(ltrim(trim($color), '#'));
-		return preg_match('/^[0-9A-F]{6}$/D', $color) ? $color : false;
+		return preg_match('/^[0-9A-F]{6}$/D', $color) ? $color : '';
 	}
 
 	/**

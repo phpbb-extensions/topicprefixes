@@ -79,7 +79,7 @@ class renderer
 	}
 
 	/**
-	 * Select black or white text with greatest WCAG contrast.
+	 * Select black or white text with the greatest WCAG contrast.
 	 *
 	 * @param string $hex Six-digit hexadecimal background color
 	 * @return string Hexadecimal foreground color
@@ -98,7 +98,7 @@ class renderer
 		];
 		foreach ($channels as $key => $channel)
 		{
-			$channels[$key] = $channel <= 0.03928 ? $channel / 12.92 : pow(($channel + 0.055) / 1.055, 2.4);
+			$channels[$key] = $channel <= 0.03928 ? $channel / 12.92 : (($channel + 0.055) / 1.055) ** 2.4;
 		}
 		$luminance = 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
 		$white_contrast = 1.05 / ($luminance + 0.05);

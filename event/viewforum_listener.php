@@ -109,7 +109,7 @@ class viewforum_listener implements EventSubscriberInterface
 		$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
 
 		$forum_tags = $this->manager->get_available_tags($this->forum_id, false);
-		$available = array_filter($forum_tags, function ($tag) {
+		$available = array_filter($forum_tags, static function ($tag) {
 			return !empty($tag['prefix_enabled']);
 		});
 		$unavailable_ids = $this->manager->get_unavailable_tag_ids($this->forum_id);

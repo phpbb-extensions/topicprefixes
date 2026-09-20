@@ -25,8 +25,9 @@ a.topic-tag:focus,
 	text-decoration: none;
 }
 
-.topic-tag-selected {
-	box-shadow: 0 0 0 2px currentColor;
+.topic-tag-selected,
+.topic-tag-checkbox:checked + .topic-tag {
+	box-shadow: 0 0 0 2px #105289;
 }
 
 .topic-tag-choices {
@@ -50,10 +51,6 @@ a.topic-tag:focus,
 	position: absolute;
 	white-space: nowrap;
 	width: 1px;
-}
-
-.topic-tag-checkbox:checked + .topic-tag {
-	box-shadow: 0 0 0 2px currentColor;
 }
 
 .topic-tag-checkbox:checked + .topic-tag::before {

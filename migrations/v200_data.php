@@ -15,9 +15,11 @@ namespace phpbb\topicprefixes\migrations;
  */
 class v200_data extends \phpbb\db\migration\migration
 {
-	const DEFAULT_COLOR = '4A76A8';
-	const BATCH_SIZE = 500;
-	const UPDATE_CASE_BATCH_SIZE = 10;
+	protected const DEFAULT_COLOR = '4A76A8';
+	protected const BATCH_SIZE = 500;
+
+	// sql_case() produces nested CASE expressions; SQL Server supports at most 10 levels.
+	protected const UPDATE_CASE_BATCH_SIZE = 10;
 
 	/**
 	 * {@inheritdoc}

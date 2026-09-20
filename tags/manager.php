@@ -21,8 +21,8 @@ use phpbb\db\driver\driver_interface;
  */
 class manager
 {
-	const DEFAULT_COLOR = '4A76A8';
-	const CACHE_KEY = '_topicprefixes_tag_catalog';
+	public const DEFAULT_COLOR = '4A76A8';
+	public const CACHE_KEY = '_topicprefixes_tag_catalog';
 
 	/** @var driver_interface */
 	protected $db;

@@ -63,17 +63,17 @@ class lifecycle_listener_test extends \phpbb_test_case
 	public function test_complete_topic_merge_unions_deleted_source_tags(): void
 	{
 		$assignments = $this->assignment_mock();
-		$assignments->expects(self::once())->method('get_topic_tag_ids_for_topics')->with([10])->willReturn([10 => [2]]);
-		$assignments->expects(self::once())->method('add_validated_topic_tags')->with(20, [2])->willReturn(true);
+		$assignments->expects(self::once())->method('get_topic_tag_ids_for_topics')->with([10, 11])->willReturn([10 => [2], 11 => [2, 3]]);
+		$assignments->expects(self::once())->method('add_validated_topic_tags')->with(20, [2, 3])->willReturn(true);
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->delete_topic_relationships(new \phpbb\event\data([
-			'topic_ids' => [10],
+			'topic_ids' => [10, 11],
 			'table_ary' => ['phpbb_topics'],
 		]));
 		$listener->merge_topics_tags(new \phpbb\event\data([
 			'to_topic_id' => 20,
-			'all_topic_data' => [10 => [], 20 => []],
+			'all_topic_data' => [10 => [], 11 => [], 20 => []],
 		]));
 	}
 

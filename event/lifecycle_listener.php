@@ -191,13 +191,17 @@ class lifecycle_listener implements EventSubscriberInterface
 		foreach ($source_topic_ids as $source_topic_id)
 		{
 			$source_topic_id = (int) $source_topic_id;
-			$tag_ids = array_merge($tag_ids, $this->deleted_topic_tags[$source_topic_id] ?? $this->assignments->get_topic_tag_ids($source_topic_id));
+			$source_tag_ids = $this->deleted_topic_tags[$source_topic_id] ?? $this->assignments->get_topic_tag_ids($source_topic_id);
+			foreach ($source_tag_ids as $tag_id)
+			{
+				$tag_ids[(int) $tag_id] = true;
+			}
 			unset($this->deleted_topic_tags[$source_topic_id]);
 		}
 
 		if ($tag_ids)
 		{
-			$this->assignments->add_validated_topic_tags($target_topic_id, $tag_ids);
+			$this->assignments->add_validated_topic_tags($target_topic_id, array_keys($tag_ids));
 		}
 	}
 }

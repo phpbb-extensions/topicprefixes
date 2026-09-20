@@ -39,8 +39,4 @@ $lang = array_merge($lang, [
 	'TOPIC_TAG_NAME_REQUIRED' => 'Tag text is required.',
 	'TOPIC_TAG_COLOR_INVALID' => 'Badge color must be a six-digit hexadecimal color.',
 	'TOPIC_TAG_NOT_FOUND' => 'Requested topic tag does not exist.',
-
-	// Legacy keys remain for migration/module lineage and third-party language packs.
-	'TOPIC_PREFIXES' => 'Topic tags',
-	'TOPIC_PREFIXES_EXPLAIN' => 'Manage administrator-curated topic tags.',
 ]);

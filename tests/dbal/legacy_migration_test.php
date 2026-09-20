@@ -35,12 +35,23 @@ class legacy_migration_test extends tags_base
 		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = '[Other] untouched', topic_prefix_id = 1, topic_first_post_id = 101 WHERE topic_id = 11");
 		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = 'PHP 8.4 PHP only', topic_prefix_id = 2, topic_first_post_id = 102 WHERE topic_id = 12");
 		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = '[Random] No tags', topic_prefix_id = 0, topic_first_post_id = 103 WHERE topic_id = 13");
+		$this->db->sql_query('INSERT INTO phpbb_topics ' . $this->db->sql_build_array('INSERT', array(
+			'topic_id' => 14,
+			'forum_id' => 2,
+			'topic_title' => 'Bug Moved topic',
+			'topic_prefix_id' => 1,
+			'topic_first_post_id' => 105,
+			'topic_moved_id' => 10,
+			'topic_visibility' => ITEM_APPROVED,
+			'topic_type' => POST_NORMAL,
+		)));
 		foreach (array(
 			array(100, 10, 'Bug Both tags'),
 			array(101, 11, 'Unrelated first post'),
 			array(102, 12, 'PHP 8.4 PHP only'),
 			array(103, 13, '[Random] No tags'),
 			array(104, 10, 'Bug reply subject'),
+			array(105, 14, 'Bug Moved topic'),
 		) as $post)
 		{
 			$sql = 'INSERT INTO phpbb_posts ' . $this->db->sql_build_array('INSERT', array(
@@ -80,6 +91,9 @@ class legacy_migration_test extends tags_base
 		self::assertSame('Unrelated first post', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = 101', 'post_subject'));
 		self::assertSame('[Random] No tags', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 13', 'topic_title'));
 		self::assertSame('Bug reply subject', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = 104', 'post_subject'));
+		self::assertSame('Moved topic', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 14', 'topic_title'));
+		self::assertSame('Moved topic', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = 105', 'post_subject'));
+		self::assertSame(0, (int) $this->field('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_topics WHERE topic_id = 14', 'total'));
 		self::assertSame(1, (int) $this->field('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_forums WHERE forum_id = 2 AND prefix_id = 4', 'total'));
 
 		$result = $this->db->sql_query('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_topics WHERE topic_id = 10 AND prefix_id = 1');

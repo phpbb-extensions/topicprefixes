@@ -17,6 +17,7 @@ class v200_data extends \phpbb\db\migration\migration
 {
 	const DEFAULT_COLOR = '4A76A8';
 	const BATCH_SIZE = 500;
+	const UPDATE_CASE_BATCH_SIZE = 10;
 
 	/**
 	 * {@inheritdoc}
@@ -148,7 +149,7 @@ class v200_data extends \phpbb\db\migration\migration
 	 */
 	protected function get_legacy_topics(array $tables, int $last_topic_id): array
 	{
-		$sql = 'SELECT t.topic_id, t.topic_title, t.topic_first_post_id,
+		$sql = 'SELECT t.topic_id, t.topic_title, t.topic_first_post_id, t.topic_moved_id,
 				t.topic_prefix_id, p.prefix_tag, fp.post_subject
 			FROM ' . $tables['topics'] . ' t
 			INNER JOIN ' . $tables['tags'] . ' p
@@ -188,7 +189,7 @@ class v200_data extends \phpbb\db\migration\migration
 		{
 			$topic_id = (int) $topic['topic_id'];
 			$tag_id = (int) $topic['topic_prefix_id'];
-			if (empty($existing[$topic_id][$tag_id]))
+			if (empty($topic['topic_moved_id']) && empty($existing[$topic_id][$tag_id]))
 			{
 				$assignments[] = ['topic_id' => $topic_id, 'prefix_id' => $tag_id];
 			}
@@ -245,7 +246,7 @@ class v200_data extends \phpbb\db\migration\migration
 	}
 
 	/**
-	 * Update distinct text values with one CASE query.
+	 * Update distinct text values with portable, bounded conditional queries.
 	 *
 	 * @param string $table        Table name
 	 * @param string $id_column    Integer primary key column
@@ -260,17 +261,22 @@ class v200_data extends \phpbb\db\migration\migration
 			return;
 		}
 
-		$cases = [];
-		foreach ($changes as $id => $value)
+		foreach (array_chunk($changes, self::UPDATE_CASE_BATCH_SIZE, true) as $batch)
 		{
-			$cases[] = 'WHEN ' . (int) $id . " THEN '" . $this->db->sql_escape($value) . "'";
-		}
+			$value_sql = $value_column;
+			foreach (array_reverse($batch, true) as $id => $value)
+			{
+				$value_sql = $this->db->sql_case(
+					$id_column . ' = ' . (int) $id,
+					"'" . $this->db->sql_escape($value) . "'",
+					$value_sql
+				);
+			}
 
-		$sql = 'UPDATE ' . $table . '
-			SET ' . $value_column . ' = CASE ' . $id_column . ' ' . implode(' ', $cases) . '
-				ELSE ' . $value_column . '
-			END
-			WHERE ' . $this->db->sql_in_set($id_column, array_keys($changes));
-		$this->db->sql_query($sql);
+			$sql = 'UPDATE ' . $table . '
+				SET ' . $value_column . ' = ' . $value_sql . '
+				WHERE ' . $this->db->sql_in_set($id_column, array_keys($batch));
+			$this->db->sql_query($sql);
+		}
 	}
 }

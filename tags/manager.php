@@ -279,6 +279,22 @@ class manager
 	}
 
 	/**
+	 * Delete availability relationships for removed forums.
+	 *
+	 * @param array $forum_ids Forum identifiers
+	 * @return void
+	 */
+	public function delete_forum_availability(array $forum_ids): void
+	{
+		$forum_ids = array_values(array_unique(array_filter(array_map('intval', $forum_ids))));
+		if ($forum_ids)
+		{
+			$this->db->sql_query('DELETE FROM ' . $this->forums_map_table . '
+				WHERE ' . $this->db->sql_in_set('forum_id', $forum_ids));
+		}
+	}
+
+	/**
 	 * Move tag one position in display order.
 	 *
 	 * @param int    $tag_id    Tag identifier
@@ -313,13 +329,19 @@ class manager
 		$current_order = (int) $tags[$current]['prefix_order'];
 		$target_id = (int) $tags[$target]['prefix_id'];
 		$target_order = (int) $tags[$target]['prefix_order'];
+		$order = $this->db->sql_case(
+			'prefix_id = ' . $current_id,
+			(string) $target_order,
+			$this->db->sql_case(
+				'prefix_id = ' . $target_id,
+				(string) $current_order,
+				'prefix_order'
+			)
+		);
 
 		$this->db->sql_transaction('begin');
 		$sql = 'UPDATE ' . $this->tags_table . '
-			SET prefix_order = CASE prefix_id
-				WHEN ' . $current_id . ' THEN ' . $target_order . '
-				WHEN ' . $target_id . ' THEN ' . $current_order . '
-			END
+			SET prefix_order = ' . $order . '
 			WHERE ' . $this->db->sql_in_set('prefix_id', [$current_id, $target_id]);
 		$this->db->sql_query($sql);
 		$this->db->sql_transaction('commit');

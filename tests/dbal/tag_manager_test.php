@@ -59,6 +59,15 @@ class tag_manager_test extends tags_base
 		self::assertSame(array(1, 4), array_keys($this->create_tag_manager()->get_available_tags(3)));
 	}
 
+	public function test_deleted_forum_availability_is_removed()
+	{
+		$manager = $this->create_tag_manager();
+		$manager->delete_forum_availability([2, 999]);
+
+		self::assertSame([], $manager->get_available_tags(2, false));
+		self::assertSame([1, 4], array_keys($manager->get_available_tags(3, false)));
+	}
+
 	public function test_assignable_tags_reject_disabled_and_unavailable()
 	{
 		$tags = $this->create_tag_manager()->get_assignable_tags(2, array(1, 3, 4, 999));

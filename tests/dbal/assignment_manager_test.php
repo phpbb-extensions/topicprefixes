@@ -35,10 +35,12 @@ class assignment_manager_test extends tags_base
 	 */
 	public function test_batch_retrieval()
 	{
-		$tags = $this->create_assignment_manager()->get_tags_for_topics(array(10, 11, 13));
+		$manager = $this->create_assignment_manager();
+		$tags = $manager->get_tags_for_topics(array(10, 11, 13));
 		self::assertSame(array(1, 2), array_keys($tags[10]));
 		self::assertSame(array(1), array_keys($tags[11]));
 		self::assertArrayNotHasKey(13, $tags);
+		self::assertSame([10 => [1, 2], 11 => [1]], $manager->get_topic_tag_ids_for_topics([10, 11, 13]));
 	}
 
 	/**
@@ -61,7 +63,64 @@ class assignment_manager_test extends tags_base
 		$manager = $this->create_assignment_manager();
 
 		self::assertFalse($manager->set_topic_tags(0, [1]));
+		self::assertFalse($manager->set_topic_tags(999, [1]));
+		self::assertTrue($manager->set_topic_tags(13, [1]));
+		self::assertFalse($manager->set_topic_tags(13, [999]));
+		self::assertSame([1], $manager->get_topic_tag_ids(13));
 		self::assertSame([], $manager->get_tags_for_topics([0, 0]));
+		self::assertSame([], $manager->get_topic_tag_ids_for_topics([0, 0]));
+		self::assertSame([], $manager->get_effective_topic_ids([0, 0]));
 		self::assertSame([], $manager->get_topic_tag_ids(999));
+	}
+
+	/**
+	 * Test copying and merging assignments between topics.
+	 */
+	public function test_copy_and_add_topic_tags(): void
+	{
+		$manager = $this->create_assignment_manager();
+
+		self::assertTrue($manager->copy_topic_tags(10, 13));
+		self::assertSame([1, 2], $manager->get_topic_tag_ids(13));
+		self::assertTrue($manager->add_topic_tags(11, [2]));
+		self::assertSame([1, 2], $manager->get_topic_tag_ids(11));
+		self::assertFalse($manager->copy_topic_tags(999, 13));
+	}
+
+	/**
+	 * Test deletion helpers remove only relationships in scope.
+	 */
+	public function test_delete_assignment_helpers(): void
+	{
+		$manager = $this->create_assignment_manager();
+		$manager->delete_topic_assignments([10]);
+		self::assertSame([], $manager->get_topic_tag_ids(10));
+		self::assertSame([1], $manager->get_topic_tag_ids(11));
+
+		$manager->delete_forum_topic_assignments(2);
+		self::assertSame([], $manager->get_topic_tag_ids(11));
+		self::assertSame([], $manager->get_topic_tag_ids(12));
+	}
+
+	/**
+	 * Test shadow topics resolve to destination assignments.
+	 */
+	public function test_effective_topic_ids_resolve_shadows(): void
+	{
+		$this->db->sql_query('UPDATE phpbb_topics SET forum_id = 3, topic_moved_id = 10 WHERE topic_id = 13');
+		$manager = $this->create_assignment_manager();
+
+		self::assertSame([10 => 10, 13 => 10], $manager->get_effective_topic_ids([10, 13]));
+		self::assertSame([1, 2], array_keys($manager->get_tags_for_forum(3)));
+	}
+
+	/**
+	 * Test global-topic tags are filterable in every forum.
+	 */
+	public function test_global_topic_tags_are_available_to_forum_filters(): void
+	{
+		$this->db->sql_query('UPDATE phpbb_topics SET forum_id = 0, topic_type = ' . POST_GLOBAL . ' WHERE topic_id = 10');
+
+		self::assertSame([1, 2], array_keys($this->create_assignment_manager()->get_tags_for_forum(3)));
 	}
 }

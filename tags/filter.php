@@ -60,7 +60,13 @@ class filter
 			return '1=1';
 		}
 
-		return $topic_alias . '.topic_id IN (
+		$topic_id = $this->db->sql_case(
+			$topic_alias . '.topic_moved_id <> 0',
+			$topic_alias . '.topic_moved_id',
+			$topic_alias . '.topic_id'
+		);
+
+		return $topic_id . ' IN (
 			SELECT tpf.topic_id
 			FROM ' . $this->topic_map_table . ' tpf
 			WHERE ' . $this->db->sql_in_set('tpf.prefix_id', $tag_ids) . '

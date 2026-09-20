@@ -69,10 +69,13 @@ class viewforum_listener_test extends \phpbb_test_case
 		$listener->filter_announcements($announcements);
 		self::assertSame('(t.topic_type = 3) AND FILTER_CONDITION', $announcements['sql_ary']['WHERE']);
 
-		$assignments->expects(self::once())
+		$assignments->expects(self::exactly(2))
 			->method('get_tags_for_topics')
-			->with(array(10, 11))
-			->willReturn(array(10 => array(1 => $tags[1])));
+			->withConsecutive([array(10, 11)], [array(20)])
+			->willReturnOnConsecutiveCalls(
+				array(10 => array(1 => $tags[1])),
+				array(20 => array(2 => $tags[2]))
+			);
 		$listener->load_topic_tags(new \phpbb\event\data(array(
 			'rowset' => array(array('topic_id' => 10), array('topic_id' => 11)),
 		)));
@@ -82,6 +85,16 @@ class viewforum_listener_test extends \phpbb_test_case
 		));
 		$listener->add_topic_tags($row);
 		self::assertArrayHasKey('TOPIC_TAGS', $row['topic_row']);
+
+		$listener->load_topic_tags(new \phpbb\event\data(array(
+			'rowset' => array(array('topic_id' => 12, 'topic_moved_id' => 20)),
+		)));
+		$shadow = new \phpbb\event\data(array(
+			'row' => array('topic_id' => 12, 'topic_moved_id' => 20),
+			'topic_row' => array('TOPIC_TITLE' => 'Moved topic'),
+		));
+		$listener->add_topic_tags($shadow);
+		self::assertArrayHasKey('TOPIC_TAGS', $shadow['topic_row']);
 
 		$page = new \phpbb\event\data(array('base_url' => './viewforum.php?f=2', 'on_page' => 2, 'start_name' => 'start', 'per_page' => 25, 'generate_page_link_override' => false));
 		$listener->preserve_pagination_filter($page);

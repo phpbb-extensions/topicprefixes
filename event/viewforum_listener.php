@@ -57,6 +57,9 @@ class viewforum_listener implements EventSubscriberInterface
 	/** @var array Tags grouped by topic identifier */
 	protected $topic_tags = [];
 
+	/** @var array Effective tag-bearing topic IDs keyed by displayed topic ID */
+	protected $tag_topic_ids = [];
+
 	/**
 	 * Constructor.
 	 *
@@ -195,9 +198,13 @@ class viewforum_listener implements EventSubscriberInterface
 	public function load_topic_tags($event): void
 	{
 		$topic_ids = [];
+		$this->tag_topic_ids = [];
 		foreach ($event['rowset'] as $row)
 		{
-			$topic_ids[] = (int) $row['topic_id'];
+			$topic_id = (int) $row['topic_id'];
+			$tag_topic_id = !empty($row['topic_moved_id']) ? (int) $row['topic_moved_id'] : $topic_id;
+			$this->tag_topic_ids[$topic_id] = $tag_topic_id;
+			$topic_ids[] = $tag_topic_id;
 		}
 		$this->topic_tags = $this->assignments->get_tags_for_topics($topic_ids);
 	}
@@ -211,7 +218,8 @@ class viewforum_listener implements EventSubscriberInterface
 	public function add_topic_tags($event): void
 	{
 		$topic_id = (int) $event['row']['topic_id'];
-		$tags = $this->topic_tags[$topic_id] ?? [];
+		$tag_topic_id = $this->tag_topic_ids[$topic_id] ?? $topic_id;
+		$tags = $this->topic_tags[$tag_topic_id] ?? [];
 		$topic_row = $event['topic_row'];
 		$topic_row['TOPIC_TAGS'] = $this->renderer->render($tags, $this->forum_id, $this->selected_ids, $this->sort_params);
 		$event['topic_row'] = $topic_row;

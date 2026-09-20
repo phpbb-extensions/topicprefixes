@@ -63,6 +63,17 @@ class filter_test extends tags_base
 	}
 
 	/**
+	 * Test shadow topics filter using destination-topic assignments.
+	 */
+	public function test_shadow_topic_filter_uses_destination_tags(): void
+	{
+		$this->db->sql_query('UPDATE phpbb_topics SET topic_moved_id = 10 WHERE topic_id = 13');
+
+		self::assertSame([10, 11, 13], $this->query_ids([1]));
+		self::assertSame(3, $this->create_filter()->count_topics(2, [1]));
+	}
+
+	/**
 	 * Query topic identifiers matching tags.
 	 *
 	 * @param array $tag_ids Tag identifiers

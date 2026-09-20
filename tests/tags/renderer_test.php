@@ -71,4 +71,21 @@ class renderer_test extends \phpbb_test_case
 		self::assertStringContainsString('tags=2', $rendered[0]['U_FILTER']);
 		self::assertSame('#FFFFFF', $rendered[0]['TAG_TEXT_COLOR']);
 	}
+
+	/**
+	 * Test tags without a forum context do not receive filter URLs.
+	 */
+	public function test_rendered_tags_without_forum_are_not_filterable(): void
+	{
+		$renderer = new \phpbb\topicprefixes\tags\renderer('./', 'php');
+		$tags = [[
+			'prefix_id' => 1,
+			'prefix_tag' => 'Global',
+			'prefix_color' => 'D4351C',
+		]];
+
+		$rendered = $renderer->render($tags);
+
+		self::assertSame('', $rendered[0]['U_FILTER']);
+	}
 }

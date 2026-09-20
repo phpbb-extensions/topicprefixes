@@ -9,7 +9,7 @@
 - Added accessible tag selection when creating topics and editing first posts.
 - Added tag badges to forum, topic, and search displays.
 - Added multi-tag AND filtering to forum topic lists.
-- Preserved tag metadata through topic moves, splits, forks, merges, and ACP post relocation.
+- Preserved tag metadata through topic moves, splits, forks, and merges.
 - Added relationship cleanup for topic and forum deletion.
 - Added conservative migration of legacy definitions, assignments, titles, and first-post subjects.
 

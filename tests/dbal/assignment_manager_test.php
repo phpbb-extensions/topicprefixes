@@ -89,20 +89,6 @@ class assignment_manager_test extends tags_base
 	}
 
 	/**
-	 * Test bulk copying to phpBB-created topics.
-	 */
-	public function test_copy_tags_to_new_topics_is_batched(): void
-	{
-		$this->db->sql_query('DELETE FROM phpbb_topic_prefixes_topics WHERE ' . $this->db->sql_in_set('topic_id', [12, 13]));
-		$manager = $this->create_assignment_manager();
-
-		$manager->copy_tags_to_new_topics([10 => 12, 11 => 13]);
-
-		self::assertSame([1, 2], $manager->get_topic_tag_ids(12));
-		self::assertSame([1], $manager->get_topic_tag_ids(13));
-	}
-
-	/**
 	 * Test trusted lifecycle assignment helpers.
 	 */
 	public function test_validated_assignment_helpers(): void

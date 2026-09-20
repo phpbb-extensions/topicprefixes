@@ -22,7 +22,6 @@ class lifecycle_listener_test extends \phpbb_test_case
 			'core.mcp_main_fork_sql_after',
 			'core.mcp_forum_merge_topics_after',
 			'core.mcp_topics_merge_posts_after',
-			'core.acp_users_move_posts_after',
 		], array_keys(\phpbb\topicprefixes\event\lifecycle_listener::getSubscribedEvents()));
 	}
 
@@ -43,25 +42,22 @@ class lifecycle_listener_test extends \phpbb_test_case
 		$listener->delete_moved_forum_availability(new \phpbb\event\data(['from_id' => 3]));
 	}
 
-	public function test_split_fork_and_relocated_topics_copy_tags(): void
+	public function test_split_and_fork_topics_copy_tags(): void
 	{
 		$assignments = $this->assignment_mock();
-		$assignments->expects(self::exactly(3))
-			->method('copy_tags_to_new_topics')
+		$assignments->expects(self::exactly(2))
+			->method('copy_topic_tags')
 			->withConsecutive(
-				[[10 => 20]],
-				[[10 => 30]],
-				[[10 => 40, 11 => 41]]
-			);
+				[10, 20],
+				[10, 30]
+			)
+			->willReturn(true);
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->copy_split_tags(new \phpbb\event\data(['topic_id' => 10, 'to_topic_id' => 20]));
 		$fork = new \phpbb\event\data(['new_topic_id' => 30, 'row' => ['topic_id' => 10]]);
 		$listener->copy_fork_tags($fork);
 		$listener->copy_fork_tags($fork);
-		$listener->copy_relocated_post_tags(new \phpbb\event\data([
-			'new_topic_id_map' => [10 => 40, 11 => 41],
-		]));
 	}
 
 	public function test_complete_topic_merge_unions_deleted_source_tags(): void
@@ -86,7 +82,7 @@ class lifecycle_listener_test extends \phpbb_test_case
 		$assignments = $this->assignment_mock();
 		$assignments->expects(self::once())->method('get_topic_tag_ids_for_topics')->with([10])->willReturn([10 => [2]]);
 		$assignments->expects(self::once())->method('set_validated_topic_tags')->with(20, [2])->willReturn(true);
-		$assignments->expects(self::never())->method('copy_tags_to_new_topics');
+		$assignments->expects(self::never())->method('copy_topic_tags');
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->delete_topic_relationships(new \phpbb\event\data([

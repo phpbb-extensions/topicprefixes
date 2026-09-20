@@ -61,7 +61,6 @@ class lifecycle_listener implements EventSubscriberInterface
 			'core.mcp_main_fork_sql_after' => 'copy_fork_tags',
 			'core.mcp_forum_merge_topics_after' => 'merge_topics_tags',
 			'core.mcp_topics_merge_posts_after' => 'merge_posts_tags',
-			'core.acp_users_move_posts_after' => 'copy_relocated_post_tags',
 		];
 	}
 
@@ -130,7 +129,7 @@ class lifecycle_listener implements EventSubscriberInterface
 			return;
 		}
 
-		$this->assignments->copy_tags_to_new_topics([$source_topic_id => (int) $event['to_topic_id']]);
+		$this->assignments->copy_topic_tags($source_topic_id, (int) $event['to_topic_id']);
 	}
 
 	/**
@@ -148,7 +147,7 @@ class lifecycle_listener implements EventSubscriberInterface
 		}
 
 		$this->processed_forks[$new_topic_id] = true;
-		$this->assignments->copy_tags_to_new_topics([(int) $event['row']['topic_id'] => $new_topic_id]);
+		$this->assignments->copy_topic_tags((int) $event['row']['topic_id'], $new_topic_id);
 	}
 
 	/**
@@ -177,17 +176,6 @@ class lifecycle_listener implements EventSubscriberInterface
 		{
 			$this->merge_deleted_tags([$source_topic_id], (int) $event['to_topic_id']);
 		}
-	}
-
-	/**
-	 * Copy tags when ACP user administration creates topics from relocated posts.
-	 *
-	 * @param \phpbb\event\data $event Event data
-	 * @return void
-	 */
-	public function copy_relocated_post_tags($event): void
-	{
-		$this->assignments->copy_tags_to_new_topics($event['new_topic_id_map']);
 	}
 
 	/**

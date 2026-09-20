@@ -185,65 +185,6 @@ class assignment_manager
 	}
 
 	/**
-	 * Batch-copy relationships to topics newly created by phpBB.
-	 *
-	 * Target topics must not already have tag relationships. Source relationships
-	 * already guarantee valid tag identifiers, so no per-topic validation is run.
-	 *
-	 * @param array $topic_id_map Target topic IDs keyed by source topic ID
-	 * @return void
-	 */
-	public function copy_tags_to_new_topics(array $topic_id_map): void
-	{
-		$map = [];
-		foreach ($topic_id_map as $source_topic_id => $target_topic_id)
-		{
-			$source_topic_id = (int) $source_topic_id;
-			$target_topic_id = (int) $target_topic_id;
-			if ($source_topic_id && $target_topic_id && $source_topic_id !== $target_topic_id)
-			{
-				$map[$source_topic_id] = $target_topic_id;
-			}
-		}
-		if (!$map)
-		{
-			return;
-		}
-
-		$source_tags = $this->get_topic_tag_ids_for_topics(array_keys($map));
-		$target_tags = [];
-		foreach ($map as $source_topic_id => $target_topic_id)
-		{
-			foreach ($source_tags[$source_topic_id] ?? [] as $tag_id)
-			{
-				$target_tags[$target_topic_id][$tag_id] = true;
-			}
-		}
-
-		$rows = [];
-		foreach ($target_tags as $target_topic_id => $tag_ids)
-		{
-			foreach (array_keys($tag_ids) as $tag_id)
-			{
-				$rows[] = ['topic_id' => $target_topic_id, 'prefix_id' => $tag_id];
-			}
-		}
-		if ($rows)
-		{
-			$this->db->sql_multi_insert($this->topic_map_table, $rows);
-		}
-
-		foreach ($map as $target_topic_id)
-		{
-			$tag_ids = array_keys($target_tags[$target_topic_id] ?? []);
-			sort($tag_ids, SORT_NUMERIC);
-			$this->topic_tag_ids[$target_topic_id] = $tag_ids;
-			$this->topic_tag_ids_loaded[$target_topic_id] = true;
-			unset($this->topic_tags[$target_topic_id], $this->topic_tags_loaded[$target_topic_id]);
-		}
-	}
-
-	/**
 	 * Delete assignments belonging to topics.
 	 *
 	 * @param array $topic_ids Topic identifiers

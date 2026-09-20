@@ -122,7 +122,7 @@ class viewforum_listener implements EventSubscriberInterface
 		// Include tags preserved on topics moved from another forum.
 		foreach ($assigned as $tag_id => $tag)
 		{
-			if (!isset($forum_tags[$tag_id]))
+			if (!isset($forum_tags[$tag_id]) && !empty($tag['prefix_enabled']))
 			{
 				$available[$tag_id] = $tag;
 			}

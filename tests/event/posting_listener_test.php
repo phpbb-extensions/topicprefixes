@@ -66,7 +66,10 @@ class posting_listener_test extends \phpbb_test_case
 	{
 		$this->manager->method('get_available_tags')->willReturn($this->tags());
 		$this->request->method('is_set_post')->willReturn(false);
-		$this->assignments->expects(self::once())->method('get_topic_tag_ids')->with(10)->willReturn(array(2));
+		$this->assignments->expects(self::once())
+			->method('get_tags_for_topics')
+			->with(array(10))
+			->willReturn(array(10 => array(2 => $this->tags()[2])));
 		$event = new \phpbb\event\data(array(
 			'mode' => 'edit', 'forum_id' => 2, 'topic_id' => 10,
 			'post_data' => array('post_id' => 100, 'topic_first_post_id' => 100), 'page_data' => array(),
@@ -74,6 +77,54 @@ class posting_listener_test extends \phpbb_test_case
 		$this->listener()->add_to_posting_form($event);
 		self::assertFalse($event['page_data']['TOPIC_TAGS'][0]['S_SELECTED']);
 		self::assertTrue($event['page_data']['TOPIC_TAGS'][1]['S_SELECTED']);
+	}
+
+	/**
+	 * Test first-post edits retain tags unavailable in a topic's new forum.
+	 */
+	public function test_first_post_edit_preserves_moved_topic_tags(): void
+	{
+		$tags = $this->tags();
+		$this->manager->method('get_available_tags')->with(3)->willReturn(array(1 => $tags[1]));
+		$this->request->method('is_set_post')->willReturn(false);
+		$this->assignments->expects(self::once())
+			->method('get_tags_for_topics')
+			->with(array(10))
+			->willReturn(array(10 => array(2 => $tags[2])));
+		$event = new \phpbb\event\data(array(
+			'mode' => 'edit', 'forum_id' => 3, 'topic_id' => 10,
+			'post_data' => array('post_id' => 100, 'topic_first_post_id' => 100), 'page_data' => array(),
+		));
+
+		$this->listener()->add_to_posting_form($event);
+
+		self::assertCount(2, $event['page_data']['TOPIC_TAGS']);
+		self::assertTrue($event['page_data']['TOPIC_TAGS'][1]['S_SELECTED']);
+	}
+
+	/**
+	 * Test an existing moved-topic tag is valid on edit but cannot be newly added.
+	 */
+	public function test_moved_topic_tag_is_valid_only_for_existing_assignment(): void
+	{
+		$this->request->method('is_set_post')->willReturn(true);
+		$this->request->method('variable')->willReturn(array(2));
+		$this->manager->expects(self::once())
+			->method('get_assignable_tags')
+			->with(3, array(2))
+			->willReturn(array());
+		$this->assignments->expects(self::once())
+			->method('get_topic_tag_ids')
+			->with(10)
+			->willReturn(array(2));
+		$event = new \phpbb\event\data(array(
+			'submit' => true, 'mode' => 'edit', 'forum_id' => 3, 'topic_id' => 10,
+			'post_data' => array('post_id' => 100, 'topic_first_post_id' => 100), 'error' => array(),
+		));
+
+		$this->listener()->validate_submission($event);
+
+		self::assertSame(array(), $event['error']);
 	}
 
 	public function test_invalid_disabled_or_unavailable_ids_are_rejected()

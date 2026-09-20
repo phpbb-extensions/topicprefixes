@@ -42,6 +42,18 @@ class assignment_manager_test extends tags_base
 	}
 
 	/**
+	 * Test moving a topic preserves its tags and exposes them for forum filters.
+	 */
+	public function test_topic_move_preserves_assignments(): void
+	{
+		$this->db->sql_query('UPDATE phpbb_topics SET forum_id = 3 WHERE topic_id = 12');
+		$manager = $this->create_assignment_manager();
+
+		self::assertSame(array(2), $manager->get_topic_tag_ids(12));
+		self::assertSame(array(2), array_keys($manager->get_tags_for_forum(3)));
+	}
+
+	/**
 	 * Test invalid and empty identifiers avoid relationship queries.
 	 */
 	public function test_empty_identifiers_are_rejected(): void

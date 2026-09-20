@@ -61,6 +61,7 @@ services:
             - '@dbal.conn'
             - '%phpbb.topicprefixes.tables.topic_prefixes_topics%'
             - '%phpbb.topicprefixes.tables.topic_prefixes%'
+            - '%tables.topics%'
 
     phpbb.topicprefixes.tags.renderer:
         class: phpbb\topicprefixes\tags\renderer

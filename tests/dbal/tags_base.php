@@ -47,7 +47,8 @@ abstract class tags_base extends \phpbb_database_test_case
 		return new \phpbb\topicprefixes\tags\assignment_manager(
 			$this->db,
 			'phpbb_topic_prefixes_topics',
-			'phpbb_topic_prefixes'
+			'phpbb_topic_prefixes',
+			'phpbb_topics'
 		);
 	}
 }

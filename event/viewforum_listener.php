@@ -106,7 +106,18 @@ class viewforum_listener implements EventSubscriberInterface
 		$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
 
 		$available = $this->manager->get_available_tags($this->forum_id);
-		$filterable = $this->manager->get_available_tags($this->forum_id, false);
+		$forum_tags = $this->manager->get_available_tags($this->forum_id, false);
+		$assigned = $this->assignments->get_tags_for_forum($this->forum_id);
+		$filterable = $forum_tags + $assigned;
+
+		// Include tags preserved on topics moved from another forum.
+		foreach ($assigned as $tag_id => $tag)
+		{
+			if (!isset($forum_tags[$tag_id]))
+			{
+				$available[$tag_id] = $tag;
+			}
+		}
 		$this->selected_ids = array_values(array_intersect($this->get_requested_ids(), array_keys($filterable)));
 
 		// Keep disabled selected tags visible so users can remove active filters.

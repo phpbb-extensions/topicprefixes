@@ -90,9 +90,13 @@ class posting_listener implements EventSubscriberInterface
 
 		$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
 		$submitted = $this->get_submitted_tag_ids();
-		$valid = array_keys($this->manager->get_assignable_tags($event['forum_id'], $submitted));
+		$valid = $this->get_valid_tag_ids(
+			(int) $event['forum_id'],
+			$submitted,
+			$event['mode'],
+			(int) ($event['topic_id'] ?? 0)
+		);
 		sort($submitted, SORT_NUMERIC);
-		sort($valid, SORT_NUMERIC);
 		if ($submitted !== $valid)
 		{
 			$error = $event['error'];
@@ -119,6 +123,15 @@ class posting_listener implements EventSubscriberInterface
 
 		$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
 		$available = $this->manager->get_available_tags($event['forum_id']);
+		$assigned = [];
+		if ($event['mode'] === 'edit')
+		{
+			$topic_tags = $this->assignments->get_tags_for_topics([$event['topic_id']]);
+			$assigned = $topic_tags[(int) $event['topic_id']] ?? [];
+			$available += $assigned;
+			uasort($available, [$this, 'compare_tags']);
+		}
+
 		if (!$available)
 		{
 			return;
@@ -130,7 +143,7 @@ class posting_listener implements EventSubscriberInterface
 		}
 		else if ($event['mode'] === 'edit')
 		{
-			$selected = $this->assignments->get_topic_tag_ids($event['topic_id']);
+			$selected = array_keys($assigned);
 		}
 		else
 		{
@@ -163,7 +176,12 @@ class posting_listener implements EventSubscriberInterface
 		if ($this->submitted_tag_ids === null)
 		{
 			$submitted = $this->get_submitted_tag_ids();
-			$this->submitted_tag_ids = array_keys($this->manager->get_assignable_tags($event['forum_id'], $submitted));
+			$this->submitted_tag_ids = $this->get_valid_tag_ids(
+				(int) $event['forum_id'],
+				$submitted,
+				$event['mode'],
+				(int) ($event['topic_id'] ?? 0)
+			);
 		}
 	}
 
@@ -205,5 +223,44 @@ class posting_listener implements EventSubscriberInterface
 	{
 		$ids = $this->request->variable('topic_tags', [0]);
 		return array_values(array_unique(array_filter(array_map('intval', $ids))));
+	}
+
+	/**
+	 * Get submitted IDs valid for a new topic or first-post edit.
+	 *
+	 * Existing relationships remain valid on edit even when a topic has moved to
+	 * a forum where those tags cannot be assigned to new topics.
+	 *
+	 * @param int    $forum_id Forum identifier
+	 * @param array  $submitted Submitted tag identifiers
+	 * @param string $mode Posting mode
+	 * @param int    $topic_id Topic identifier
+	 * @return array Valid tag identifiers
+	 */
+	protected function get_valid_tag_ids(int $forum_id, array $submitted, string $mode, int $topic_id): array
+	{
+		$valid = array_keys($this->manager->get_assignable_tags($forum_id, $submitted));
+		if ($mode === 'edit' && $topic_id)
+		{
+			$current = $this->assignments->get_topic_tag_ids($topic_id);
+			$valid = array_unique(array_merge($valid, array_intersect($submitted, $current)));
+		}
+		sort($valid, SORT_NUMERIC);
+
+		return $valid;
+	}
+
+	/**
+	 * Compare tags by administrator order then identifier.
+	 *
+	 * @param array $left Left tag
+	 * @param array $right Right tag
+	 * @return int Comparison result
+	 */
+	protected function compare_tags(array $left, array $right): int
+	{
+		$order = (int) ($left['prefix_order'] ?? 0) <=> (int) ($right['prefix_order'] ?? 0);
+
+		return $order ?: (int) $left['prefix_id'] <=> (int) $right['prefix_id'];
 	}
 }

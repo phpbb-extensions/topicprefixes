@@ -44,8 +44,9 @@ class viewforum_listener_test extends \phpbb_test_case
 			2 => array('prefix_id' => 2, 'prefix_tag' => 'PHP 8.4', 'prefix_color' => '1D70B8', 'prefix_order' => 2),
 		);
 		$manager->method('get_available_tags')->willReturnCallback(function ($forum_id, $enabled_only = true) use ($tags) {
-			return $enabled_only ? array(1 => $tags[1]) : $tags;
+			return array(1 => $tags[1]);
 		});
+		$assignments->expects(self::once())->method('get_tags_for_forum')->with(2)->willReturn(array(2 => $tags[2]));
 		$request->method('variable')->with('tags', '')->willReturn('1,2');
 		$filter->expects(self::once())->method('count_topics')->with(2, array(1, 2), 0)->willReturn(7);
 		$filter->method('condition')->willReturn('FILTER_CONDITION');
@@ -105,6 +106,7 @@ class viewforum_listener_test extends \phpbb_test_case
 		$language = $this->getMockBuilder('\phpbb\language\language')->disableOriginalConstructor()->getMock();
 
 		$manager->method('get_available_tags')->willReturn(array());
+		$assignments->method('get_tags_for_forum')->willReturn(array());
 		$request->method('variable')->with('tags', '')->willReturn('1,invalid');
 		$filter->expects(self::never())->method('count_topics');
 		$renderer->method('render')->willReturn(array());

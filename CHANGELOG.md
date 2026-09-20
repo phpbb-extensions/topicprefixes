@@ -1,6 +1,6 @@
 # Changelog
 
-### 2.0.0 - 2026-09-19
+### 2.0.0 - TBD
 
 - Replaced title text prefixes with relational topic tag metadata.
 - Added multiple colored tags per topic and automatic badge text contrast.

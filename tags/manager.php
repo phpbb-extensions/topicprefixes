@@ -368,7 +368,7 @@ class manager
 			FROM ' . $this->forums_map_table . ' pf
 			INNER JOIN ' . $this->forums_table . ' f
 				ON f.forum_id = pf.forum_id
-			ORDER BY f.left_id ASC';
+			ORDER BY pf.prefix_id ASC, f.left_id ASC';
 		$result = $this->db->sql_query($sql);
 		$forums = [];
 		while ($row = $this->db->sql_fetchrow($result))

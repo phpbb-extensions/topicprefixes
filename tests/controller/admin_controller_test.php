@@ -81,12 +81,35 @@ class admin_controller_test extends \phpbb_test_case
 		$this->controller->toggle_tag(1);
 	}
 
+	public function test_ajax_toggle_sends_success_response(): void
+	{
+		$this->request->method('variable')->willReturn('valid');
+		$this->request->method('is_ajax')->willReturn(true);
+		$this->manager->expects(self::once())->method('get_tag')->with(1)->willReturn(array('prefix_enabled' => 1));
+		$this->manager->expects(self::once())->method('set_enabled')->with(1, false)->willReturn(true);
+
+		self::assertSame('{"success":true}', $this->capture_json_response(function () {
+			$this->controller->toggle_tag(1);
+		}));
+	}
+
 	public function test_move_updates_order()
 	{
 		$this->request->method('variable')->willReturn('valid');
 		$this->request->method('is_ajax')->willReturn(false);
 		$this->manager->expects(self::once())->method('move_tag')->with(2, 'down')->willReturn(true);
 		$this->controller->move_tag(2, 'down');
+	}
+
+	public function test_ajax_move_sends_success_response(): void
+	{
+		$this->request->method('variable')->willReturn('valid');
+		$this->request->method('is_ajax')->willReturn(true);
+		$this->manager->expects(self::once())->method('move_tag')->with(2, 'down')->willReturn(true);
+
+		self::assertSame('{"success":true}', $this->capture_json_response(function () {
+			$this->controller->move_tag(2, 'down');
+		}));
 	}
 
 	public function test_delete_requires_confirmation()
@@ -358,6 +381,65 @@ class admin_controller_test extends \phpbb_test_case
 				'forum_ids' => array(2),
 			)[$key] ?? $default;
 		});
+	}
+
+	/**
+	 * Run phpBB's real JSON response without terminating PHPUnit.
+	 *
+	 * @param callable $callback Controller action that sends a JSON response
+	 * @return string Captured response body
+	 */
+	protected function capture_json_response(callable $callback): string
+	{
+		global $cache, $db, $phpbb_dispatcher, $phpbb_hook;
+
+		$previous_globals = array($cache ?? null, $db ?? null, $phpbb_dispatcher ?? null, $phpbb_hook ?? null);
+		$cache = $db = $phpbb_dispatcher = null;
+		$phpbb_hook = new class
+		{
+			public function call_hook($name)
+			{
+				return $name === 'exit_handler';
+			}
+
+			public function hook_return($name)
+			{
+				return $name === 'exit_handler';
+			}
+
+			public function hook_return_result($name)
+			{
+				return null;
+			}
+		};
+
+		$previous_error_handler = null;
+		$previous_error_handler = set_error_handler(static function ($severity, $message, $file, $line, $context = null) use (&$previous_error_handler) {
+			if (strpos($message, 'Cannot modify header information') === 0)
+			{
+				return true;
+			}
+
+			return $previous_error_handler
+				? call_user_func($previous_error_handler, $severity, $message, $file, $line, $context)
+				: false;
+		});
+		$buffer_level = ob_get_level();
+		ob_start();
+		try
+		{
+			$callback();
+			return ob_get_clean();
+		}
+		finally
+		{
+			while (ob_get_level() > $buffer_level)
+			{
+				ob_end_clean();
+			}
+			restore_error_handler();
+			list($cache, $db, $phpbb_dispatcher, $phpbb_hook) = $previous_globals;
+		}
 	}
 }
 

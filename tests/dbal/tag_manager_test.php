@@ -54,10 +54,12 @@ class tag_manager_test extends tags_base
 
 	public function test_available_tags_exclude_disabled_and_wrong_forum()
 	{
-		$tags = $this->create_tag_manager()->get_available_tags(2);
+		$manager = $this->create_tag_manager();
+		$tags = $manager->get_available_tags(2);
 		self::assertSame(array(1, 2), array_keys($tags));
 		self::assertSame(array(1, 4), array_keys($this->create_tag_manager()->get_available_tags(3)));
 		self::assertSame([4], $this->create_tag_manager()->get_unavailable_tag_ids(2));
+		self::assertSame([1, 4], array_keys($manager->get_tags_by_ids([4, 1, 999, 1])));
 	}
 
 	/**

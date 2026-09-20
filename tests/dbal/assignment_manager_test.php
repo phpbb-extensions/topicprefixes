@@ -70,6 +70,7 @@ class assignment_manager_test extends tags_base
 		self::assertFalse($manager->set_topic_tags(13, [999]));
 		self::assertSame([1], $manager->get_topic_tag_ids(13));
 		self::assertSame([], $manager->get_tags_for_topics([0, 0]));
+		self::assertSame([], $manager->get_tags_for_displayed_topics([0, 0]));
 		self::assertSame([], $manager->get_topic_tag_ids_for_topics([0, 0]));
 		self::assertSame([], $manager->get_topic_tag_ids(999));
 	}

@@ -32,6 +32,7 @@ class renderer_test extends \phpbb_test_case
 		self::assertSame('#FFFFFF', $renderer->contrast_color('000000'));
 		self::assertSame('#000000', $renderer->contrast_color('FFFFFF'));
 		self::assertSame('#FFFFFF', $renderer->contrast_color('1D70B8'));
+		self::assertSame('#FFFFFF', $renderer->contrast_color('000000'));
 	}
 
 	/**

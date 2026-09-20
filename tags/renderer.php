@@ -21,6 +21,9 @@ class renderer
 	/** @var string PHP extension */
 	protected $php_ext;
 
+	/** @var array Request-local foreground colors keyed by background */
+	protected $contrast_colors = [];
+
 	/**
 	 * Constructor.
 	 *
@@ -46,17 +49,18 @@ class renderer
 	public function render(array $tags, int $forum_id = 0, array $selected_ids = [], array $url_params = [], bool $toggle = false): array
 	{
 		$selected_ids = array_values(array_unique(array_map('intval', $selected_ids)));
+		$selected = array_fill_keys($selected_ids, true);
 		$rendered = [];
 		foreach ($tags as $tag)
 		{
 			$tag_id = (int) $tag['prefix_id'];
-			$is_selected = in_array($tag_id, $selected_ids, true);
+			$is_selected = isset($selected[$tag_id]);
 			$link_ids = $selected_ids;
 			if ($toggle && $is_selected)
 			{
 				$link_ids = array_values(array_diff($link_ids, [$tag_id]));
 			}
-			else if (!in_array($tag_id, $link_ids, true))
+			else if (!isset($selected[$tag_id]))
 			{
 				$link_ids[] = $tag_id;
 			}
@@ -82,7 +86,11 @@ class renderer
 	 */
 	public function contrast_color(string $hex): string
 	{
-		$hex = ltrim($hex, '#');
+		$hex = strtoupper(ltrim($hex, '#'));
+		if (isset($this->contrast_colors[$hex]))
+		{
+			return $this->contrast_colors[$hex];
+		}
 		$channels = [
 			hexdec(substr($hex, 0, 2)) / 255,
 			hexdec(substr($hex, 2, 2)) / 255,
@@ -96,7 +104,7 @@ class renderer
 		$white_contrast = 1.05 / ($luminance + 0.05);
 		$black_contrast = ($luminance + 0.05) / 0.05;
 
-		return $white_contrast >= $black_contrast ? '#FFFFFF' : '#000000';
+		return $this->contrast_colors[$hex] = $white_contrast >= $black_contrast ? '#FFFFFF' : '#000000';
 	}
 
 	/**

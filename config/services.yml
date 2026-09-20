@@ -63,6 +63,7 @@ services:
             - '%phpbb.topicprefixes.tables.topic_prefixes_forums%'
             - '%phpbb.topicprefixes.tables.topic_prefixes_topics%'
             - '%tables.forums%'
+            - '@cache.driver'
 
     phpbb.topicprefixes.tags.assignment_manager:
         class: phpbb\topicprefixes\tags\assignment_manager

@@ -168,13 +168,9 @@ class display_listener_test extends \phpbb_test_case
 		$rendered = [['TAG_ID' => 1, 'TAG_NAME' => 'Bug']];
 
 		$assignments->expects(self::once())
-			->method('get_effective_topic_ids')
+			->method('get_tags_for_displayed_topics')
 			->with([42, 43])
-			->willReturn([42 => 99, 43 => 43]);
-		$assignments->expects(self::once())
-			->method('get_tags_for_topics')
-			->with([99, 43])
-			->willReturn([99 => [1 => $tag]]);
+			->willReturn([42 => [1 => $tag]]);
 		$renderer->expects(self::once())
 			->method('render')
 			->with([1 => $tag], 2)

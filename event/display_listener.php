@@ -35,9 +35,6 @@ class display_listener implements EventSubscriberInterface
 	/** @var array Tags grouped by MCP topic */
 	protected $mcp_tags = [];
 
-	/** @var array Effective tag-bearing topic IDs keyed by MCP topic ID */
-	protected $mcp_tag_topic_ids = [];
-
 	/** @var array Tags grouped by UCP topic */
 	protected $ucp_tags = [];
 
@@ -129,8 +126,7 @@ class display_listener implements EventSubscriberInterface
 	 */
 	public function load_mcp_tags($event): void
 	{
-		$this->mcp_tag_topic_ids = $this->assignments->get_effective_topic_ids($event['topic_list']);
-		$this->mcp_tags = $this->assignments->get_tags_for_topics(array_values($this->mcp_tag_topic_ids));
+		$this->mcp_tags = $this->assignments->get_tags_for_displayed_topics($event['topic_list']);
 	}
 
 	/**
@@ -142,10 +138,9 @@ class display_listener implements EventSubscriberInterface
 	public function add_mcp_tags($event): void
 	{
 		$topic_id = (int) $event['row']['topic_id'];
-		$tag_topic_id = $this->mcp_tag_topic_ids[$topic_id] ?? $topic_id;
 		$topic_row = $event['topic_row'];
 		$topic_row['MCP_TOPIC_TAGS'] = $this->renderer->render(
-			$this->mcp_tags[$tag_topic_id] ?? [],
+			$this->mcp_tags[$topic_id] ?? [],
 			(int) $event['row']['forum_id']
 		);
 		$event['topic_row'] = $topic_row;

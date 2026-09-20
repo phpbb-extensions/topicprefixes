@@ -40,7 +40,9 @@ class assignment_manager_test extends tags_base
 		self::assertSame(array(1, 2), array_keys($tags[10]));
 		self::assertSame(array(1), array_keys($tags[11]));
 		self::assertArrayNotHasKey(13, $tags);
+		$after_definitions = $this->db->sql_num_queries();
 		self::assertSame([10 => [1, 2], 11 => [1]], $manager->get_topic_tag_ids_for_topics([10, 11, 13]));
+		self::assertSame($after_definitions, $this->db->sql_num_queries());
 	}
 
 	/**
@@ -52,7 +54,7 @@ class assignment_manager_test extends tags_base
 		$manager = $this->create_assignment_manager();
 
 		self::assertSame(array(2), $manager->get_topic_tag_ids(12));
-		self::assertSame(array(2), array_keys($manager->get_tags_for_forum(3)));
+		self::assertSame(array(2), $manager->get_tag_ids_for_forum(3));
 	}
 
 	/**
@@ -69,7 +71,6 @@ class assignment_manager_test extends tags_base
 		self::assertSame([1], $manager->get_topic_tag_ids(13));
 		self::assertSame([], $manager->get_tags_for_topics([0, 0]));
 		self::assertSame([], $manager->get_topic_tag_ids_for_topics([0, 0]));
-		self::assertSame([], $manager->get_effective_topic_ids([0, 0]));
 		self::assertSame([], $manager->get_topic_tag_ids(999));
 	}
 
@@ -85,6 +86,33 @@ class assignment_manager_test extends tags_base
 		self::assertTrue($manager->add_topic_tags(11, [2]));
 		self::assertSame([1, 2], $manager->get_topic_tag_ids(11));
 		self::assertFalse($manager->copy_topic_tags(999, 13));
+	}
+
+	/**
+	 * Test bulk copying to phpBB-created topics.
+	 */
+	public function test_copy_tags_to_new_topics_is_batched(): void
+	{
+		$this->db->sql_query('DELETE FROM phpbb_topic_prefixes_topics WHERE ' . $this->db->sql_in_set('topic_id', [12, 13]));
+		$manager = $this->create_assignment_manager();
+
+		$manager->copy_tags_to_new_topics([10 => 12, 11 => 13]);
+
+		self::assertSame([1, 2], $manager->get_topic_tag_ids(12));
+		self::assertSame([1], $manager->get_topic_tag_ids(13));
+	}
+
+	/**
+	 * Test trusted lifecycle assignment helpers.
+	 */
+	public function test_validated_assignment_helpers(): void
+	{
+		$manager = $this->create_assignment_manager();
+
+		self::assertTrue($manager->set_validated_topic_tags(13, [1]));
+		self::assertTrue($manager->add_validated_topic_tags(13, [2]));
+		self::assertSame([1, 2], $manager->get_topic_tag_ids(13));
+		self::assertFalse($manager->set_validated_topic_tags(0, [1]));
 	}
 
 	/**
@@ -105,13 +133,29 @@ class assignment_manager_test extends tags_base
 	/**
 	 * Test shadow topics resolve to destination assignments.
 	 */
-	public function test_effective_topic_ids_resolve_shadows(): void
+	public function test_displayed_topic_tags_resolve_shadows(): void
 	{
 		$this->db->sql_query('UPDATE phpbb_topics SET forum_id = 3, topic_moved_id = 10 WHERE topic_id = 13');
 		$manager = $this->create_assignment_manager();
 
-		self::assertSame([10 => 10, 13 => 10], $manager->get_effective_topic_ids([10, 13]));
-		self::assertSame([1, 2], array_keys($manager->get_tags_for_forum(3)));
+		self::assertSame([1, 2], array_keys($manager->get_tags_for_displayed_topics([13])[13]));
+		self::assertSame([1, 2], $manager->get_tag_ids_for_forum(3));
+		self::assertSame([2], $manager->get_tag_ids_for_forum(3, [2]));
+	}
+
+	/**
+	 * Reapplying unchanged assignments performs no relationship writes.
+	 */
+	public function test_unchanged_assignment_avoids_database_churn(): void
+	{
+		$manager = $this->create_assignment_manager();
+		self::assertSame([1, 2], $manager->get_topic_tag_ids(10));
+		$before = $this->db->sql_num_queries();
+
+		self::assertTrue($manager->set_topic_tags(10, [2, 1, 2]));
+
+		// Only topic and tag validation queries; no DELETE or INSERT.
+		self::assertSame(2, $this->db->sql_num_queries() - $before);
 	}
 
 	/**
@@ -121,6 +165,6 @@ class assignment_manager_test extends tags_base
 	{
 		$this->db->sql_query('UPDATE phpbb_topics SET forum_id = 0, topic_type = ' . POST_GLOBAL . ' WHERE topic_id = 10');
 
-		self::assertSame([1, 2], array_keys($this->create_assignment_manager()->get_tags_for_forum(3)));
+		self::assertSame([1, 2], $this->create_assignment_manager()->get_tag_ids_for_forum(3));
 	}
 }

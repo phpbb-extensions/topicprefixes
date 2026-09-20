@@ -15,6 +15,9 @@ abstract class tags_base extends \phpbb_database_test_case
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
 
+	/** @var \phpbb_mock_cache */
+	protected $cache;
+
 	protected static function setup_extensions()
 	{
 		return array('phpbb/topicprefixes');
@@ -29,6 +32,7 @@ abstract class tags_base extends \phpbb_database_test_case
 	{
 		parent::setUp();
 		$this->db = $this->new_dbal();
+		$this->cache = new \phpbb_mock_cache();
 	}
 
 	protected function create_tag_manager()
@@ -38,7 +42,8 @@ abstract class tags_base extends \phpbb_database_test_case
 			'phpbb_topic_prefixes',
 			'phpbb_topic_prefixes_forums',
 			'phpbb_topic_prefixes_topics',
-			'phpbb_forums'
+			'phpbb_forums',
+			$this->cache
 		);
 	}
 

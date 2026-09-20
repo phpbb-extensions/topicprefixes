@@ -67,9 +67,10 @@ class posting_listener_test extends \phpbb_test_case
 		$this->manager->method('get_available_tags')->willReturn($this->tags());
 		$this->request->method('is_set_post')->willReturn(false);
 		$this->assignments->expects(self::once())
-			->method('get_tags_for_topics')
-			->with(array(10))
-			->willReturn(array(10 => array(2 => $this->tags()[2])));
+			->method('get_topic_tag_ids')
+			->with(10)
+			->willReturn(array(2));
+		$this->manager->method('get_tags_by_ids')->with(array(2))->willReturn(array(2 => $this->tags()[2]));
 		$event = new \phpbb\event\data(array(
 			'mode' => 'edit', 'forum_id' => 2, 'topic_id' => 10,
 			'post_data' => array('post_id' => 100, 'topic_first_post_id' => 100), 'page_data' => array(),
@@ -88,9 +89,10 @@ class posting_listener_test extends \phpbb_test_case
 		$this->manager->method('get_available_tags')->with(3)->willReturn(array(1 => $tags[1]));
 		$this->request->method('is_set_post')->willReturn(false);
 		$this->assignments->expects(self::once())
-			->method('get_tags_for_topics')
-			->with(array(10))
-			->willReturn(array(10 => array(2 => $tags[2])));
+			->method('get_topic_tag_ids')
+			->with(10)
+			->willReturn(array(2));
+		$this->manager->method('get_tags_by_ids')->with(array(2))->willReturn(array(2 => $tags[2]));
 		$event = new \phpbb\event\data(array(
 			'mode' => 'edit', 'forum_id' => 3, 'topic_id' => 10,
 			'post_data' => array('post_id' => 100, 'topic_first_post_id' => 100), 'page_data' => array(),
@@ -144,7 +146,7 @@ class posting_listener_test extends \phpbb_test_case
 		$this->request->method('is_set_post')->willReturn(true);
 		$this->request->method('variable')->willReturn(array(1, 2, 2));
 		$this->manager->method('get_assignable_tags')->willReturn($this->tags());
-		$this->assignments->expects(self::once())->method('set_topic_tags')->with(42, array(1, 2));
+		$this->assignments->expects(self::once())->method('set_validated_topic_tags')->with(42, array(1, 2));
 		$listener = $this->listener();
 		$validation = new \phpbb\event\data(array(
 			'submit' => true, 'mode' => 'post', 'forum_id' => 2, 'post_data' => array(), 'error' => array(),
@@ -170,7 +172,7 @@ class posting_listener_test extends \phpbb_test_case
 			->method('get_assignable_tags')
 			->with(2, array(1, 2))
 			->willReturn($this->tags());
-		$this->assignments->expects(self::once())->method('set_topic_tags')->with(42, array(1, 2));
+		$this->assignments->expects(self::once())->method('set_validated_topic_tags')->with(42, array(1, 2));
 		$listener = $this->listener();
 
 		$listener->capture_submission(new \phpbb\event\data(array(
@@ -186,7 +188,7 @@ class posting_listener_test extends \phpbb_test_case
 	{
 		$this->request->method('is_set_post')->willReturn(false);
 		$this->manager->expects(self::never())->method('get_assignable_tags');
-		$this->assignments->expects(self::never())->method('set_topic_tags');
+		$this->assignments->expects(self::never())->method('set_validated_topic_tags');
 		$listener = $this->listener();
 
 		$listener->validate_submission(new \phpbb\event\data(array(

@@ -29,6 +29,18 @@ class assignment_manager
 	/** @var string Topics table */
 	protected $topics_table;
 
+	/** @var array Request-local tag IDs grouped by topic */
+	protected $topic_tag_ids = [];
+
+	/** @var array Topics whose relationship IDs have been loaded */
+	protected $topic_tag_ids_loaded = [];
+
+	/** @var array Request-local tag definitions grouped by topic */
+	protected $topic_tags = [];
+
+	/** @var array Topics whose tag definitions have been loaded */
+	protected $topic_tags_loaded = [];
+
 	/**
 	 * Constructor.
 	 *
@@ -57,16 +69,62 @@ class assignment_manager
 	public function set_topic_tags(int $topic_id, array $tag_ids): bool
 	{
 		$topic_id = (int) $topic_id;
-		$tag_ids = array_values(array_unique(array_filter(array_map('intval', $tag_ids))));
+		$tag_ids = $this->normalize_ids($tag_ids);
 		if (!$topic_id || !$this->topic_exists($topic_id) || !$this->tags_exist($tag_ids))
 		{
 			return false;
 		}
 
+		return $this->replace_topic_tags($topic_id, $tag_ids);
+	}
+
+	/**
+	 * Replace assignments already validated by the posting workflow.
+	 *
+	 * This avoids repeating topic/tag existence queries after phpBB created the
+	 * topic and the tag manager validated every submitted identifier.
+	 *
+	 * @param int   $topic_id Topic identifier
+	 * @param array $tag_ids  Validated tag identifiers
+	 * @return bool Whether a valid topic identifier was supplied
+	 */
+	public function set_validated_topic_tags(int $topic_id, array $tag_ids): bool
+	{
+		$topic_id = (int) $topic_id;
+		if (!$topic_id)
+		{
+			return false;
+		}
+
+		return $this->replace_topic_tags($topic_id, $this->normalize_ids($tag_ids));
+	}
+
+	/**
+	 * Apply only changed topic/tag relationships.
+	 *
+	 * @param int   $topic_id Topic identifier
+	 * @param array $tag_ids  Normalized tag identifiers
+	 * @return bool True
+	 */
+	protected function replace_topic_tags(int $topic_id, array $tag_ids): bool
+	{
+		$current = $this->get_topic_tag_ids($topic_id);
+		$remove = array_values(array_diff($current, $tag_ids));
+		$add = array_values(array_diff($tag_ids, $current));
+		if (!$remove && !$add)
+		{
+			return true;
+		}
+
 		$this->db->sql_transaction('begin');
-		$this->db->sql_query('DELETE FROM ' . $this->topic_map_table . ' WHERE topic_id = ' . $topic_id);
+		if ($remove)
+		{
+			$this->db->sql_query('DELETE FROM ' . $this->topic_map_table . '
+				WHERE topic_id = ' . $topic_id . '
+					AND ' . $this->db->sql_in_set('prefix_id', $remove));
+		}
 		$rows = [];
-		foreach ($tag_ids as $tag_id)
+		foreach ($add as $tag_id)
 		{
 			$rows[] = ['topic_id' => $topic_id, 'prefix_id' => $tag_id];
 		}
@@ -75,6 +133,9 @@ class assignment_manager
 			$this->db->sql_multi_insert($this->topic_map_table, $rows);
 		}
 		$this->db->sql_transaction('commit');
+		$this->topic_tag_ids[$topic_id] = $tag_ids;
+		$this->topic_tag_ids_loaded[$topic_id] = true;
+		unset($this->topic_tags[$topic_id], $this->topic_tags_loaded[$topic_id]);
 
 		return true;
 	}
@@ -89,6 +150,21 @@ class assignment_manager
 	public function add_topic_tags(int $topic_id, array $tag_ids): bool
 	{
 		return $this->set_topic_tags($topic_id, array_merge($this->get_topic_tag_ids($topic_id), $tag_ids));
+	}
+
+	/**
+	 * Add relationships already validated by a phpBB lifecycle operation.
+	 *
+	 * @param int   $topic_id Topic identifier
+	 * @param array $tag_ids  Validated tag identifiers
+	 * @return bool Whether a valid topic identifier was supplied
+	 */
+	public function add_validated_topic_tags(int $topic_id, array $tag_ids): bool
+	{
+		return $this->set_validated_topic_tags(
+			$topic_id,
+			array_merge($this->get_topic_tag_ids($topic_id), $tag_ids)
+		);
 	}
 
 	/**
@@ -109,6 +185,65 @@ class assignment_manager
 	}
 
 	/**
+	 * Batch-copy relationships to topics newly created by phpBB.
+	 *
+	 * Target topics must not already have tag relationships. Source relationships
+	 * already guarantee valid tag identifiers, so no per-topic validation is run.
+	 *
+	 * @param array $topic_id_map Target topic IDs keyed by source topic ID
+	 * @return void
+	 */
+	public function copy_tags_to_new_topics(array $topic_id_map): void
+	{
+		$map = [];
+		foreach ($topic_id_map as $source_topic_id => $target_topic_id)
+		{
+			$source_topic_id = (int) $source_topic_id;
+			$target_topic_id = (int) $target_topic_id;
+			if ($source_topic_id && $target_topic_id && $source_topic_id !== $target_topic_id)
+			{
+				$map[$source_topic_id] = $target_topic_id;
+			}
+		}
+		if (!$map)
+		{
+			return;
+		}
+
+		$source_tags = $this->get_topic_tag_ids_for_topics(array_keys($map));
+		$target_tags = [];
+		foreach ($map as $source_topic_id => $target_topic_id)
+		{
+			foreach ($source_tags[$source_topic_id] ?? [] as $tag_id)
+			{
+				$target_tags[$target_topic_id][$tag_id] = true;
+			}
+		}
+
+		$rows = [];
+		foreach ($target_tags as $target_topic_id => $tag_ids)
+		{
+			foreach (array_keys($tag_ids) as $tag_id)
+			{
+				$rows[] = ['topic_id' => $target_topic_id, 'prefix_id' => $tag_id];
+			}
+		}
+		if ($rows)
+		{
+			$this->db->sql_multi_insert($this->topic_map_table, $rows);
+		}
+
+		foreach ($map as $target_topic_id)
+		{
+			$tag_ids = array_keys($target_tags[$target_topic_id] ?? []);
+			sort($tag_ids, SORT_NUMERIC);
+			$this->topic_tag_ids[$target_topic_id] = $tag_ids;
+			$this->topic_tag_ids_loaded[$target_topic_id] = true;
+			unset($this->topic_tags[$target_topic_id], $this->topic_tags_loaded[$target_topic_id]);
+		}
+	}
+
+	/**
 	 * Delete assignments belonging to topics.
 	 *
 	 * @param array $topic_ids Topic identifiers
@@ -116,11 +251,18 @@ class assignment_manager
 	 */
 	public function delete_topic_assignments(array $topic_ids): void
 	{
-		$topic_ids = array_values(array_unique(array_filter(array_map('intval', $topic_ids))));
+		$topic_ids = $this->normalize_ids($topic_ids);
 		if ($topic_ids)
 		{
 			$this->db->sql_query('DELETE FROM ' . $this->topic_map_table . '
 				WHERE ' . $this->db->sql_in_set('topic_id', $topic_ids));
+			foreach ($topic_ids as $topic_id)
+			{
+				$this->topic_tag_ids[$topic_id] = [];
+				$this->topic_tag_ids_loaded[$topic_id] = true;
+				$this->topic_tags[$topic_id] = [];
+				$this->topic_tags_loaded[$topic_id] = true;
+			}
 		}
 	}
 
@@ -139,6 +281,7 @@ class assignment_manager
 				WHERE forum_id = ' . (int) $forum_id . '
 			)';
 		$this->db->sql_query($sql);
+		$this->clear_request_cache();
 	}
 
 	/**
@@ -149,8 +292,8 @@ class assignment_manager
 	 */
 	public function get_topic_tag_ids(int $topic_id): array
 	{
-		$tags = $this->get_tags_for_topics([$topic_id]);
-		return isset($tags[$topic_id]) ? array_keys($tags[$topic_id]) : [];
+		$tag_ids = $this->get_topic_tag_ids_for_topics([$topic_id]);
+		return $tag_ids[$topic_id] ?? [];
 	}
 
 	/**
@@ -161,25 +304,44 @@ class assignment_manager
 	 */
 	public function get_topic_tag_ids_for_topics(array $topic_ids): array
 	{
-		$topic_ids = array_values(array_unique(array_filter(array_map('intval', $topic_ids))));
+		$topic_ids = $this->normalize_ids($topic_ids);
 		if (!$topic_ids)
 		{
 			return [];
 		}
 
-		$sql = 'SELECT topic_id, prefix_id
-			FROM ' . $this->topic_map_table . '
-			WHERE ' . $this->db->sql_in_set('topic_id', $topic_ids) . '
-			ORDER BY topic_id ASC, prefix_id ASC';
-		$result = $this->db->sql_query($sql);
-		$tag_ids = [];
-		while ($row = $this->db->sql_fetchrow($result))
+		$missing = array_values(array_filter($topic_ids, function ($topic_id) {
+			return !isset($this->topic_tag_ids_loaded[$topic_id]);
+		}));
+		if ($missing)
 		{
-			$tag_ids[(int) $row['topic_id']][] = (int) $row['prefix_id'];
+			foreach ($missing as $topic_id)
+			{
+				$this->topic_tag_ids[$topic_id] = [];
+				$this->topic_tag_ids_loaded[$topic_id] = true;
+			}
+			$sql = 'SELECT topic_id, prefix_id
+				FROM ' . $this->topic_map_table . '
+				WHERE ' . $this->db->sql_in_set('topic_id', $missing) . '
+				ORDER BY topic_id ASC, prefix_id ASC';
+			$result = $this->db->sql_query($sql);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$this->topic_tag_ids[(int) $row['topic_id']][] = (int) $row['prefix_id'];
+			}
+			$this->db->sql_freeresult($result);
 		}
-		$this->db->sql_freeresult($result);
 
-		return $tag_ids;
+		$return = [];
+		foreach ($topic_ids as $topic_id)
+		{
+			if ($this->topic_tag_ids[$topic_id])
+			{
+				$return[$topic_id] = $this->topic_tag_ids[$topic_id];
+			}
+		}
+
+		return $return;
 	}
 
 	/**
@@ -190,24 +352,87 @@ class assignment_manager
 	 */
 	public function get_tags_for_topics(array $topic_ids): array
 	{
-		$topic_ids = array_values(array_unique(array_filter(array_map('intval', $topic_ids))));
+		$topic_ids = $this->normalize_ids($topic_ids);
 		if (!$topic_ids)
 		{
 			return [];
 		}
 
-		$sql = 'SELECT pt.topic_id, p.*
-			FROM ' . $this->topic_map_table . ' pt
+		$missing = array_values(array_filter($topic_ids, function ($topic_id) {
+			return !isset($this->topic_tags_loaded[$topic_id]);
+		}));
+		if ($missing)
+		{
+			foreach ($missing as $topic_id)
+			{
+				$this->topic_tags[$topic_id] = [];
+				$this->topic_tags_loaded[$topic_id] = true;
+				$this->topic_tag_ids[$topic_id] = [];
+				$this->topic_tag_ids_loaded[$topic_id] = true;
+			}
+			$sql = 'SELECT pt.topic_id, p.*
+				FROM ' . $this->topic_map_table . ' pt
+				INNER JOIN ' . $this->tags_table . ' p
+					ON p.prefix_id = pt.prefix_id
+				WHERE ' . $this->db->sql_in_set('pt.topic_id', $missing) . '
+				ORDER BY p.prefix_order ASC, p.prefix_id ASC';
+			$result = $this->db->sql_query($sql);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$topic_id = (int) $row['topic_id'];
+				$tag_id = (int) $row['prefix_id'];
+				$this->topic_tags[$topic_id][$tag_id] = $row;
+				$this->topic_tag_ids[$topic_id][] = $tag_id;
+			}
+			$this->db->sql_freeresult($result);
+		}
+
+		$return = [];
+		foreach ($topic_ids as $topic_id)
+		{
+			if ($this->topic_tags[$topic_id])
+			{
+				$return[$topic_id] = $this->topic_tags[$topic_id];
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Batch-load tags keyed by displayed topic, resolving move shadows in SQL.
+	 *
+	 * @param array $topic_ids Topic or shadow-topic identifiers
+	 * @return array Tags grouped by displayed topic identifier
+	 */
+	public function get_tags_for_displayed_topics(array $topic_ids): array
+	{
+		$topic_ids = $this->normalize_ids($topic_ids);
+		if (!$topic_ids)
+		{
+			return [];
+		}
+
+		$effective_topic_id = $this->db->sql_case(
+			't.topic_moved_id <> 0',
+			't.topic_moved_id',
+			't.topic_id'
+		);
+		$sql = 'SELECT t.topic_id AS display_topic_id, p.*
+			FROM ' . $this->topics_table . ' t
+			INNER JOIN ' . $this->topic_map_table . ' pt
+				ON pt.topic_id = ' . $effective_topic_id . '
 			INNER JOIN ' . $this->tags_table . ' p
 				ON p.prefix_id = pt.prefix_id
-			WHERE ' . $this->db->sql_in_set('pt.topic_id', $topic_ids) . '
+			WHERE ' . $this->db->sql_in_set('t.topic_id', $topic_ids) . '
 			ORDER BY p.prefix_order ASC, p.prefix_id ASC';
 		$result = $this->db->sql_query($sql);
 		$tags = [];
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$topic_id = (int) $row['topic_id'];
+			$topic_id = (int) $row['display_topic_id'];
 			$tag_id = (int) $row['prefix_id'];
+			unset($row['display_topic_id']);
 			$tags[$topic_id][$tag_id] = $row;
 		}
 		$this->db->sql_freeresult($result);
@@ -216,68 +441,41 @@ class assignment_manager
 	}
 
 	/**
-	 * Resolve shadow topic identifiers to their destination topics.
-	 *
-	 * @param array $topic_ids Topic or shadow-topic identifiers
-	 * @return array Effective topic identifiers keyed by requested identifier
-	 */
-	public function get_effective_topic_ids(array $topic_ids): array
-	{
-		$topic_ids = array_values(array_unique(array_filter(array_map('intval', $topic_ids))));
-		if (!$topic_ids)
-		{
-			return [];
-		}
-
-		$sql = 'SELECT topic_id, topic_moved_id
-			FROM ' . $this->topics_table . '
-			WHERE ' . $this->db->sql_in_set('topic_id', $topic_ids);
-		$result = $this->db->sql_query($sql);
-		$resolved = [];
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$topic_id = (int) $row['topic_id'];
-			$resolved[$topic_id] = !empty($row['topic_moved_id']) ? (int) $row['topic_moved_id'] : $topic_id;
-		}
-		$this->db->sql_freeresult($result);
-
-		return $resolved;
-	}
-
-	/**
-	 * Get tags assigned to topics displayed in one forum.
+	 * Get tag IDs assigned to topics displayed in one forum.
 	 *
 	 * Includes tags that are disabled or unavailable for new assignments in the
 	 * forum, tags reached through move shadows, and tags on global announcements.
 	 *
-	 * @param int $forum_id Forum identifier
-	 * @return array Tags keyed by identifier
+	 * @param int   $forum_id     Forum identifier
+	 * @param array $candidate_ids Optional tag identifiers to examine
+	 * @return array Tag identifiers
 	 */
-	public function get_tags_for_forum(int $forum_id): array
+	public function get_tag_ids_for_forum(int $forum_id, array $candidate_ids = []): array
 	{
+		$candidate_ids = $this->normalize_ids($candidate_ids);
 		$effective_topic_id = $this->db->sql_case(
 			't.topic_moved_id <> 0',
 			't.topic_moved_id',
 			't.topic_id'
 		);
-		$sql = 'SELECT DISTINCT p.*
+		$sql = 'SELECT DISTINCT pt.prefix_id
 			FROM ' . $this->topic_map_table . ' pt
 			INNER JOIN ' . $this->topics_table . ' t
 				ON pt.topic_id = ' . $effective_topic_id . '
-			INNER JOIN ' . $this->tags_table . ' p
-				ON p.prefix_id = pt.prefix_id
 			WHERE (t.forum_id = ' . (int) $forum_id . '
-				OR t.topic_type = ' . POST_GLOBAL . ')
-			ORDER BY p.prefix_order ASC, p.prefix_id ASC';
+				OR t.topic_type = ' . POST_GLOBAL . ')' .
+			($candidate_ids ? '
+				AND ' . $this->db->sql_in_set('pt.prefix_id', $candidate_ids) : '') . '
+			ORDER BY pt.prefix_id ASC';
 		$result = $this->db->sql_query($sql);
-		$tags = [];
+		$tag_ids = [];
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$tags[(int) $row['prefix_id']] = $row;
+			$tag_ids[] = (int) $row['prefix_id'];
 		}
 		$this->db->sql_freeresult($result);
 
-		return $tags;
+		return $tag_ids;
 	}
 
 	/**
@@ -319,5 +517,32 @@ class assignment_manager
 		$this->db->sql_freeresult($result);
 
 		return $total === count($tag_ids);
+	}
+
+	/**
+	 * Normalize an identifier list.
+	 *
+	 * @param array $ids Identifiers
+	 * @return array Positive unique identifiers
+	 */
+	protected function normalize_ids(array $ids): array
+	{
+		$ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+		sort($ids, SORT_NUMERIC);
+
+		return $ids;
+	}
+
+	/**
+	 * Drop request-local relationship data after a bulk mutation.
+	 *
+	 * @return void
+	 */
+	protected function clear_request_cache(): void
+	{
+		$this->topic_tag_ids = [];
+		$this->topic_tag_ids_loaded = [];
+		$this->topic_tags = [];
+		$this->topic_tags_loaded = [];
 	}
 }

@@ -46,7 +46,9 @@ class viewforum_listener_test extends \phpbb_test_case
 		$manager->method('get_available_tags')->willReturnCallback(function ($forum_id, $enabled_only = true) use ($tags) {
 			return array(1 => $tags[1]);
 		});
-		$assignments->expects(self::once())->method('get_tags_for_forum')->with(2)->willReturn(array(2 => $tags[2]));
+		$manager->method('get_unavailable_tag_ids')->with(2)->willReturn([2]);
+		$manager->method('get_tags_by_ids')->with([2])->willReturn(array(2 => $tags[2]));
+		$assignments->expects(self::once())->method('get_tag_ids_for_forum')->with(2, [2])->willReturn([2]);
 		$request->method('variable')->with('tags', '')->willReturn('1,2');
 		$filter->expects(self::once())->method('count_topics')->with(2, array(1, 2), 0)->willReturn(7);
 		$filter->method('condition')->willReturn('FILTER_CONDITION');
@@ -119,7 +121,9 @@ class viewforum_listener_test extends \phpbb_test_case
 		$language = $this->getMockBuilder('\phpbb\language\language')->disableOriginalConstructor()->getMock();
 
 		$manager->method('get_available_tags')->willReturn(array());
-		$assignments->method('get_tags_for_forum')->willReturn(array());
+		$manager->method('get_unavailable_tag_ids')->willReturn(array());
+		$manager->method('get_tags_by_ids')->willReturn(array());
+		$assignments->method('get_tag_ids_for_forum')->willReturn(array());
 		$request->method('variable')->with('tags', '')->willReturn('1,invalid');
 		$filter->expects(self::never())->method('count_topics');
 		$renderer->method('render')->willReturn(array());

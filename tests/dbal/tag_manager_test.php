@@ -57,6 +57,31 @@ class tag_manager_test extends tags_base
 		$tags = $this->create_tag_manager()->get_available_tags(2);
 		self::assertSame(array(1, 2), array_keys($tags));
 		self::assertSame(array(1, 4), array_keys($this->create_tag_manager()->get_available_tags(3)));
+		self::assertSame([4], $this->create_tag_manager()->get_unavailable_tag_ids(2));
+	}
+
+	/**
+	 * Tag metadata is loaded once and shared through phpBB's cache driver.
+	 */
+	public function test_tag_catalog_is_cached(): void
+	{
+		$before = $this->db->sql_num_queries();
+		self::assertSame([1, 2], array_keys($this->create_tag_manager()->get_available_tags(2)));
+		$after_first_read = $this->db->sql_num_queries();
+		self::assertSame(1, $after_first_read - $before);
+
+		self::assertSame([1], array_keys($this->create_tag_manager()->get_assignable_tags(2, [1, 3, 999])));
+		self::assertSame($after_first_read, $this->db->sql_num_queries());
+	}
+
+	/**
+	 * Mutations invalidate request-independent catalog data.
+	 */
+	public function test_tag_catalog_is_invalidated_after_mutation(): void
+	{
+		self::assertArrayHasKey(1, $this->create_tag_manager()->get_available_tags(2));
+		self::assertTrue($this->create_tag_manager()->set_enabled(1, false));
+		self::assertArrayNotHasKey(1, $this->create_tag_manager()->get_available_tags(2));
 	}
 
 	public function test_deleted_forum_availability_is_removed()

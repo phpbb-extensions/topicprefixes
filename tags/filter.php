@@ -66,12 +66,18 @@ class filter
 			$topic_alias . '.topic_id'
 		);
 
-		return $topic_id . ' IN (
-			SELECT tpf.topic_id
+		$subquery = 'SELECT tpf.topic_id
 			FROM ' . $this->topic_map_table . ' tpf
-			WHERE ' . $this->db->sql_in_set('tpf.prefix_id', $tag_ids) . '
+			WHERE ' . $this->db->sql_in_set('tpf.prefix_id', $tag_ids);
+		if (count($tag_ids) > 1)
+		{
+			$subquery .= '
 			GROUP BY tpf.topic_id
-			HAVING COUNT(tpf.prefix_id) = ' . count($tag_ids) . '
+			HAVING COUNT(tpf.prefix_id) = ' . count($tag_ids);
+		}
+
+		return $topic_id . ' IN (
+			' . $subquery . '
 		)';
 	}
 

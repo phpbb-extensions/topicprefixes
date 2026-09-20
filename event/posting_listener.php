@@ -126,8 +126,9 @@ class posting_listener implements EventSubscriberInterface
 		$assigned = [];
 		if ($event['mode'] === 'edit')
 		{
-			$topic_tags = $this->assignments->get_tags_for_topics([$event['topic_id']]);
-			$assigned = $topic_tags[(int) $event['topic_id']] ?? [];
+			$assigned = $this->manager->get_tags_by_ids(
+				$this->assignments->get_topic_tag_ids((int) $event['topic_id'])
+			);
 			$available += $assigned;
 			uasort($available, [$this, 'compare_tags']);
 		}
@@ -198,7 +199,7 @@ class posting_listener implements EventSubscriberInterface
 			return;
 		}
 
-		$this->assignments->set_topic_tags((int) $event['data']['topic_id'], $this->submitted_tag_ids);
+		$this->assignments->set_validated_topic_tags((int) $event['data']['topic_id'], $this->submitted_tag_ids);
 		$this->submitted_tag_ids = null;
 	}
 

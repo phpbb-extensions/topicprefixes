@@ -31,6 +31,8 @@ class filter_test extends tags_base
 	 */
 	public function test_single_tag_filter()
 	{
+		$filter = $this->create_filter();
+		self::assertStringNotContainsString('GROUP BY', $filter->condition('t', [1]));
 		self::assertSame(array(10, 11), $this->query_ids(array(1)));
 	}
 
@@ -39,6 +41,7 @@ class filter_test extends tags_base
 	 */
 	public function test_multiple_tags_use_and_semantics_without_duplicates()
 	{
+		self::assertStringContainsString('GROUP BY', $this->create_filter()->condition('t', [1, 2]));
 		self::assertSame(array(10), $this->query_ids(array(1, 2)));
 	}
 

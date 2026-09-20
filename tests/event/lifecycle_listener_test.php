@@ -46,12 +46,13 @@ class lifecycle_listener_test extends \phpbb_test_case
 	public function test_split_fork_and_relocated_topics_copy_tags(): void
 	{
 		$assignments = $this->assignment_mock();
-		$assignments->expects(self::exactly(4))->method('copy_topic_tags')->withConsecutive(
-			[10, 20],
-			[10, 30],
-			[10, 40],
-			[11, 41]
-		)->willReturn(true);
+		$assignments->expects(self::exactly(3))
+			->method('copy_tags_to_new_topics')
+			->withConsecutive(
+				[[10 => 20]],
+				[[10 => 30]],
+				[[10 => 40, 11 => 41]]
+			);
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->copy_split_tags(new \phpbb\event\data(['topic_id' => 10, 'to_topic_id' => 20]));
@@ -67,7 +68,7 @@ class lifecycle_listener_test extends \phpbb_test_case
 	{
 		$assignments = $this->assignment_mock();
 		$assignments->expects(self::once())->method('get_topic_tag_ids_for_topics')->with([10])->willReturn([10 => [2]]);
-		$assignments->expects(self::once())->method('add_topic_tags')->with(20, [2])->willReturn(true);
+		$assignments->expects(self::once())->method('add_validated_topic_tags')->with(20, [2])->willReturn(true);
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->delete_topic_relationships(new \phpbb\event\data([
@@ -84,8 +85,8 @@ class lifecycle_listener_test extends \phpbb_test_case
 	{
 		$assignments = $this->assignment_mock();
 		$assignments->expects(self::once())->method('get_topic_tag_ids_for_topics')->with([10])->willReturn([10 => [2]]);
-		$assignments->expects(self::once())->method('set_topic_tags')->with(20, [2])->willReturn(true);
-		$assignments->expects(self::never())->method('copy_topic_tags');
+		$assignments->expects(self::once())->method('set_validated_topic_tags')->with(20, [2])->willReturn(true);
+		$assignments->expects(self::never())->method('copy_tags_to_new_topics');
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->delete_topic_relationships(new \phpbb\event\data([
@@ -100,7 +101,7 @@ class lifecycle_listener_test extends \phpbb_test_case
 		$assignments = $this->assignment_mock();
 		$assignments->expects(self::exactly(2))->method('topic_exists')->with(10)->willReturnOnConsecutiveCalls(true, false);
 		$assignments->expects(self::once())->method('get_topic_tag_ids')->with(10)->willReturn([1]);
-		$assignments->expects(self::once())->method('add_topic_tags')->with(20, [1])->willReturn(true);
+		$assignments->expects(self::once())->method('add_validated_topic_tags')->with(20, [1])->willReturn(true);
 		$listener = $this->listener($assignments, $this->manager_mock());
 		$event = new \phpbb\event\data(['topic_id' => 10, 'to_topic_id' => 20]);
 

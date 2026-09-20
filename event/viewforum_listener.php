@@ -108,9 +108,15 @@ class viewforum_listener implements EventSubscriberInterface
 		$this->forum_id = (int) $event['forum_id'];
 		$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
 
-		$available = $this->manager->get_available_tags($this->forum_id);
 		$forum_tags = $this->manager->get_available_tags($this->forum_id, false);
-		$assigned = $this->assignments->get_tags_for_forum($this->forum_id);
+		$available = array_filter($forum_tags, function ($tag) {
+			return !empty($tag['prefix_enabled']);
+		});
+		$unavailable_ids = $this->manager->get_unavailable_tag_ids($this->forum_id);
+		$assigned_ids = $unavailable_ids
+			? $this->assignments->get_tag_ids_for_forum($this->forum_id, $unavailable_ids)
+			: [];
+		$assigned = $this->manager->get_tags_by_ids($assigned_ids);
 		$filterable = $forum_tags + $assigned;
 
 		// Include tags preserved on topics moved from another forum.

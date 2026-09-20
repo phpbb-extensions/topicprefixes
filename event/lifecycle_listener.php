@@ -125,12 +125,12 @@ class lifecycle_listener implements EventSubscriberInterface
 		$source_topic_id = (int) $event['topic_id'];
 		if (isset($this->deleted_topic_tags[$source_topic_id]))
 		{
-			$this->assignments->set_topic_tags((int) $event['to_topic_id'], $this->deleted_topic_tags[$source_topic_id]);
+			$this->assignments->set_validated_topic_tags((int) $event['to_topic_id'], $this->deleted_topic_tags[$source_topic_id]);
 			unset($this->deleted_topic_tags[$source_topic_id]);
 			return;
 		}
 
-		$this->assignments->copy_topic_tags($source_topic_id, (int) $event['to_topic_id']);
+		$this->assignments->copy_tags_to_new_topics([$source_topic_id => (int) $event['to_topic_id']]);
 	}
 
 	/**
@@ -148,7 +148,7 @@ class lifecycle_listener implements EventSubscriberInterface
 		}
 
 		$this->processed_forks[$new_topic_id] = true;
-		$this->assignments->copy_topic_tags((int) $event['row']['topic_id'], $new_topic_id);
+		$this->assignments->copy_tags_to_new_topics([(int) $event['row']['topic_id'] => $new_topic_id]);
 	}
 
 	/**
@@ -187,10 +187,7 @@ class lifecycle_listener implements EventSubscriberInterface
 	 */
 	public function copy_relocated_post_tags($event): void
 	{
-		foreach ($event['new_topic_id_map'] as $source_topic_id => $new_topic_id)
-		{
-			$this->assignments->copy_topic_tags((int) $source_topic_id, (int) $new_topic_id);
-		}
+		$this->assignments->copy_tags_to_new_topics($event['new_topic_id_map']);
 	}
 
 	/**
@@ -212,7 +209,7 @@ class lifecycle_listener implements EventSubscriberInterface
 
 		if ($tag_ids)
 		{
-			$this->assignments->add_topic_tags($target_topic_id, $tag_ids);
+			$this->assignments->add_validated_topic_tags($target_topic_id, $tag_ids);
 		}
 	}
 }

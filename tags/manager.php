@@ -13,6 +13,7 @@
 
 namespace phpbb\topicprefixes\tags;
 
+use phpbb\cache\driver\driver_interface as cache;
 use phpbb\db\driver\driver_interface;
 
 /**
@@ -21,6 +22,7 @@ use phpbb\db\driver\driver_interface;
 class manager
 {
 	const DEFAULT_COLOR = '4A76A8';
+	const CACHE_KEY = '_topicprefixes_tag_catalog';
 
 	/** @var driver_interface */
 	protected $db;
@@ -37,22 +39,30 @@ class manager
 	/** @var string Forums table */
 	protected $forums_table;
 
+	/** @var cache|null */
+	protected $cache;
+
+	/** @var array|null Request-local tag catalog */
+	protected $catalog;
+
 	/**
 	 * Constructor.
 	 *
-	 * @param driver_interface $db               Database connection
-	 * @param string           $tags_table       Tag definition table
-	 * @param string           $forums_map_table Forum/tag map table
-	 * @param string           $topic_map_table  Topic/tag map table
-	 * @param string           $forums_table     Forums table
+	 * @param driver_interface $db Database connection
+	 * @param string $tags_table Tag definition table
+	 * @param string $forums_map_table Forum/tag map table
+	 * @param string $topic_map_table Topic/tag map table
+	 * @param string $forums_table Forums table
+	 * @param cache|null $cache Cache driver
 	 */
-	public function __construct(driver_interface $db, $tags_table, $forums_map_table, $topic_map_table, $forums_table)
+	public function __construct(driver_interface $db, $tags_table, $forums_map_table, $topic_map_table, $forums_table, cache $cache = null)
 	{
 		$this->db = $db;
 		$this->tags_table = $tags_table;
 		$this->forums_map_table = $forums_map_table;
 		$this->topic_map_table = $topic_map_table;
 		$this->forums_table = $forums_table;
+		$this->cache = $cache;
 	}
 
 	/**
@@ -63,19 +73,17 @@ class manager
 	 */
 	public function get_tag(int $tag_id)
 	{
-		$sql = 'SELECT *
-			FROM ' . $this->tags_table . '
-			WHERE prefix_id = ' . (int) $tag_id;
-		$result = $this->db->sql_query($sql);
-		$row = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
-
-		if ($row)
+		$catalog = $this->get_catalog();
+		$tag_id = (int) $tag_id;
+		if (!isset($catalog['tags'][$tag_id]))
 		{
-			$row['forum_ids'] = $this->get_forum_ids($row['prefix_id']);
+			return false;
 		}
 
-		return $row;
+		$tag = $catalog['tags'][$tag_id];
+		$tag['forum_ids'] = $catalog['tag_forums'][$tag_id] ?? [];
+
+		return $tag;
 	}
 
 	/**
@@ -85,18 +93,19 @@ class manager
 	 */
 	public function get_tags(): array
 	{
-		$sql = 'SELECT *
-			FROM ' . $this->tags_table . '
-			ORDER BY prefix_order ASC, prefix_id ASC';
-		$result = $this->db->sql_query($sql);
-		$tags = [];
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$tags[(int) $row['prefix_id']] = $row;
-		}
-		$this->db->sql_freeresult($result);
+		return $this->get_catalog()['tags'];
+	}
 
-		return $tags;
+	/**
+	 * Get selected tag definitions from the cached catalog.
+	 *
+	 * @param array $tag_ids Tag identifiers
+	 * @return array Tags keyed by identifier
+	 */
+	public function get_tags_by_ids(array $tag_ids): array
+	{
+		$requested = array_fill_keys(array_map('intval', $tag_ids), true);
+		return array_intersect_key($this->get_tags(), $requested);
 	}
 
 	/**
@@ -108,22 +117,26 @@ class manager
 	 */
 	public function get_available_tags(int $forum_id, bool $enabled_only = true): array
 	{
-		$sql = 'SELECT p.*
-			FROM ' . $this->tags_table . ' p
-			INNER JOIN ' . $this->forums_map_table . ' pf
-				ON pf.prefix_id = p.prefix_id
-			WHERE pf.forum_id = ' . (int) $forum_id .
-			($enabled_only ? ' AND p.prefix_enabled = 1' : '') . '
-			ORDER BY p.prefix_order ASC, p.prefix_id ASC';
-		$result = $this->db->sql_query($sql);
-		$tags = [];
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$tags[(int) $row['prefix_id']] = $row;
-		}
-		$this->db->sql_freeresult($result);
+		$catalog = $this->get_catalog();
+		$forum_tags = $catalog['forum_tags'][(int) $forum_id] ?? [];
+		return array_filter($catalog['tags'], static function ($tag, $tag_id) use ($enabled_only, $forum_tags) {
+			return isset($forum_tags[$tag_id]) && (!$enabled_only || !empty($tag['prefix_enabled']));
+		}, ARRAY_FILTER_USE_BOTH);
+	}
 
-		return $tags;
+	/**
+	 * Get definitions unavailable for new assignments in one forum.
+	 *
+	 * @param int $forum_id Forum identifier
+	 * @return array Tag identifiers
+	 */
+	public function get_unavailable_tag_ids(int $forum_id): array
+	{
+		$catalog = $this->get_catalog();
+		return array_keys(array_diff_key(
+			$catalog['tags'],
+			$catalog['forum_tags'][(int) $forum_id] ?? []
+		));
 	}
 
 	/**
@@ -141,23 +154,12 @@ class manager
 			return [];
 		}
 
-		$sql = 'SELECT p.*
-			FROM ' . $this->tags_table . ' p
-			INNER JOIN ' . $this->forums_map_table . ' pf
-				ON pf.prefix_id = p.prefix_id
-			WHERE pf.forum_id = ' . (int) $forum_id . '
-				AND p.prefix_enabled = 1
-				AND ' . $this->db->sql_in_set('p.prefix_id', $tag_ids) . '
-			ORDER BY p.prefix_order ASC, p.prefix_id ASC';
-		$result = $this->db->sql_query($sql);
-		$tags = [];
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$tags[(int) $row['prefix_id']] = $row;
-		}
-		$this->db->sql_freeresult($result);
-
-		return $tags;
+		$catalog = $this->get_catalog();
+		$forum_tags = $catalog['forum_tags'][(int) $forum_id] ?? [];
+		$submitted = array_fill_keys($tag_ids, true);
+		return array_filter($catalog['tags'], static function ($tag, $tag_id) use ($submitted, $forum_tags) {
+			return isset($submitted[$tag_id], $forum_tags[$tag_id]) && !empty($tag['prefix_enabled']);
+		}, ARRAY_FILTER_USE_BOTH);
 	}
 
 	/**
@@ -194,6 +196,7 @@ class manager
 		$tag_id = (int) $this->db->sql_nextid();
 		$this->replace_forums($tag_id, $forum_ids);
 		$this->db->sql_transaction('commit');
+		$this->invalidate_catalog();
 
 		return $this->get_tag($tag_id);
 	}
@@ -229,6 +232,7 @@ class manager
 		$this->db->sql_query($sql);
 		$this->replace_forums($tag_id, $forum_ids);
 		$this->db->sql_transaction('commit');
+		$this->invalidate_catalog();
 
 		return $this->get_tag($tag_id);
 	}
@@ -251,6 +255,7 @@ class manager
 			SET prefix_enabled = ' . (int) (bool) $enabled . '
 			WHERE prefix_id = ' . (int) $tag_id;
 		$this->db->sql_query($sql);
+		$this->invalidate_catalog();
 
 		return true;
 	}
@@ -274,6 +279,7 @@ class manager
 		$this->db->sql_query('DELETE FROM ' . $this->forums_map_table . ' WHERE prefix_id = ' . $tag_id);
 		$this->db->sql_query('DELETE FROM ' . $this->tags_table . ' WHERE prefix_id = ' . $tag_id);
 		$this->db->sql_transaction('commit');
+		$this->invalidate_catalog();
 
 		return true;
 	}
@@ -291,6 +297,7 @@ class manager
 		{
 			$this->db->sql_query('DELETE FROM ' . $this->forums_map_table . '
 				WHERE ' . $this->db->sql_in_set('forum_id', $forum_ids));
+			$this->invalidate_catalog();
 		}
 	}
 
@@ -345,31 +352,9 @@ class manager
 			WHERE ' . $this->db->sql_in_set('prefix_id', [$current_id, $target_id]);
 		$this->db->sql_query($sql);
 		$this->db->sql_transaction('commit');
+		$this->invalidate_catalog();
 
 		return true;
-	}
-
-	/**
-	 * Get forum identifiers assigned to one tag.
-	 *
-	 * @param int $tag_id Tag identifier
-	 * @return array Forum identifiers
-	 */
-	public function get_forum_ids(int $tag_id): array
-	{
-		$sql = 'SELECT forum_id
-			FROM ' . $this->forums_map_table . '
-			WHERE prefix_id = ' . (int) $tag_id . '
-			ORDER BY forum_id ASC';
-		$result = $this->db->sql_query($sql);
-		$forum_ids = [];
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$forum_ids[] = (int) $row['forum_id'];
-		}
-		$this->db->sql_freeresult($result);
-
-		return $forum_ids;
 	}
 
 	/**
@@ -415,11 +400,72 @@ class manager
 	 */
 	protected function tag_exists(int $tag_id): bool
 	{
-		$sql = 'SELECT prefix_id FROM ' . $this->tags_table . ' WHERE prefix_id = ' . (int) $tag_id;
+		return isset($this->get_catalog()['tags'][(int) $tag_id]);
+	}
+
+	/**
+	 * Load tag definitions and forum availability with one cacheable query.
+	 *
+	 * @return array Tag catalog
+	 */
+	protected function get_catalog(): array
+	{
+		if ($this->catalog !== null)
+		{
+			return $this->catalog;
+		}
+
+		if ($this->cache && ($catalog = $this->cache->get(self::CACHE_KEY)) !== false)
+		{
+			return $this->catalog = $catalog;
+		}
+
+		$catalog = [
+			'tags' => [],
+			'tag_forums' => [],
+			'forum_tags' => [],
+		];
+		$sql = 'SELECT p.*, pf.forum_id
+			FROM ' . $this->tags_table . ' p
+			LEFT JOIN ' . $this->forums_map_table . ' pf
+				ON pf.prefix_id = p.prefix_id
+			ORDER BY p.prefix_order ASC, p.prefix_id ASC, pf.forum_id ASC';
 		$result = $this->db->sql_query($sql);
-		$exists = $this->db->sql_fetchfield('prefix_id') !== false;
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$tag_id = (int) $row['prefix_id'];
+			$forum_id = (int) $row['forum_id'];
+			unset($row['forum_id']);
+			$catalog['tags'][$tag_id] = $row;
+			if ($forum_id)
+			{
+				$catalog['tag_forums'][$tag_id][] = $forum_id;
+				$catalog['forum_tags'][$forum_id][$tag_id] = true;
+			}
+		}
 		$this->db->sql_freeresult($result);
-		return $exists;
+
+		$this->catalog = $catalog;
+		if ($this->cache)
+		{
+			$this->cache->put(self::CACHE_KEY, $catalog);
+		}
+
+		return $catalog;
+	}
+
+	/**
+	 * Invalidate persistent and request-local tag metadata.
+	 *
+	 * @return void
+	 */
+	protected function invalidate_catalog(): void
+	{
+		$this->catalog = null;
+		if ($this->cache)
+		{
+			$this->cache->destroy(self::CACHE_KEY);
+		}
 	}
 
 	/**

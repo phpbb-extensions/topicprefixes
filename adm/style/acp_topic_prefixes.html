@@ -9,7 +9,7 @@
 	<thead>
 		<tr>
 			<th>{{ lang('TOPIC_TAG') }}</th>
-			<th>{{ lang('TOPIC_TAG_FORUMS') }}</th>
+			<th style="width:50%">{{ lang('TOPIC_TAG_FORUMS') }}</th>
 			<th>{{ lang('TOPIC_TAG_ENABLED') }}</th>
 			<th>{{ lang('ACTION') }}</th>
 		</tr>
@@ -20,7 +20,11 @@
 			<td><span class="topic-tag" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</span></td>
 			<td>
 				{% if tag.FORUM_NAMES %}
-					{% for forum_name in tag.FORUM_NAMES %}{{ forum_name }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+					<span class="topic-tag-forums" role="list">
+					{% for forum_name in tag.FORUM_NAMES %}
+						<span class="topic-tag-forum" role="listitem">{{ forum_name }}{% if not loop.last %}<span class="topic-tag-forum-separator" aria-hidden="true"> &middot;</span>{% endif %}</span>
+					{% endfor %}
+					</span>
 				{% else %}
 					{{ lang('TOPIC_TAG_NO_FORUMS') }}
 				{% endif %}
@@ -54,7 +58,7 @@
 		</dl>
 		<dl>
 			<dt><label for="tag_color">{{ lang('TOPIC_TAG_COLOR') ~ lang('COLON') }}</label><br><span>{{ lang('TOPIC_TAG_COLOR_EXPLAIN') }}</span></dt>
-			<dd><input type="color" id="tag_color" name="tag_color" value="{{ TAG_COLOR }}"></dd>
+			<dd><input type="color" class="topic-tag-color" id="tag_color" name="tag_color" value="{{ TAG_COLOR }}"></dd>
 		</dl>
 		<dl>
 			<dt><label for="tag_enabled">{{ lang('TOPIC_TAG_ENABLED') ~ lang('COLON') }}</label></dt>

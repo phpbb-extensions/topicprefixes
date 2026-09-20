@@ -23,6 +23,59 @@
 	text-align: center;
 }
 
+.topic-tag-forums {
+	line-height: 1.8;
+}
+
+.topic-tag-forum {
+	display: inline-block;
+	white-space: nowrap;
+}
+
+.topic-tag-forum-separator {
+	color: #6B7278;
+	margin-right: 0.5em;
+}
+
+.topic-tag-color,
+.topic-tag-color:hover,
+.topic-tag-color:focus {
+	background: #FFFFFF;
+	border: 1px solid #AFAEAA;
+	border-radius: 4px;
+	box-sizing: border-box;
+	color: inherit;
+	cursor: pointer;
+	height: 24px;
+	margin: 2px 0;
+	padding: 3px;
+	width: 48px;
+}
+
+.topic-tag-color:hover {
+	border-color: #666666;
+}
+
+.topic-tag-color:focus {
+	border-color: #BC2A4D;
+	box-shadow: 0 0 0 1px #BC2A4D;
+	outline: none;
+}
+
+.topic-tag-color::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+
+.topic-tag-color::-webkit-color-swatch {
+	border: 0;
+	border-radius: 2px;
+}
+
+.topic-tag-color::-moz-color-swatch {
+	border: 0;
+	border-radius: 2px;
+}
+
 #forum_ids {
 	min-width: 22em;
 }

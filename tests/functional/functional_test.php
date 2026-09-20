@@ -101,8 +101,11 @@ class functional_test extends \phpbb_functional_test_case
 		self::assertStringContainsString('Structured tag title', $crawler->filter('.topiclist.topics')->text());
 		self::assertCount(1, $crawler->filter('.topic-tag-filter-panel .topic-tag-selected'));
 
-		$crawler = self::request('GET', 'search.php?author_id=2&sr=posts' . "&sid={$this->sid}");
-		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('.postprofile .topic-tag')->text());
+		// Requires search_results_topic_title_prepend to be added to phpBB core.
+		// $crawler = self::request('GET', 'search.php?author_id=2&sr=posts' . "&sid={$this->sid}");
+		// self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('.postprofile .topic-tag')->text());
+		$crawler = self::request('GET', 'search.php?author_id=2&sr=topics' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
 
 		$crawler = self::request('GET', 'mcp.php?i=main&mode=forum_view&f=' . self::FORUM_ID . "&sid={$this->sid}");
 		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());

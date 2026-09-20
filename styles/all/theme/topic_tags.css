@@ -17,7 +17,9 @@
 }
 
 a.topic-tag:hover,
-a.topic-tag:focus {
+a.topic-tag:focus,
+.topic-tag-choices .topic-tag:hover,
+.topic-tag-checkbox:focus + .topic-tag {
 	filter: brightness(0.9);
 	text-decoration: none;
 }
@@ -33,6 +35,10 @@ a.topic-tag:focus {
 	gap: 5px;
 	margin: 0;
 	padding: 0;
+}
+
+.topic-tag-choices .topic-tag {
+	cursor: pointer;
 }
 
 .topic-tag-checkbox {

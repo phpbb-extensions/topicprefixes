@@ -5,14 +5,14 @@
 }
 
 .topic-tag {
-	border: 2px solid transparent;
+	background-image: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.35));
 	border-radius: 3px;
 	box-sizing: border-box;
 	display: inline-block;
 	font-size: 0.85em;
 	font-weight: 600;
 	line-height: 1.35;
-	padding: 1px 6px;
+	padding: 3px 8px;
 	text-decoration: none;
 	margin: 1px;
 }

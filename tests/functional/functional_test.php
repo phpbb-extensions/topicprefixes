@@ -34,6 +34,7 @@ class functional_test extends \phpbb_functional_test_case
 		$this->assertContainsLang('TOPIC_TAGS', $crawler->filter('#main')->text());
 		self::assertCount(1, $crawler->filter('input[type="color"]'));
 		self::assertCount(1, $crawler->filter('select[name="forum_ids[]"][multiple]'));
+		self::assertSame('50', $crawler->filter('input[name="tag_name"]')->attr('maxlength'));
 
 		return true;
 	}
@@ -44,11 +45,12 @@ class functional_test extends \phpbb_functional_test_case
 	public function test_acp_accepts_emoji_tag($module_ready)
 	{
 		self::assertTrue($module_ready);
+		$emoji_name = str_repeat('😇', 6);
 		$this->login();
 		$this->admin_login();
 		$crawler = $this->acp_page();
 		$form = $crawler->selectButton($this->lang('SUBMIT'))->form(array(
-			'tag_name' => '😇',
+			'tag_name' => $emoji_name,
 			'tag_color' => '#4a76a8',
 			'tag_enabled' => 1,
 			'forum_ids' => array(self::FORUM_ID),
@@ -59,22 +61,22 @@ class functional_test extends \phpbb_functional_test_case
 		$this->get_db();
 		$result = $this->db->sql_query("SELECT prefix_id
 			FROM phpbb_topic_prefixes
-			WHERE prefix_tag = '&#128519;'");
+			WHERE prefix_tag = '" . str_repeat('&#128519;', 6) . "'");
 		$tag_id = (int) $this->db->sql_fetchfield('prefix_id');
 		$this->db->sql_freeresult($result);
 		self::assertGreaterThan(0, $tag_id);
 
 		$crawler = $this->acp_page();
-		self::assertStringContainsString('😇', $crawler->filter('.topic-tag')->text());
+		self::assertStringContainsString($emoji_name, $crawler->filter('.topic-tag')->text());
 
 		$topic = $this->create_topic(self::FORUM_ID, 'Emoji tag topic', 'Emoji tag post', array(
 			'topic_tags' => array($tag_id),
 			'topic_tags_present' => 1,
 		));
 		$crawler = self::request('GET', 'viewtopic.php?t=' . $topic['topic_id'] . "&sid={$this->sid}");
-		self::assertStringContainsString('😇', $crawler->filter('h2.topic-title .topic-tag')->text());
+		self::assertStringContainsString($emoji_name, $crawler->filter('h2.topic-title .topic-tag')->text());
 		$crawler = self::request('GET', 'viewforum.php?f=' . self::FORUM_ID . "&sid={$this->sid}");
-		self::assertStringContainsString('😇', $crawler->filter('ul.topiclist .topic-tag')->text());
+		self::assertStringContainsString($emoji_name, $crawler->filter('ul.topiclist .topic-tag')->text());
 	}
 
 	/**

@@ -23,6 +23,7 @@ class manager
 {
 	public const DEFAULT_COLOR = '4A76A8';
 	public const CACHE_KEY = '_topicprefixes_tag_catalog';
+	public const MAX_NAME_LENGTH = 50;
 	public const MAX_NAME_STORAGE_LENGTH = 255;
 
 	/** @var driver_interface */
@@ -404,7 +405,12 @@ class manager
 	 */
 	public static function normalize_name(string $name): string
 	{
-		$name = utf8_encode_ucr(trim($name));
+		$name = trim($name);
+		if (utf8_strlen($name) > self::MAX_NAME_LENGTH)
+		{
+			return '';
+		}
+		$name = utf8_encode_ucr($name);
 
 		return utf8_strlen($name) <= self::MAX_NAME_STORAGE_LENGTH ? $name : '';
 	}

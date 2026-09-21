@@ -135,6 +135,8 @@ class tag_manager_test extends tags_base
 		$manager = $this->create_tag_manager();
 		self::assertSame('AABBCC', $manager->normalize_color('#aabbcc'));
 		self::assertSame('', $manager->normalize_color('red'));
+		self::assertSame(str_repeat('a', 50), \phpbb\topicprefixes\tags\manager::normalize_name(str_repeat('a', 50)));
+		self::assertSame('', \phpbb\topicprefixes\tags\manager::normalize_name(str_repeat('a', 51)));
 		self::assertSame('&#128519;', \phpbb\topicprefixes\tags\manager::normalize_name('😇'));
 		self::assertSame('', \phpbb\topicprefixes\tags\manager::normalize_name(str_repeat('😇', 29)));
 	}

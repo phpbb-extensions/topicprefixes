@@ -54,7 +54,7 @@
 		<legend>{{ lang(S_EDIT_TAG ? 'EDIT_TOPIC_TAG' : 'CREATE_TOPIC_TAG') }}</legend>
 		<dl>
 			<dt><label for="tag_name">{{ lang('TOPIC_TAG_TEXT') ~ lang('COLON') }}</label></dt>
-			<dd><input type="text" id="tag_name" name="tag_name" value="{{ TAG_NAME }}" maxlength="200" required></dd>
+			<dd><input type="text" id="tag_name" name="tag_name" value="{{ TAG_NAME }}" maxlength="50" required></dd>
 		</dl>
 		<dl>
 			<dt><label for="tag_color">{{ lang('TOPIC_TAG_COLOR') ~ lang('COLON') }}</label><br><span>{{ lang('TOPIC_TAG_COLOR_EXPLAIN') }}</span></dt>

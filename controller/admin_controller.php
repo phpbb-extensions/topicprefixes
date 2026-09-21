@@ -182,8 +182,7 @@ class admin_controller
 		{
 			$this->trigger_message('TOPIC_TAG_NAME_REQUIRED', E_USER_WARNING);
 		}
-		$name = manager::normalize_name($name);
-		if ($name === '')
+		if (manager::normalize_name($name) === '')
 		{
 			$this->trigger_message('TOPIC_TAG_NAME_TOO_LONG', E_USER_WARNING);
 		}

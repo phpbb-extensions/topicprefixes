@@ -202,15 +202,18 @@ class v200_data extends \phpbb\db\migration\migration
 				continue;
 			}
 
+			// These byte-string functions are intentional. strpos() confirms the
+			// exact prefix bytes, so its byte length is a safe UTF-8 boundary.
+			$legacy_length = strlen($legacy_text);
 			if (strpos($topic['topic_title'], $legacy_text) === 0)
 			{
-				$topic_titles[$topic_id] = substr($topic['topic_title'], strlen($legacy_text));
+				$topic_titles[$topic_id] = substr($topic['topic_title'], $legacy_length);
 			}
 
 			$post_id = (int) $topic['topic_first_post_id'];
 			if ($post_id && $topic['post_subject'] !== null && strpos($topic['post_subject'], $legacy_text) === 0)
 			{
-				$post_subjects[$post_id] = substr($topic['post_subject'], strlen($legacy_text));
+				$post_subjects[$post_id] = substr($topic['post_subject'], $legacy_length);
 			}
 		}
 

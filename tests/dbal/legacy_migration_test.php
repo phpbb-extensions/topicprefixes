@@ -36,14 +36,19 @@ class legacy_migration_test extends tags_base
 		$this->tools->sql_column_add('phpbb_topic_prefixes', 'forum_id', array('UINT', 0));
 
 		$this->db->sql_query("UPDATE phpbb_topic_prefixes SET prefix_left_id = prefix_id * 2 - 1, prefix_right_id = prefix_id * 2, forum_id = 2");
+		$this->db->sql_query('UPDATE phpbb_topic_prefixes
+			SET ' . $this->db->sql_build_array('UPDATE', array('prefix_tag' => 'バグ')) . '
+			WHERE prefix_id = 1');
 		$this->db->sql_query('DELETE FROM phpbb_topic_prefixes_forums WHERE prefix_id = 4');
-		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = 'Bug Both tags', topic_prefix_id = 1 WHERE topic_id = 10");
+		$this->db->sql_query('UPDATE phpbb_topics
+			SET ' . $this->db->sql_build_array('UPDATE', array('topic_title' => 'バグ Both tags', 'topic_prefix_id' => 1)) . '
+			WHERE topic_id = 10');
 		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = '[Other] untouched', topic_prefix_id = 1 WHERE topic_id = 11");
 		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = 'PHP 8.4 PHP only', topic_prefix_id = 2 WHERE topic_id = 12");
 		$this->db->sql_query("UPDATE phpbb_topics SET topic_title = '[Random] No tags', topic_prefix_id = 0 WHERE topic_id = 13");
 		$this->db->sql_query('INSERT INTO phpbb_topics ' . $this->db->sql_build_array('INSERT', array(
 			'forum_id' => 2,
-			'topic_title' => 'Bug Moved topic',
+			'topic_title' => 'バグ Moved topic',
 			'topic_prefix_id' => 1,
 			'topic_moved_id' => 10,
 			'topic_visibility' => ITEM_APPROVED,
@@ -52,12 +57,12 @@ class legacy_migration_test extends tags_base
 		$this->moved_topic_id = (int) $this->db->sql_nextid();
 
 		foreach (array(
-			array('both', 10, 'Bug Both tags'),
+			array('both', 10, 'バグ Both tags'),
 			array('unrelated', 11, 'Unrelated first post'),
 			array('php', 12, 'PHP 8.4 PHP only'),
 			array('random', 13, '[Random] No tags'),
-			array('reply', 10, 'Bug reply subject'),
-			array('moved', $this->moved_topic_id, 'Bug Moved topic'),
+			array('reply', 10, 'バグ reply subject'),
+			array('moved', $this->moved_topic_id, 'バグ Moved topic'),
 		) as $post)
 		{
 			$sql = 'INSERT INTO phpbb_posts ' . $this->db->sql_build_array('INSERT', array(
@@ -109,7 +114,7 @@ class legacy_migration_test extends tags_base
 		self::assertSame('[Other] untouched', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 11', 'topic_title'));
 		self::assertSame('Unrelated first post', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['unrelated'], 'post_subject'));
 		self::assertSame('[Random] No tags', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 13', 'topic_title'));
-		self::assertSame('Bug reply subject', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['reply'], 'post_subject'));
+		self::assertSame('バグ reply subject', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['reply'], 'post_subject'));
 		self::assertSame('Moved topic', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = ' . $this->moved_topic_id, 'topic_title'));
 		self::assertSame('Moved topic', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['moved'], 'post_subject'));
 		self::assertSame(0, (int) $this->field('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_topics WHERE topic_id = ' . $this->moved_topic_id, 'total'));

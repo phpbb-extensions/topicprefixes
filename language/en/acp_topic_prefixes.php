@@ -37,6 +37,7 @@ $lang = array_merge($lang, [
 	'TOPIC_TAG_SAVED' => 'Topic tag saved.',
 	'TOPIC_TAG_TOGGLE_STATE' => 'Enable or disable this topic tag',
 	'TOPIC_TAG_NAME_REQUIRED' => 'Tag text is required.',
+	'TOPIC_TAG_NAME_TOO_LONG' => 'Tag text is too long to store.',
 	'TOPIC_TAG_COLOR_INVALID' => 'Badge color must be a six-digit hexadecimal color.',
 	'TOPIC_TAG_NOT_FOUND' => 'Requested topic tag does not exist.',
 ]);

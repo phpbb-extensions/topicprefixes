@@ -40,6 +40,28 @@ class tag_manager_test extends tags_base
 		self::assertFalse($manager->get_tag($tag['prefix_id']));
 	}
 
+	public function test_four_byte_tag_names_use_phpbb_unicode_storage()
+	{
+		$manager = $this->create_tag_manager();
+		$tag = $manager->add_tag('😇', '4A76A8', true, array(2));
+
+		self::assertSame('😇', $tag['prefix_tag']);
+		$result = $this->db->sql_query('SELECT prefix_tag
+			FROM phpbb_topic_prefixes
+			WHERE prefix_id = ' . (int) $tag['prefix_id']);
+		self::assertSame('&#128519;', $this->db->sql_fetchfield('prefix_tag'));
+		$this->db->sql_freeresult($result);
+
+		$tag = $manager->update_tag($tag['prefix_id'], 'Fixed 🚀', '4A76A8', true, array(2));
+		self::assertSame('Fixed 🚀', $tag['prefix_tag']);
+		$result = $this->db->sql_query('SELECT prefix_tag
+			FROM phpbb_topic_prefixes
+			WHERE prefix_id = ' . (int) $tag['prefix_id']);
+		self::assertSame('Fixed &#128640;', $this->db->sql_fetchfield('prefix_tag'));
+		$this->db->sql_freeresult($result);
+		self::assertSame('Fixed 🚀', $this->create_tag_manager()->get_tag($tag['prefix_id'])['prefix_tag']);
+	}
+
 	public function test_delete_cascades_availability_and_topic_assignments()
 	{
 		$manager = $this->create_tag_manager();
@@ -113,6 +135,8 @@ class tag_manager_test extends tags_base
 		$manager = $this->create_tag_manager();
 		self::assertSame('AABBCC', $manager->normalize_color('#aabbcc'));
 		self::assertSame('', $manager->normalize_color('red'));
+		self::assertSame('&#128519;', \phpbb\topicprefixes\tags\manager::normalize_name('😇'));
+		self::assertSame('', \phpbb\topicprefixes\tags\manager::normalize_name(str_repeat('😇', 29)));
 	}
 
 	/**
@@ -123,6 +147,7 @@ class tag_manager_test extends tags_base
 		$manager = $this->create_tag_manager();
 
 		self::assertFalse($manager->add_tag('', 'FFFFFF', true, [2]));
+		self::assertFalse($manager->add_tag(str_repeat('😇', 29), 'FFFFFF', true, [2]));
 		self::assertFalse($manager->add_tag('Invalid color', 'red', true, [2]));
 		self::assertFalse($manager->update_tag(999, 'Missing', 'FFFFFF', true, [2]));
 		self::assertFalse($manager->set_enabled(999, true));

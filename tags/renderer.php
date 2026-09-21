@@ -67,7 +67,7 @@ class renderer
 
 			$rendered[] = [
 				'TAG_ID' => $tag_id,
-				'TAG_NAME' => $tag['prefix_tag'],
+				'TAG_NAME' => utf8_htmlspecialchars($tag['prefix_tag']),
 				'TAG_COLOR' => '#' . $tag['prefix_color'],
 				'TAG_TEXT_COLOR' => $this->contrast_color($tag['prefix_color']),
 				'S_SELECTED' => $is_selected,

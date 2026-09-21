@@ -23,6 +23,7 @@ class manager
 {
 	public const DEFAULT_COLOR = '4A76A8';
 	public const CACHE_KEY = '_topicprefixes_tag_catalog';
+	public const MAX_NAME_STORAGE_LENGTH = 255;
 
 	/** @var driver_interface */
 	protected $db;
@@ -173,7 +174,7 @@ class manager
 	 */
 	public function add_tag(string $name, string $color, bool $enabled, array $forum_ids)
 	{
-		$name = trim($name);
+		$name = self::normalize_name($name);
 		$color = $this->normalize_color($color);
 		if ($name === '' || $color === '')
 		{
@@ -214,7 +215,7 @@ class manager
 	public function update_tag(int $tag_id, string $name, string $color, bool $enabled, array $forum_ids)
 	{
 		$tag_id = (int) $tag_id;
-		$name = trim($name);
+		$name = self::normalize_name($name);
 		$color = $this->normalize_color($color);
 		if (!$tag_id || $name === '' || $color === '' || !$this->tag_exists($tag_id))
 		{
@@ -393,6 +394,33 @@ class manager
 	}
 
 	/**
+	 * Prepare tag text for phpBB's portable Unicode database storage.
+	 *
+	 * Four-byte characters are stored as numeric Unicode references. Reject
+	 * names whose stored representation would exceed the legacy column size.
+	 *
+	 * @param string $name Submitted tag text
+	 * @return string Storage-safe text, or empty string when invalid
+	 */
+	public static function normalize_name(string $name): string
+	{
+		$name = utf8_encode_ucr(trim($name));
+
+		return utf8_strlen($name) <= self::MAX_NAME_STORAGE_LENGTH ? $name : '';
+	}
+
+	/**
+	 * Restore phpBB's database-safe Unicode references for presentation.
+	 *
+	 * @param string $name Stored tag text
+	 * @return string Display text
+	 */
+	public static function decode_name(string $name): string
+	{
+		return utf8_decode_ncr($name);
+	}
+
+	/**
 	 * Check whether tag exists.
 	 *
 	 * @param int $tag_id Tag identifier
@@ -436,6 +464,7 @@ class manager
 			$tag_id = (int) $row['prefix_id'];
 			$forum_id = (int) $row['forum_id'];
 			unset($row['forum_id']);
+			$row['prefix_tag'] = self::decode_name($row['prefix_tag']);
 			$catalog['tags'][$tag_id] = $row;
 			if ($forum_id)
 			{

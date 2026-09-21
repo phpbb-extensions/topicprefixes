@@ -322,6 +322,7 @@ class assignment_manager
 			{
 				$topic_id = (int) $row['topic_id'];
 				$tag_id = (int) $row['prefix_id'];
+				$row['prefix_tag'] = manager::decode_name($row['prefix_tag']);
 				$this->topic_tags[$topic_id][$tag_id] = $row;
 				$this->topic_tag_ids[$topic_id][] = $tag_id;
 			}
@@ -374,6 +375,7 @@ class assignment_manager
 			$topic_id = (int) $row['display_topic_id'];
 			$tag_id = (int) $row['prefix_id'];
 			unset($row['display_topic_id']);
+			$row['prefix_tag'] = manager::decode_name($row['prefix_tag']);
 			$tags[$topic_id][$tag_id] = $row;
 		}
 		$this->db->sql_freeresult($result);

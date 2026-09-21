@@ -41,6 +41,45 @@ class functional_test extends \phpbb_functional_test_case
 	/**
 	 * @depends test_acp_module
 	 */
+	public function test_acp_accepts_emoji_tag($module_ready)
+	{
+		self::assertTrue($module_ready);
+		$this->login();
+		$this->admin_login();
+		$crawler = $this->acp_page();
+		$form = $crawler->selectButton($this->lang('SUBMIT'))->form(array(
+			'tag_name' => '😇',
+			'tag_color' => '#4a76a8',
+			'tag_enabled' => 1,
+			'forum_ids' => array(self::FORUM_ID),
+		));
+		$crawler = self::submit($form);
+		$this->assertContainsLang('TOPIC_TAG_SAVED', $crawler->text());
+
+		$this->get_db();
+		$result = $this->db->sql_query("SELECT prefix_id
+			FROM phpbb_topic_prefixes
+			WHERE prefix_tag = '&#128519;'");
+		$tag_id = (int) $this->db->sql_fetchfield('prefix_id');
+		$this->db->sql_freeresult($result);
+		self::assertGreaterThan(0, $tag_id);
+
+		$crawler = $this->acp_page();
+		self::assertStringContainsString('😇', $crawler->filter('.topic-tag')->text());
+
+		$topic = $this->create_topic(self::FORUM_ID, 'Emoji tag topic', 'Emoji tag post', array(
+			'topic_tags' => array($tag_id),
+			'topic_tags_present' => 1,
+		));
+		$crawler = self::request('GET', 'viewtopic.php?t=' . $topic['topic_id'] . "&sid={$this->sid}");
+		self::assertStringContainsString('😇', $crawler->filter('h2.topic-title .topic-tag')->text());
+		$crawler = self::request('GET', 'viewforum.php?f=' . self::FORUM_ID . "&sid={$this->sid}");
+		self::assertStringContainsString('😇', $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_acp_module
+	 */
 	public function test_create_shared_tagged_topic($module_ready)
 	{
 		self::assertTrue($module_ready);

@@ -89,4 +89,16 @@ class renderer_test extends \phpbb_test_case
 
 		self::assertSame('', $rendered[0]['U_FILTER']);
 	}
+
+	public function test_rendered_tag_names_are_plain_text(): void
+	{
+		$renderer = new \phpbb\topicprefixes\tags\renderer('./', 'php');
+		$rendered = $renderer->render([[
+			'prefix_id' => 1,
+			'prefix_tag' => '<strong>😇</strong>',
+			'prefix_color' => '4A76A8',
+		]]);
+
+		self::assertSame('&lt;strong&gt;😇&lt;/strong&gt;', $rendered[0]['TAG_NAME']);
+	}
 }

@@ -130,7 +130,7 @@ class admin_controller
 			$tag_id = (int) $tag['prefix_id'];
 			$this->template->assign_block_vars('tags', [
 				'TAG_ID' => $tag_id,
-				'TAG_NAME' => $tag['prefix_tag'],
+				'TAG_NAME' => utf8_htmlspecialchars($tag['prefix_tag']),
 				'TAG_COLOR' => '#' . $tag['prefix_color'],
 				'TAG_TEXT_COLOR' => $this->renderer->contrast_color($tag['prefix_color']),
 				'TAG_ENABLED' => (bool) $tag['prefix_enabled'],
@@ -154,7 +154,7 @@ class admin_controller
 			'U_ACTION' => $this->u_action,
 			'S_EDIT_TAG' => !empty($editing['prefix_id']),
 			'TAG_ID' => (int) $editing['prefix_id'],
-			'TAG_NAME' => $editing['prefix_tag'],
+			'TAG_NAME' => utf8_htmlspecialchars($editing['prefix_tag']),
 			'TAG_COLOR' => '#' . $editing['prefix_color'],
 			'TAG_ENABLED' => (bool) $editing['prefix_enabled'],
 			'S_FORUM_OPTIONS' => make_forum_select($editing['forum_ids'], false, false, true),
@@ -181,6 +181,11 @@ class admin_controller
 		if (trim($name) === '')
 		{
 			$this->trigger_message('TOPIC_TAG_NAME_REQUIRED', E_USER_WARNING);
+		}
+		$name = manager::normalize_name($name);
+		if ($name === '')
+		{
+			$this->trigger_message('TOPIC_TAG_NAME_TOO_LONG', E_USER_WARNING);
 		}
 		if ($this->manager->normalize_color($color) === '')
 		{
@@ -324,7 +329,7 @@ class admin_controller
 	 */
 	protected function log(string $tag, string $message): void
 	{
-		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$tag]);
+		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [utf8_encode_ucr($tag)]);
 	}
 
 	/**

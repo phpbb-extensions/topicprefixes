@@ -45,6 +45,19 @@ class assignment_manager_test extends tags_base
 		self::assertSame($after_definitions, $this->db->sql_num_queries());
 	}
 
+	public function test_tag_names_are_decoded_for_topic_display_queries()
+	{
+		$this->db->sql_query("UPDATE phpbb_topic_prefixes
+			SET prefix_tag = '&#129522;'
+			WHERE prefix_id = 1");
+		$manager = $this->create_assignment_manager();
+
+		self::assertSame('🧲', $manager->get_tags_for_topics([10])[10][1]['prefix_tag']);
+
+		$this->db->sql_query('UPDATE phpbb_topics SET topic_moved_id = 10 WHERE topic_id = 13');
+		self::assertSame('🧲', $manager->get_tags_for_displayed_topics([13])[13][1]['prefix_tag']);
+	}
+
 	/**
 	 * Test moving a topic preserves its tags and exposes them for forum filters.
 	 */

@@ -2,7 +2,7 @@
 	<span class="topic-tags {{ badge_class }}">
 	{% for tag in tags %}
 		{% if tag.U_FILTER %}
-		<a class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</a>
+		<a class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}" title="{{ lang('TOPIC_TAG_FILTER_TOOLTIP', tag.TAG_NAME) }}" aria-label="{{ lang('TOPIC_TAG_FILTER_TOOLTIP', tag.TAG_NAME) }}">{{ tag.TAG_NAME }}</a>
 		{% else %}
 		<span class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</span>
 		{% endif %}

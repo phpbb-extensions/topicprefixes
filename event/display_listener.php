@@ -10,9 +10,10 @@
 
 namespace phpbb\topicprefixes\event;
 
+use phpbb\language\language;
+use phpbb\template\template;
 use phpbb\topicprefixes\tags\assignment_manager;
 use phpbb\topicprefixes\tags\renderer;
-use phpbb\template\template;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -29,6 +30,12 @@ class display_listener implements EventSubscriberInterface
 	/** @var template Template object */
 	protected $template;
 
+	/** @var language Language object */
+	protected $language;
+
+	/** @var bool Whether extension language has been loaded */
+	protected $language_loaded = false;
+
 	/** @var array Tags grouped by search result topic */
 	protected $search_tags = [];
 
@@ -44,12 +51,14 @@ class display_listener implements EventSubscriberInterface
 	 * @param assignment_manager $assignments Topic/tag assignment manager
 	 * @param renderer           $renderer    Topic tag renderer
 	 * @param template           $template    Template object
+	 * @param language           $language    Language object
 	 */
-	public function __construct(assignment_manager $assignments, renderer $renderer, template $template)
+	public function __construct(assignment_manager $assignments, renderer $renderer, template $template, language $language)
 	{
 		$this->assignments = $assignments;
 		$this->renderer = $renderer;
 		$this->template = $template;
+		$this->language = $language;
 	}
 
 	/**
@@ -78,6 +87,7 @@ class display_listener implements EventSubscriberInterface
 	 */
 	public function add_viewtopic_tags($event): void
 	{
+		$this->load_language();
 		$topic_id = (int) $event['topic_id'];
 		$tags = $this->assignments->get_tags_for_topics([$topic_id]);
 		$topic_tags = $tags[$topic_id] ?? [];
@@ -111,6 +121,7 @@ class display_listener implements EventSubscriberInterface
 	 */
 	public function add_search_tags($event): void
 	{
+		$this->load_language();
 		$topic_id = (int) $event['row']['topic_id'];
 		$tags = $this->search_tags[$topic_id] ?? [];
 		$tpl = $event['tpl_ary'];
@@ -137,6 +148,7 @@ class display_listener implements EventSubscriberInterface
 	 */
 	public function add_mcp_tags($event): void
 	{
+		$this->load_language();
 		$topic_id = (int) $event['row']['topic_id'];
 		$topic_row = $event['topic_row'];
 		$topic_row['MCP_TOPIC_TAGS'] = $this->renderer->render(
@@ -165,6 +177,7 @@ class display_listener implements EventSubscriberInterface
 	 */
 	public function add_ucp_front_tags($event): void
 	{
+		$this->load_language();
 		$topic_id = (int) $event['row']['topic_id'];
 		$topic_row = $event['topicrow'];
 		$topic_row['TOPIC_TAGS'] = $this->renderer->render(
@@ -182,6 +195,7 @@ class display_listener implements EventSubscriberInterface
 	 */
 	public function add_ucp_topiclist_tags($event): void
 	{
+		$this->load_language();
 		$topic_id = (int) $event['topic_id'];
 		$template_vars = $event['template_vars'];
 		$template_vars['TOPIC_TAGS'] = $this->renderer->render(
@@ -189,5 +203,19 @@ class display_listener implements EventSubscriberInterface
 			(int) $event['forum_id']
 		);
 		$event['template_vars'] = $template_vars;
+	}
+
+	/**
+	 * Load tooltip language once for display contexts.
+	 *
+	 * @return void
+	 */
+	protected function load_language(): void
+	{
+		if (!$this->language_loaded)
+		{
+			$this->language->add_lang('topic_prefixes', 'phpbb/topicprefixes');
+			$this->language_loaded = true;
+		}
 	}
 }

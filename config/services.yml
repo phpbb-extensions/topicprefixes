@@ -32,6 +32,7 @@ services:
             - '@phpbb.topicprefixes.tags.assignment_manager'
             - '@phpbb.topicprefixes.tags.renderer'
             - '@template'
+            - '@language'
         tags:
             - { name: event.listener }
 

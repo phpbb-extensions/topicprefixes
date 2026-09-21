@@ -69,7 +69,7 @@ class display_listener_test extends \phpbb_test_case
 		$template->expects(self::never())
 			->method('assign_var');
 
-		$listener = new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template);
+		$listener = $this->listener($assignments, $renderer, $template);
 		$event = new \phpbb\event\data(['topic_id' => 42, 'forum_id' => 2]);
 		$listener->add_viewtopic_tags($event);
 	}
@@ -98,7 +98,7 @@ class display_listener_test extends \phpbb_test_case
 			->with([1 => $tag], 2)
 			->willReturn($rendered);
 
-		$listener = new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template);
+		$listener = $this->listener($assignments, $renderer, $template);
 		$listener->load_search_tags(new \phpbb\event\data([
 			'rowset' => [['topic_id' => 42], ['topic_id' => 43]],
 			'show_results' => 'topics',
@@ -137,7 +137,7 @@ class display_listener_test extends \phpbb_test_case
 			->with([1 => $tag], 2)
 			->willReturn($rendered);
 
-		$listener = new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template);
+		$listener = $this->listener($assignments, $renderer, $template);
 		$listener->load_search_tags(new \phpbb\event\data([
 			'rowset' => [['topic_id' => 42]],
 			'show_results' => 'posts',
@@ -176,7 +176,7 @@ class display_listener_test extends \phpbb_test_case
 			->with([1 => $tag], 2)
 			->willReturn($rendered);
 
-		$listener = new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template);
+		$listener = $this->listener($assignments, $renderer, $template);
 		$listener->load_mcp_tags(new \phpbb\event\data(['topic_list' => [42, 43]]));
 		$event = new \phpbb\event\data([
 			'row' => ['topic_id' => 42, 'forum_id' => 2],
@@ -211,7 +211,7 @@ class display_listener_test extends \phpbb_test_case
 			->with([1 => $tag], 2)
 			->willReturn($rendered);
 
-		$listener = new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template);
+		$listener = $this->listener($assignments, $renderer, $template);
 		$listener->load_ucp_tags(new \phpbb\event\data(['topic_list' => [42, 43]]));
 
 		$front_event = new \phpbb\event\data([
@@ -229,5 +229,15 @@ class display_listener_test extends \phpbb_test_case
 		]);
 		$listener->add_ucp_topiclist_tags($list_event);
 		self::assertSame($rendered, $list_event['template_vars']['TOPIC_TAGS']);
+	}
+
+	protected function listener($assignments, $renderer, $template): \phpbb\topicprefixes\event\display_listener
+	{
+		$language = $this->getMockBuilder('\phpbb\language\language')->disableOriginalConstructor()->getMock();
+		$language->expects(self::once())
+			->method('add_lang')
+			->with('topic_prefixes', 'phpbb/topicprefixes');
+
+		return new \phpbb\topicprefixes\event\display_listener($assignments, $renderer, $template, $language);
 	}
 }

@@ -6,7 +6,7 @@
 				<legend class="sr-only">{{ lang('TOPIC_TAGS') }}</legend>
 				{% for tag in TOPIC_TAGS %}
 					<input class="topic-tag-checkbox" type="checkbox" name="topic_tags[]" id="topic-tag-{{ tag.TAG_ID }}" value="{{ tag.TAG_ID }}"{% if tag.S_SELECTED %} checked{% endif %}>
-					<label class="topic-tag" for="topic-tag-{{ tag.TAG_ID }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</label>
+					<label class="topic-tag" for="topic-tag-{{ tag.TAG_ID }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}" title="{{ lang('TOPIC_TAG_TOGGLE_TOOLTIP', tag.TAG_NAME) }}">{{ tag.TAG_NAME }}</label>
 				{% endfor %}
 				<input type="hidden" name="topic_tags_present" value="1">
 			</fieldset>

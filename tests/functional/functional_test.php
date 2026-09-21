@@ -102,6 +102,7 @@ class functional_test extends \phpbb_functional_test_case
 		$this->login();
 		$crawler = self::request('GET', 'posting.php?mode=post&f=' . self::FORUM_ID . "&sid={$this->sid}");
 		self::assertGreaterThanOrEqual(2, $crawler->filter('input[name="topic_tags[]"]')->count());
+		self::assertStringContainsString('Select or deselect', $crawler->filter('.topic-tag-choices label.topic-tag')->first()->attr('title'));
 
 		return $fixture;
 	}
@@ -173,8 +174,11 @@ class functional_test extends \phpbb_functional_test_case
 	{
 		$this->login();
 		$crawler = self::request('GET', 'viewtopic.php?t=' . $fixture['topic_id'] . "&sid={$this->sid}");
-		self::assertCount(1, $crawler->filter('h2.topic-title .topic-tag'));
-		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('h2.topic-title .topic-tag')->text());
+		$tag = $crawler->filter('h2.topic-title .topic-tag');
+		self::assertCount(1, $tag);
+		self::assertStringContainsString('PHP 8.4 filter', $tag->text());
+		self::assertSame('Filter topics by “PHP 8.4 filter”', $tag->attr('title'));
+		self::assertSame('Filter topics by “PHP 8.4 filter”', $tag->attr('aria-label'));
 		self::assertStringContainsString('topic-tags', $crawler->filter('h2.topic-title')->children()->eq(0)->attr('class'));
 	}
 
@@ -186,7 +190,10 @@ class functional_test extends \phpbb_functional_test_case
 		$this->login();
 		$crawler = self::request('GET', 'viewforum.php?f=' . self::FORUM_ID . '&tags=' . $fixture['php_id'] . "&sid={$this->sid}");
 		self::assertStringContainsString('Structured tag title', $crawler->filter('.topiclist.topics')->text());
-		self::assertCount(1, $crawler->filter('.topic-tag-filter-panel .topic-tag-selected'));
+		$selected = $crawler->filter('.topic-tag-filter-panel .topic-tag-selected');
+		self::assertCount(1, $selected);
+		self::assertSame('Remove “PHP 8.4 filter” from topic filters', $selected->attr('title'));
+		self::assertSame('Remove “PHP 8.4 filter” from topic filters', $selected->attr('aria-label'));
 	}
 
 	/**

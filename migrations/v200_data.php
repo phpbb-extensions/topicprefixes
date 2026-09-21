@@ -273,7 +273,7 @@ class v200_data extends \phpbb\db\migration\migration
 			{
 				$value_sql = $this->db->sql_case(
 					$id_column . ' = ' . (int) $id,
-					"'" . $this->db->sql_escape($value) . "'",
+					$this->sql_text_literal($value),
 					$value_sql
 				);
 			}
@@ -283,5 +283,22 @@ class v200_data extends \phpbb\db\migration\migration
 				WHERE ' . $this->db->sql_in_set($id_column, array_keys($batch));
 			$this->db->sql_query($sql);
 		}
+	}
+
+	/**
+	 * Quote text for use as an SQL literal.
+	 *
+	 * SQL Server requires the N prefix to preserve Unicode text when a literal
+	 * is assigned to an nvarchar column. Other supported DBMS use the standard
+	 * quoted form generated throughout phpBB's DBAL.
+	 *
+	 * @param string $value Text value
+	 * @return string Quoted SQL literal
+	 */
+	protected function sql_text_literal(string $value): string
+	{
+		$unicode_prefix = strpos($this->db->get_sql_layer(), 'mssql') === 0 ? 'N' : '';
+
+		return $unicode_prefix . "'" . $this->db->sql_escape($value) . "'";
 	}
 }

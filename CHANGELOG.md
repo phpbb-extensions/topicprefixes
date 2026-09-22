@@ -2,6 +2,7 @@
 
 ### 2.0.0 - TBD
 
+- Renamed the user-facing extension from phpBB Topic Prefixes to phpBB Topic Tags.
 - Replaced title text prefixes with relational topic tag metadata.
 - Added multiple colored tags per topic and automatic badge text contrast.
 - Added global ACP tag management with forum availability controls.

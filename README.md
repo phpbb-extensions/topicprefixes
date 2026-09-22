@@ -1,11 +1,11 @@
-# phpBB Topic Prefixes
+# phpBB Topic Tags
 
-This is the repository for the development of the Topic Prefixes phpBB extension.
+This is the repository for development of phpBB Topic Tags, formerly named Topic Prefixes.
 
 [![Build Status](https://github.com/phpbb-extensions/topicprefixes/actions/workflows/tests.yml/badge.svg)](https://github.com/phpbb-extensions/topicprefixes/actions)
 [![codecov](https://codecov.io/gh/phpbb-extensions/topicprefixes/branch/master/graph/badge.svg?token=Dc0GWOeQWj)](https://codecov.io/gh/phpbb-extensions/topicprefixes)
 
-The phpBB Topic Prefixes extension provides administrator-curated topic tags. Tags are structured topic metadata and are displayed separately from topic titles as colored badges. Features include:
+The phpBB Topic Tags extension provides administrator-curated topic tags. Tags are structured topic metadata and are displayed separately from topic titles as colored badges. Features include:
 
 - Create, edit, order, enable, disable, and color topic tags.
 - Make each tag available in one or more forums.

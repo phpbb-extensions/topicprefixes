@@ -25,7 +25,7 @@
 		"phing/phing": "~2.4"
 	},
 	"extra": {
-		"display-name": "phpBB Topic Prefixes",
+		"display-name": "phpBB Topic Tags",
 		"soft-require": {
 			"phpbb/phpbb": ">=3.3.18"
 		},

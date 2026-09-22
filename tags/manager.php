@@ -176,7 +176,7 @@ class manager
 	public function add_tag(string $name, string $color, bool $enabled, array $forum_ids)
 	{
 		$name = self::normalize_name($name);
-		$color = $this->normalize_color($color);
+		$color = self::normalize_color($color);
 		if ($name === '' || $color === '')
 		{
 			return false;
@@ -217,7 +217,7 @@ class manager
 	{
 		$tag_id = (int) $tag_id;
 		$name = self::normalize_name($name);
-		$color = $this->normalize_color($color);
+		$color = self::normalize_color($color);
 		if (!$tag_id || $name === '' || $color === '' || !$this->tag_exists($tag_id))
 		{
 			return false;
@@ -388,7 +388,7 @@ class manager
 	 * @param string $color Submitted color
 	 * @return string Normalized color, or empty string when invalid
 	 */
-	public function normalize_color(string $color): string
+	public static function normalize_color(string $color): string
 	{
 		$color = strtoupper(ltrim(trim($color), '#'));
 		return preg_match('/^[0-9A-F]{6}$/D', $color) ? $color : '';

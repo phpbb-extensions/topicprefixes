@@ -134,7 +134,6 @@ class admin_controller_test extends \phpbb_test_case
 				'forum_ids' => array(2, 3),
 			)[$name] ?? $default;
 		});
-		$this->manager->expects(self::once())->method('normalize_color')->with('#AA00CC')->willReturn('AA00CC');
 		$this->manager->expects(self::once())
 			->method('add_tag')
 			->with('Security', '#AA00CC', 1, array(2, 3))
@@ -160,7 +159,6 @@ class admin_controller_test extends \phpbb_test_case
 				'forum_ids' => array(2),
 			)[$key] ?? $default;
 		});
-		$this->manager->method('normalize_color')->willReturn('4A76A8');
 		$this->manager->expects(self::once())
 			->method('add_tag')
 			->with($name, '#4A76A8', 1, array(2))
@@ -185,7 +183,6 @@ class admin_controller_test extends \phpbb_test_case
 				'forum_ids' => array(3),
 			)[$name] ?? $default;
 		});
-		$this->manager->method('normalize_color')->willReturn('00AA00');
 		$this->manager->expects(self::once())
 			->method('update_tag')
 			->with(1, 'Updated', '#00AA00', 0, array(3))
@@ -355,13 +352,11 @@ class admin_controller_test extends \phpbb_test_case
 
 			case 'invalid_color':
 				$this->configure_save_request('Bug', 'invalid');
-				$this->manager->method('normalize_color')->willReturn('');
 				$this->controller->save_tag(0);
 			break;
 
 			case 'failed_update':
 				$this->configure_save_request('Bug', '#AA00CC');
-				$this->manager->method('normalize_color')->willReturn('AA00CC');
 				$this->manager->method('update_tag')->willReturn(false);
 				$this->controller->save_tag(999);
 			break;

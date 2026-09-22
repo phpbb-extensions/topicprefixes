@@ -186,7 +186,7 @@ class admin_controller
 		{
 			$this->trigger_message('TOPIC_TAG_NAME_TOO_LONG', E_USER_WARNING);
 		}
-		if ($this->manager->normalize_color($color) === '')
+		if (manager::normalize_color($color) === '')
 		{
 			$this->trigger_message('TOPIC_TAG_COLOR_INVALID', E_USER_WARNING);
 		}

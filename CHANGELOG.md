@@ -6,13 +6,13 @@
 - Replaced title text prefixes with relational topic tag metadata.
 - Added multiple colored tags per topic and automatic badge text contrast.
 - Added global ACP tag management with forum availability controls.
-- Raised minimum supported phpBB version to 3.3.18 for required lifecycle events.
 - Added accessible tag selection when creating topics and editing first posts.
 - Added tag badges to forum, topic, and search displays.
 - Added multi-tag AND filtering to forum topic lists.
 - Preserved tag metadata through topic moves, splits, forks, and merges.
 - Added relationship cleanup for topic and forum deletion.
 - Added conservative migration of legacy definitions, assignments, titles, and first-post subjects.
+- Note: implementations for showing tags on UCP main page, bookmarks, subscriptions and search results shown as posts will take effect after phpBB core adds new proposed events.
 
 ### 1.0.2 - 2025-12-17
 

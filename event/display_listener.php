@@ -72,9 +72,9 @@ class display_listener implements EventSubscriberInterface
 			'core.search_modify_tpl_ary' => 'add_search_tags',
 			'core.mcp_forum_topic_data_modify_sql' => 'load_mcp_tags',
 			'core.mcp_view_forum_modify_topicrow' => 'add_mcp_tags',
-			'core.ucp_main_front_modify_topic_data' => 'load_ucp_tags',
+			'core.ucp_main_front_modify_topic_data' => 'load_ucp_tags', // event coming soon to phpBB 3.3.18/19
 			'core.ucp_main_front_modify_template_vars' => 'add_ucp_front_tags',
-			'core.ucp_main_topiclist_modify_topic_data' => 'load_ucp_tags',
+			'core.ucp_main_topiclist_modify_topic_data' => 'load_ucp_tags', // event coming soon to phpBB 3.3.18/19
 			'core.ucp_main_topiclist_topic_modify_template_vars' => 'add_ucp_topiclist_tags',
 		];
 	}

@@ -27,7 +27,7 @@
 	"extra": {
 		"display-name": "phpBB Topic Tags",
 		"soft-require": {
-			"phpbb/phpbb": ">=3.3.18"
+			"phpbb/phpbb": ">=3.3.0"
 		},
 		"version-check": {
 			"host": "www.phpbb.com",

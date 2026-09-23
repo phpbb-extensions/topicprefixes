@@ -115,13 +115,14 @@ class viewforum_listener_test extends \phpbb_test_case
 	public function preserved_tag_visibility_data(): array
 	{
 		return array(
-			array('', array(1, 2), array()),
-			array('3', array(1, 2, 3), array(3)),
+			array('', array(1), array()),
+			array('2', array(1, 2), array(2)),
+			array('3', array(1, 3), array(3)),
 		);
 	}
 
 	/**
-	 * Disabled preserved tags stay hidden unless selected.
+	 * Preserved tags stay hidden unless selected.
 	 *
 	 * @dataProvider preserved_tag_visibility_data
 	 */

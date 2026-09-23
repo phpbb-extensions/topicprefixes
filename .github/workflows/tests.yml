@@ -7,12 +7,14 @@ on:
             - master
             - develop
             - dev/*
+            - 1.x
     pull_request:        # Run tests when pull requests are made on these branches in your repo
         branches:
             - main
             - master
             - develop
             - dev/*
+            - 1.x
 
 jobs:
     call-tests:

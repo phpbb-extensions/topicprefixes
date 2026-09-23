@@ -15,6 +15,9 @@ namespace phpbb\topicprefixes\tags;
  */
 class renderer
 {
+	/** @var manager Tag manager */
+	protected $manager;
+
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -24,14 +27,19 @@ class renderer
 	/** @var array Request-local foreground colors keyed by background */
 	protected $contrast_colors = [];
 
+	/** @var array Request-local assignable tag IDs keyed by forum */
+	protected $assignable_tag_ids = [];
+
 	/**
 	 * Constructor.
 	 *
-	 * @param string $root_path phpBB root path
-	 * @param string $php_ext   PHP extension
+	 * @param manager $manager   Tag manager
+	 * @param string  $root_path phpBB root path
+	 * @param string  $php_ext   PHP extension
 	 */
-	public function __construct($root_path, $php_ext)
+	public function __construct(manager $manager, $root_path, $php_ext)
 	{
+		$this->manager = $manager;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
 	}
@@ -50,6 +58,7 @@ class renderer
 	{
 		$selected_ids = array_values(array_unique(array_map('intval', $selected_ids)));
 		$selected = array_fill_keys($selected_ids, true);
+		$assignable = $forum_id && $tags ? $this->get_assignable_tag_ids($forum_id) : [];
 		$rendered = [];
 		foreach ($tags as $tag)
 		{
@@ -71,11 +80,31 @@ class renderer
 				'TAG_COLOR' => '#' . $tag['prefix_color'],
 				'TAG_TEXT_COLOR' => $this->contrast_color($tag['prefix_color']),
 				'S_SELECTED' => $is_selected,
+				'S_RETAINED' => $forum_id && !isset($assignable[$tag_id]),
 				'U_FILTER' => $forum_id ? $this->filter_url($forum_id, $link_ids, $url_params) : '',
 			];
 		}
 
 		return $rendered;
+	}
+
+	/**
+	 * Get enabled tag IDs available for new assignments in one forum.
+	 *
+	 * @param int $forum_id Forum identifier
+	 * @return array Tag IDs as keys
+	 */
+	protected function get_assignable_tag_ids(int $forum_id): array
+	{
+		if (!isset($this->assignable_tag_ids[$forum_id]))
+		{
+			$this->assignable_tag_ids[$forum_id] = array_fill_keys(
+				array_keys($this->manager->get_available_tags($forum_id)),
+				true
+			);
+		}
+
+		return $this->assignable_tag_ids[$forum_id];
 	}
 
 	/**

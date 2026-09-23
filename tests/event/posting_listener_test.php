@@ -243,7 +243,7 @@ class posting_listener_test extends \phpbb_test_case
 		return new \phpbb\topicprefixes\event\posting_listener(
 			$this->manager,
 			$this->assignments,
-			new \phpbb\topicprefixes\tags\renderer('./', 'php'),
+			new \phpbb\topicprefixes\tags\renderer($this->manager, './', 'php'),
 			$this->request,
 			$this->language
 		);

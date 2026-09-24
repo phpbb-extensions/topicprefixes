@@ -1,18 +1,16 @@
 # Changelog
 
-### 2.0.0 - TBD
+### 2.0.0-dev - TBD
 
-- Renamed the user-facing extension from phpBB Topic Prefixes to phpBB Topic Tags.
-- Replaced title text prefixes with relational topic tag metadata.
-- Added multiple colored tags per topic and automatic badge text contrast.
-- Added global ACP tag management with forum availability controls.
-- Added accessible tag selection when creating topics and editing first posts.
-- Added tag badges to forum, topic, and search displays.
-- Added multi-tag AND filtering to forum topic lists.
-- Preserved tag metadata through topic moves, splits, forks, and merges.
-- Added relationship cleanup for topic and forum deletion.
-- Added conservative migration of legacy definitions, assignments, titles, and first-post subjects.
-- Note: implementations for showing tags on UCP main page, bookmarks, subscriptions and search results shown as posts will take effect after phpBB core adds new proposed events.
+- Renamed phpBB Topic Prefixes to phpBB Topic Tags and replaced single text prefixes embedded in titles with relational topic metadata.
+- Added multiple color-coded tags per topic with automatic badge text contrast and badges throughout forum, topic, MCP, and search displays.
+- Added centralized ACP management for tag text, color, order, status, and availability across multiple forums.
+- Added accessible tag selection when creating topics or editing their first posts.
+- Added clickable forum filters that can combine multiple tags using AND matching.
+- Preserved tags through topic moves, splits, forks, and merges, including tags retained after moving into forums where they are unavailable for new assignments.
+- Added a safe, restartable upgrade that converts legacy prefixes and assignments into tags while removing matching prefix text from topic titles and first-post subjects.
+- Raised minimum requirements to phpBB 3.3.0 and PHP 7.2.
+- Note: implementations for showing tags on UCP main page, bookmarks, and subscriptions will take effect after phpBB adds new proposed events (targeted for 3.3.19).
 
 ### 1.0.2 - 2025-12-17
 

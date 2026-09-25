@@ -1,0 +1,14 @@
+{% if S_TOPIC_TAG_FILTERS %}
+	<div class="panel topic-tag-filter-panel">
+		<div class="inner">
+			<strong>{{ lang('TOPIC_TAGS_FILTER') ~ lang('COLON') }}</strong>
+			<span class="topic-tags">
+			{% for tag in TOPIC_TAG_FILTERS %}
+				{% set tooltip = lang(tag.S_SELECTED ? 'TOPIC_TAG_FILTER_REMOVE_TOOLTIP' : 'TOPIC_TAG_FILTER_TOOLTIP', tag.TAG_NAME) %}
+				<a class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}" title="{{ tooltip }}" aria-label="{{ tooltip }}"{% if tag.S_SELECTED %} aria-current="true"{% endif %}>{{ tag.TAG_NAME }}</a>
+			{% endfor %}
+			</span>
+			{% if S_TOPIC_TAG_FILTERED %}<a class="topic-tag-clear" href="{{ U_CLEAR_TOPIC_TAG_FILTERS }}">{{ lang('TOPIC_TAGS_CLEAR_FILTERS') }}</a>{% endif %}
+		</div>
+	</div>
+{% endif %}

@@ -1,2 +1,4 @@
 parameters:
     phpbb.topicprefixes.tables.topic_prefixes: '%core.table_prefix%topic_prefixes'
+    phpbb.topicprefixes.tables.topic_prefixes_forums: '%core.table_prefix%topic_prefixes_forums'
+    phpbb.topicprefixes.tables.topic_prefixes_topics: '%core.table_prefix%topic_prefixes_topics'

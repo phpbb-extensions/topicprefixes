@@ -1,17 +1,18 @@
-# phpBB Topic Prefixes
+# phpBB Topic Tags
 
-This is the repository for the development of the Topic Prefixes phpBB extension.
+This is the repository for development of phpBB Topic Tags, formerly named Topic Prefixes.
 
 [![Build Status](https://github.com/phpbb-extensions/topicprefixes/actions/workflows/tests.yml/badge.svg)](https://github.com/phpbb-extensions/topicprefixes/actions)
 [![codecov](https://codecov.io/gh/phpbb-extensions/topicprefixes/branch/master/graph/badge.svg?token=Dc0GWOeQWj)](https://codecov.io/gh/phpbb-extensions/topicprefixes)
 
-The phpBB Topic Prefixes extension allows phpBB board administrators to create topic prefix tags that users can easily add to their topic titles. Features include:
+The phpBB Topic Tags extension provides administrator-curated topic tags. Tags are structured topic metadata and are displayed separately from topic titles as colored badges. Features include:
 
-- Create unique and unlimited prefixes for each forum in your phpBB board.
-- Admins can sort, enable and disable prefix tags.
-- Users will see a topic prefix menu when creating a new topic in a forum that uses topic prefixes.
-- Topic prefixes can easily be changed when a user is editing their original first post.
-- Because the topic prefix is added directly to the topic title, if an admin disables or deletes a topic prefix, existing topic titles using the deleted prefix will not be changed.
+- Create, edit, order, enable, disable, and color topic tags.
+- Make each tag available in one or more forums.
+- Assign multiple tags while creating a topic or editing its first post.
+- Display readable colored badges in topic lists, topic pages, and search results.
+- Filter forum topic lists by one or more tags using AND semantics.
+- Upgrade existing title prefixes safely into relational tag assignments.
 - This is the same extension currently in use at phpbb.com in the Extensions and Styles in development forums.
 
 📦 [Download](https://www.phpbb.com/customise/db/extension/topicprefixes/) the latest release of this extension.

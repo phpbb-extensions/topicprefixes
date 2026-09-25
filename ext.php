@@ -12,7 +12,7 @@ namespace phpbb\topicprefixes;
 
 /**
  * This ext class is optional and can be omitted if left empty.
- * However you can add special (un)installation commands in the
+ * However, you can add special (un)installation commands in the
  * methods enable_step(), disable_step() and purge_step(). As it is,
  * these methods are defined in \phpbb\extension\base, which this
  * class extends, but you can overwrite them to give special
@@ -25,12 +25,12 @@ class ext extends \phpbb\extension\base
 	 * The current phpBB version should meet or exceed
 	 * the minimum version required by this extension:
 	 *
-	 * Requires phpBB 3.2.0 and PHP 5.4
+	 * Requires phpBB 3.3.5 and PHP 7.2
 	 *
 	 * @return bool
 	 */
 	public function is_enableable()
 	{
-		return phpbb_version_compare(PHPBB_VERSION, '3.2.0', '>=') && PHP_VERSION_ID >= 50400;
+		return phpbb_version_compare(PHPBB_VERSION, '3.3.5', '>=') && PHP_VERSION_ID >= 70200;
 	}
 }

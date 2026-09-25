@@ -8,9 +8,6 @@
  *
  */
 
-/**
- * DO NOT CHANGE
- */
 if (!defined('IN_PHPBB'))
 {
 	exit;
@@ -18,14 +15,13 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = array();
+	$lang = [];
 }
 
-$lang = array_merge($lang, array(
-	'ACP_TOPIC_PREFIXES'	=> 'Topic prefixes',
-	'ACP_MANAGE_PREFIXES'	=> 'Manage prefixes',
-
-	// ACP Log messages
-	'ACP_LOG_PREFIX_ADDED'		=> '<strong>Created new topic prefix</strong><br>» %1$s in forum: %2$s',
-	'ACP_LOG_PREFIX_DELETED'	=> '<strong>Deleted topic prefix</strong><br>» %1$s in forum: %2$s',
-));
+$lang = array_merge($lang, [
+	'ACP_TOPIC_PREFIXES' => 'Topic tags',
+	'ACP_MANAGE_PREFIXES' => 'Manage tags',
+	'ACP_LOG_TAG_ADDED' => '<strong>Created topic tag</strong><br>» %s',
+	'ACP_LOG_TAG_UPDATED' => '<strong>Updated topic tag</strong><br>» %s',
+	'ACP_LOG_TAG_DELETED' => '<strong>Deleted topic tag</strong><br>» %s',
+]);

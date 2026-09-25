@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+	<table name="phpbb_forums">
+		<column>forum_id</column><column>forum_name</column><column>forum_type</column><column>left_id</column><column>right_id</column><column>forum_parents</column><column>forum_desc</column><column>forum_rules</column>
+		<row><value>2</value><value>Forum Two</value><value>1</value><value>1</value><value>2</value><value></value><value></value><value></value></row>
+		<row><value>3</value><value>Forum Three</value><value>1</value><value>3</value><value>4</value><value></value><value></value><value></value></row>
+	</table>
+	<table name="phpbb_topic_prefixes">
+		<column>prefix_id</column><column>prefix_tag</column><column>prefix_color</column><column>prefix_enabled</column><column>prefix_order</column>
+		<row><value>1</value><value>Bug</value><value>D4351C</value><value>1</value><value>1</value></row>
+		<row><value>2</value><value>PHP 8.4</value><value>1D70B8</value><value>1</value><value>2</value></row>
+		<row><value>3</value><value>Hidden</value><value>505A5F</value><value>0</value><value>3</value></row>
+		<row><value>4</value><value>Other</value><value>F47738</value><value>1</value><value>4</value></row>
+	</table>
+	<table name="phpbb_topic_prefixes_forums">
+		<column>forum_id</column><column>prefix_id</column>
+		<row><value>2</value><value>1</value></row><row><value>2</value><value>2</value></row><row><value>2</value><value>3</value></row>
+		<row><value>3</value><value>1</value></row><row><value>3</value><value>4</value></row>
+	</table>
+	<table name="phpbb_topics">
+		<column>topic_id</column><column>forum_id</column><column>topic_title</column><column>topic_visibility</column><column>topic_type</column><column>topic_last_post_time</column>
+		<row><value>10</value><value>2</value><value>Both tags</value><value>1</value><value>0</value><value>2000000000</value></row>
+		<row><value>11</value><value>2</value><value>Bug only</value><value>1</value><value>0</value><value>2000000000</value></row>
+		<row><value>12</value><value>2</value><value>PHP only</value><value>1</value><value>0</value><value>2000000000</value></row>
+		<row><value>13</value><value>2</value><value>No tags</value><value>1</value><value>0</value><value>2000000000</value></row>
+	</table>
+	<table name="phpbb_topic_prefixes_topics">
+		<column>topic_id</column><column>prefix_id</column>
+		<row><value>10</value><value>1</value></row><row><value>10</value><value>2</value></row>
+		<row><value>11</value><value>1</value></row><row><value>12</value><value>2</value></row>
+	</table>
+</dataset>

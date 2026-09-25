@@ -1,0 +1,13 @@
+{% if tags %}
+	<span class="topic-tags {{ badge_class }}">
+	{% for tag in tags %}
+		{% if tag.U_FILTER %}
+		{% set tooltip = lang('TOPIC_TAG_FILTER_TOOLTIP', tag.TAG_NAME) %}
+		{% if tag.S_RETAINED %}{% set tooltip = tooltip ~ ' ' ~ lang('TOPIC_TAG_RETAINED_TOOLTIP') %}{% endif %}
+		<a class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" href="{{ tag.U_FILTER }}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}" title="{{ tooltip }}" aria-label="{{ tooltip }}">{{ tag.TAG_NAME }}</a>
+		{% else %}
+		<span class="topic-tag{% if tag.S_SELECTED %} topic-tag-selected{% endif %}" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</span>
+		{% endif %}
+	{% endfor %}
+	</span>
+{% endif %}

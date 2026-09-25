@@ -2,70 +2,81 @@
 
 <a id="maincontent"></a>
 
-<h1>{{ lang('TOPIC_PREFIXES') }}</h1>
+<h1>{{ lang('TOPIC_TAGS') }}</h1>
+<p>{{ lang('TOPIC_TAGS_EXPLAIN') }}</p>
 
-<p>{{ lang('TOPIC_PREFIXES_EXPLAIN') }}</p>
+<table class="table1 zebra-table fixed-width-table">
+	<thead>
+		<tr>
+			<th>{{ lang('TOPIC_TAG') }}</th>
+			<th style="width:50%">{{ lang('TOPIC_TAG_FORUMS') }}</th>
+			<th>{{ lang('TOPIC_TAG_ENABLED') }}</th>
+			<th>{{ lang('ACTION') }}</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for tag in loops.tags %}
+		<tr>
+			<td><span class="topic-tag" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</span></td>
+			<td>
+				{% if tag.FORUM_NAMES %}
+					<span class="topic-tag-forums" role="list">
+					{% for forum_name in tag.FORUM_NAMES %}
+						<span class="topic-tag-forum" role="listitem">{{ forum_name }}{% if not loop.last %}<span class="topic-tag-forum-separator" aria-hidden="true"> &middot;</span>{% endif %}</span>
+					{% endfor %}
+					</span>
+				{% else %}
+					{{ lang('TOPIC_TAG_NO_FORUMS') }}
+				{% endif %}
+			</td>
+			<td>
+				<a href="{{ tag.U_TOGGLE }}" class="topic-tag-toggle" title="{{ lang('TOPIC_TAG_TOGGLE_STATE') }}" data-ajax="tp_toggle">
+					<i class="fa fa-fw tp-toggle-{{ tag.TAG_ENABLED ? 'on' : 'off' }} acp-icon"></i>
+				</a>
+			</td>
+			<td class="actions">
+				<span class="up-disabled" style="display:none">{{ ICON_MOVE_UP_DISABLED }}</span>
+				<span class="up"><a href="{{ tag.U_MOVE_UP }}" data-ajax="row_up">{{ ICON_MOVE_UP }}</a></span>
+				<span class="down-disabled" style="display:none">{{ ICON_MOVE_DOWN_DISABLED }}</span>
+				<span class="down"><a href="{{ tag.U_MOVE_DOWN }}" data-ajax="row_down">{{ ICON_MOVE_DOWN }}</a></span>
+				<a href="{{ tag.U_EDIT }}">{{ ICON_EDIT }}</a>
+				<a href="{{ tag.U_DELETE }}">{{ ICON_DELETE }}</a>
+			</td>
+		</tr>
+	{% else %}
+		<tr><td colspan="4" class="topic-tags-empty">{{ lang('TOPIC_TAGS_EMPTY') }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
 
-	<form id="acp_topic_prefixes_forum" method="post" action="{{ U_ACTION }}">
-		<fieldset>
-			<dl>
-				<dt><label for="select_forum">{{ lang('SELECT_FORUM') ~ lang('COLON') }}</label></dt>
-				<dd>
-					<select id="select_forum" name="forum_id"><option value="0">{{ lang('SELECT_FORUM') }}</option>{{ S_FORUM_OPTIONS }}</select>
-					<input type="submit" value="{{ lang('GO') }}" class="button2">
-				</dd>
-			</dl>
-		</fieldset>
-	</form>
-
-{% if FORUM_ID %}
-
-	<table class="table1 zebra-table fixed-width-table">
-		<thead>
-			<tr>
-				<th style="width:75%">{{ lang('TOPIC_PREFIX_TAG') }}</th>
-				<th>{{ lang('TOPIC_PREFIX_ENABLED') }}</th>
-				<th>{{ lang('ACTION') }}</th>
-			</tr>
-		</thead>
-		<tbody>
-		{% for prefix in loops.prefixes %}
-			<tr>
-				<td><strong>{{ prefix.PREFIX_TAG }}</strong></td>
-				<td>
-					<a href="{{ prefix.U_EDIT }}" style="text-decoration: none" title="{{ lang('TOPIC_PREFIX_TOGGLE_STATE') }}" data-ajax="tp_toggle">
-						<i class="fa fa-fw tp-toggle-{{ prefix.PREFIX_ENABLED ? 'on' : 'off' }} acp-icon"></i>
-					</a>
-				</td>
-				<td class="actions">
-					<span class="up-disabled" style="display:none;">{{ ICON_MOVE_UP_DISABLED }}</span>
-					<span class="up"><a href="{{ prefix.U_MOVE_UP }}" data-ajax="row_up">{{ ICON_MOVE_UP }}</a></span>
-					<span class="down-disabled" style="display:none;">{{ ICON_MOVE_DOWN_DISABLED }}</span>
-					<span class="down"><a href="{{ prefix.U_MOVE_DOWN }}" data-ajax="row_down">{{ ICON_MOVE_DOWN }}</a></span>
-					<a href="{{ prefix.U_DELETE }}" data-ajax="row_delete">{{ ICON_DELETE }}</a>
-				</td>
-			</tr>
-		{% else %}
-			<tr>
-				<td colspan="3" style="text-align: center;">{{ lang('TOPIC_PREFIXES_EMPTY') }}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
-
-	<form id="acp_add_topic_prefix" method="post" action="{{ U_ACTION }}">
-		<fieldset class="quick">
-			{{ lang('CREATE_TOPIC_PREFIX') ~ lang('COLON') }}
-			<input type="text" name="prefix_tag" value="" maxlength="200" placeholder="{{ lang('TOPIC_PREFIX_PLACEHOLDER') }}">
-			<input class="button2" name="submit" type="submit" value="{{ lang('SUBMIT') }}">
-			<input type="hidden" name="action" value="add">
-			<input type="hidden" name="forum_id" value="{{ FORUM_ID }}">
-			{{ S_FORM_TOKEN }}
-			{{ S_HIDDEN_FIELDS }}
-		</fieldset>
-	</form>
-
-{% endif %}
+<form id="acp_topic_tag" method="post" action="{{ U_ACTION }}">
+	<fieldset>
+		<legend>{{ lang(S_EDIT_TAG ? 'EDIT_TOPIC_TAG' : 'CREATE_TOPIC_TAG') }}</legend>
+		<dl>
+			<dt><label for="tag_name">{{ lang('TOPIC_TAG_TEXT') ~ lang('COLON') }}</label></dt>
+			<dd><input type="text" id="tag_name" name="tag_name" value="{{ TAG_NAME }}" maxlength="50" required></dd>
+		</dl>
+		<dl>
+			<dt><label for="tag_color">{{ lang('TOPIC_TAG_COLOR') ~ lang('COLON') }}</label><br><span>{{ lang('TOPIC_TAG_COLOR_EXPLAIN') }}</span></dt>
+			<dd><input type="color" class="topic-tag-color" id="tag_color" name="tag_color" value="{{ TAG_COLOR }}"></dd>
+		</dl>
+		<dl>
+			<dt><label for="tag_enabled">{{ lang('TOPIC_TAG_ENABLED') ~ lang('COLON') }}</label></dt>
+			<dd><input type="checkbox" class="radio" id="tag_enabled" name="tag_enabled" value="1"{% if TAG_ENABLED %} checked{% endif %}></dd>
+		</dl>
+		<dl>
+			<dt><label for="forum_ids">{{ lang('TOPIC_TAG_FORUMS') ~ lang('COLON') }}</label><br><span>{{ lang('TOPIC_TAG_FORUMS_EXPLAIN') }}</span></dt>
+			<dd><select id="forum_ids" name="forum_ids[]" multiple size="10">{{ S_FORUM_OPTIONS }}</select></dd>
+		</dl>
+	</fieldset>
+	<fieldset class="submit-buttons">
+		<input class="button1" name="submit" type="submit" value="{{ lang('SUBMIT') }}">
+		{% if S_EDIT_TAG %}<a class="button2" href="{{ U_ACTION }}">{{ lang('CANCEL') }}</a>{% endif %}
+		<input type="hidden" name="action" value="save">
+		<input type="hidden" name="tag_id" value="{{ TAG_ID }}">
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
 
 {% INCLUDEJS '@phpbb_topicprefixes/acp_topic_prefixes.js' %}
 {% INCLUDECSS '@phpbb_topicprefixes/acp_topic_prefixes.css' %}

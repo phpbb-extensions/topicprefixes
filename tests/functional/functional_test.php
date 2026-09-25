@@ -10,11 +10,7 @@
 
 namespace phpbb\topicprefixes\tests\functional;
 
-use Symfony\Component\DomCrawler\Crawler;
-
-/**
- * @group functional
- */
+/** @group functional */
 class functional_test extends \phpbb_functional_test_case
 {
 	const FORUM_ID = 2;
@@ -27,162 +23,332 @@ class functional_test extends \phpbb_functional_test_case
 	protected function setUp(): void
 	{
 		parent::setUp();
-
-		$this->add_lang_ext('phpbb/topicprefixes', [
-			'acp_topic_prefixes',
-			'info_acp_topic_prefixes',
-			'topic_prefixes'
-		]);
+		$this->add_lang_ext('phpbb/topicprefixes', array('acp_topic_prefixes', 'info_acp_topic_prefixes', 'topic_prefixes'));
 	}
 
-	public function test_acp_module_installation()
+	public function test_acp_module()
 	{
 		$this->login();
 		$this->admin_login();
+		$crawler = $this->acp_page();
+		$this->assertContainsLang('TOPIC_TAGS', $crawler->filter('#main')->text());
+		self::assertCount(1, $crawler->filter('input[type="color"]'));
+		self::assertCount(1, $crawler->filter('select[name="forum_ids[]"][multiple]'));
+		self::assertSame('50', $crawler->filter('input[name="tag_name"]')->attr('maxlength'));
 
-		$crawler = self::request('GET', "adm/index.php?i=\\phpbb\\topicprefixes\\acp\\topic_prefixes_module&mode=manage&sid={$this->sid}");
-
-		// Assert module appears in sidebar
-		$this->assertContainsLang('ACP_TOPIC_PREFIXES', $crawler->filter('.menu-block')->text());
-		$this->assertContainsLang('ACP_MANAGE_PREFIXES', $crawler->filter('#activemenu')->text());
-
-		// Assert module content appears
-		$this->assertContainsLang('TOPIC_PREFIXES', $crawler->filter('#main h1')->text());
-		$this->assertContainsLang('TOPIC_PREFIXES_EXPLAIN', $crawler->filter('#main')->text());
-
-		// Assert included template JS appears
-		$this->assertStringContainsString("./../ext/phpbb/topicprefixes/adm/style/acp_topic_prefixes.js", $crawler->filter('body')->html());
-
-		// Jump to the create page
-		$form = $crawler->selectButton($this->lang('GO'))->form(['forum_id' => self::FORUM_ID]);
-		$crawler = self::submit($form);
-
-		// Assert we're on create page and prefixes are currently empty
-		$this->assertContainsLang('TOPIC_PREFIXES_EMPTY', $crawler->text());
-	}
-
-	public function test_acp_create_prefix()
-	{
-		$this->login();
-		$this->admin_login();
-
-		self::assertEquals(1, $this->create_prefix('[foo1]', self::FORUM_ID));
-	}
-
-	public function test_acp_disable_prefix()
-	{
-		$this->login();
-		$this->admin_login();
-
-		$prefix = $this->create_prefix('[foo2]', self::FORUM_ID);
-		$hash = $this->mock_link_hash('edit' . $prefix);
-
-		// Disable the prefix
-		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=edit&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&hash={$hash}&sid={$this->sid}");
-		self::assertCount(1, $crawler->filter('tr')->eq(2)->filter('.tp-toggle-off'));
-
-		// Enable the prefix
-		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=edit&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&hash={$hash}&sid={$this->sid}");
-		self::assertCount(1, $crawler->filter('tr')->eq(2)->filter('.tp-toggle-on'));
-	}
-
-	public function test_acp_delete_prefix()
-	{
-		$this->login();
-		$this->admin_login();
-
-		$prefix = $this->create_prefix('[foo3]', self::FORUM_ID);
-
-		// Delete the prefix
-		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&action=delete&forum_id=' . self::FORUM_ID . "&prefix_id={$prefix}&sid={$this->sid}");
-
-		// Confirm delete
-		$form = $crawler->selectButton('confirm')->form();
-		$crawler = self::submit($form);
-
-		// Assert deletion was success
-		self::assertGreaterThan(0, $crawler->filter('.successbox')->count());
-		$this->assertContainsLang('TOPIC_PREFIX_DELETED', $crawler->text());
+		return true;
 	}
 
 	/**
-	 * Create a new topic prefix
-	 *
-	 * @param string $prefix_tag The name of the tag
-	 * @param int    $forum_id   The forum identifier
-	 * @return int The new topic prefix identifier
+	 * @depends test_acp_module
 	 */
-	protected function create_prefix($prefix_tag, $forum_id)
+	public function test_acp_accepts_emoji_tag($module_ready)
 	{
-		$crawler = self::request('GET', 'adm/index.php?i=\phpbb\topicprefixes\acp\topic_prefixes_module&mode=manage&forum_id=' . self::FORUM_ID . "&sid={$this->sid}");
-
+		self::assertTrue($module_ready);
+		$emoji_name = str_repeat('😇', 6);
+		$this->login();
+		$this->admin_login();
+		$crawler = $this->acp_page();
 		$form = $crawler->selectButton($this->lang('SUBMIT'))->form(array(
-			'prefix_tag'	=> $prefix_tag,
-			'forum_id'		=> $forum_id,
+			'tag_name' => $emoji_name,
+			'tag_color' => '#4a76a8',
+			'tag_enabled' => 1,
+			'forum_ids' => array(self::FORUM_ID),
+		));
+		$crawler = self::submit($form);
+		$this->assertContainsLang('TOPIC_TAG_SAVED', $crawler->text());
+
+		$this->get_db();
+		$result = $this->db->sql_query("SELECT prefix_id
+			FROM phpbb_topic_prefixes
+			WHERE prefix_tag = '" . str_repeat('&#128519;', 6) . "'");
+		$tag_id = (int) $this->db->sql_fetchfield('prefix_id');
+		$this->db->sql_freeresult($result);
+		self::assertGreaterThan(0, $tag_id);
+
+		$crawler = $this->acp_page();
+		self::assertStringContainsString($emoji_name, $crawler->filter('.topic-tag')->text());
+
+		$topic = $this->create_topic(self::FORUM_ID, 'Emoji tag topic', 'Emoji tag post', array(
+			'topic_tags' => array($tag_id),
+			'topic_tags_present' => 1,
+		));
+		$crawler = self::request('GET', 'viewtopic.php?t=' . $topic['topic_id'] . "&sid={$this->sid}");
+		self::assertStringContainsString($emoji_name, $crawler->filter('h2.topic-title .topic-tag')->text());
+		$crawler = self::request('GET', 'viewforum.php?f=' . self::FORUM_ID . "&sid={$this->sid}");
+		self::assertStringContainsString($emoji_name, $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_acp_module
+	 */
+	public function test_create_shared_tagged_topic($module_ready)
+	{
+		self::assertTrue($module_ready);
+		$this->login();
+		$this->admin_login();
+		$bug_id = $this->create_tag('Bug filter', '#d4351c', array(self::FORUM_ID));
+		$php_id = $this->create_tag('PHP 8.4 filter', '#1d70b8', array(self::FORUM_ID));
+		$topic = $this->create_topic(self::FORUM_ID, 'Structured tag title', 'Tagged first post', array(
+			'topic_tags' => array($bug_id, $php_id),
+			'topic_tags_present' => 1,
 		));
 
-		/** @var Crawler $crawler */
-		$crawler = self::submit($form);
+		self::assertGreaterThan(0, $bug_id);
+		self::assertGreaterThan(0, $php_id);
+		self::assertNotEmpty($topic['topic_id']);
+		self::assertNotEmpty($topic['post_id']);
 
-		// Assert new tag appears
-		self::assertStringContainsString($prefix_tag, $crawler->filter('table')->text());
-
-		// Get and return the new tag's id
-		$crawler = $crawler
-			->filter('table > tbody > tr')
-			->reduce(function (Crawler $node) use ($prefix_tag) {
-				return $node->filter('strong')->text() === $prefix_tag;
-			});
-		$url = $crawler->filter('a')->first()->link()->getUri();
-
-		return (int) $this->get_parameter_from_link($url, 'prefix_id');
+		return array(
+			'bug_id' => $bug_id,
+			'php_id' => $php_id,
+			'topic_id' => (int) $topic['topic_id'],
+			'post_id' => (int) $topic['post_id'],
+		);
 	}
 
 	/**
-	 * Create a link hash for the user 'admin'
-	 *
-	 * @param string  $link_name The name of the link
-	 * @return string the hash
+	 * @depends test_create_shared_tagged_topic
 	 */
-	protected function mock_link_hash($link_name)
-	{
-		$this->get_db();
-
-		$sql = "SELECT user_form_salt
-			FROM phpbb_users
-			WHERE username = 'admin'";
-		$result = $this->db->sql_query($sql);
-		$user_form_salt = $this->db->sql_fetchfield('user_form_salt');
-		$this->db->sql_freeresult($result);
-
-		return substr(sha1($user_form_salt . $link_name), 0, 8);
-	}
-
-	public function test_posting()
+	public function test_acp_edit_tag($fixture)
 	{
 		$this->login();
+		$this->admin_login();
+		$tag_id = $fixture['bug_id'];
 
-		$prefix = [
-			'id'  => 1,
-			'tag' => '[foo1]',
-		];
+		$crawler = $this->acp_page('action=edit&tag_id=' . $tag_id);
+		$form = $crawler->selectButton($this->lang('SUBMIT'))->form(array(
+			'tag_name' => 'Confirmed bug filter',
+			'tag_color' => '#aa00cc',
+			'tag_enabled' => 1,
+			'forum_ids' => array(self::FORUM_ID),
+		));
+		self::submit($form);
 
-		// Check the new posting page
+		$this->get_db();
+		$result = $this->db->sql_query('SELECT prefix_tag, prefix_color FROM phpbb_topic_prefixes WHERE prefix_id = ' . $tag_id);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+		self::assertSame('Confirmed bug filter', $row['prefix_tag']);
+		self::assertSame('AA00CC', $row['prefix_color']);
+
+		return $fixture;
+	}
+
+	/**
+	 * @depends test_acp_edit_tag
+	 */
+	public function test_posting_form_displays_tag_controls($fixture)
+	{
+		$this->login();
 		$crawler = self::request('GET', 'posting.php?mode=post&f=' . self::FORUM_ID . "&sid={$this->sid}");
-		$this->assertContainsLang('TOPIC_PREFIX', $crawler->filter('#postingbox')->text());
+		self::assertGreaterThanOrEqual(2, $crawler->filter('input[name="topic_tags[]"]')->count());
+		self::assertStringContainsString('Select or deselect', $crawler->filter('.topic-tag-choices label.topic-tag')->first()->attr('title'));
 
-		// Check posting a new topic
-		$topic = $this->create_topic(
-			self::FORUM_ID,
-			"{$prefix['tag']} topic prefix test",
-			'This is a test topic',
-			['topic_prefix' => $prefix['id']]
-		);
+		return $fixture;
+	}
 
-		// Check editing the topic page
-		$crawler = self::request('GET', 'posting.php?mode=edit&f=' . self::FORUM_ID . "&p={$topic['topic_id']}&sid={$this->sid}");
+	/**
+	 * @depends test_posting_form_displays_tag_controls
+	 */
+	public function test_topic_title_is_not_modified($fixture)
+	{
+		$this->get_db();
+		$result = $this->db->sql_query('SELECT topic_title FROM phpbb_topics WHERE topic_id = ' . $fixture['topic_id']);
+		self::assertSame('Structured tag title', $this->db->sql_fetchfield('topic_title'));
+		$this->db->sql_freeresult($result);
+
+		return $fixture;
+	}
+
+	/**
+	 * @depends test_topic_title_is_not_modified
+	 */
+	public function test_first_post_subject_is_not_modified($fixture)
+	{
+		$this->get_db();
+		$result = $this->db->sql_query('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $fixture['post_id']);
+		self::assertSame('Structured tag title', $this->db->sql_fetchfield('post_subject'));
+		$this->db->sql_freeresult($result);
+
+		return $fixture;
+	}
+
+	/**
+	 * @depends test_first_post_subject_is_not_modified
+	 */
+	public function test_multiple_tag_assignments_are_stored($fixture)
+	{
+		$this->get_db();
+		$result = $this->db->sql_query('SELECT prefix_id FROM phpbb_topic_prefixes_topics WHERE topic_id = ' . $fixture['topic_id'] . ' ORDER BY prefix_id');
+		self::assertSame(array($fixture['bug_id'], $fixture['php_id']), array_map('intval', array_column($this->db->sql_fetchrowset($result), 'prefix_id')));
+		$this->db->sql_freeresult($result);
+
+		return $fixture;
+	}
+
+	/**
+	 * @depends test_multiple_tag_assignments_are_stored
+	 */
+	public function test_first_post_edit_updates_tag_assignments($fixture)
+	{
+		$this->login();
+		$crawler = self::request('GET', 'posting.php?mode=edit&f=' . self::FORUM_ID . '&p=' . $fixture['post_id'] . "&sid={$this->sid}");
 		$form = $crawler->selectButton($this->lang('SUBMIT'))->form();
-		$values = $form->getValues();
-		self::assertEquals($prefix['id'], $values['topic_prefix']);
+		$values = $form->getPhpValues();
+		$values['topic_tags'] = array((string) $fixture['php_id']);
+		$values['topic_tags_present'] = '1';
+		self::$client->request('POST', $form->getUri(), $values);
+		self::assert_response_html();
+		$this->get_db();
+		$result = $this->db->sql_query('SELECT prefix_id FROM phpbb_topic_prefixes_topics WHERE topic_id = ' . $fixture['topic_id'] . ' ORDER BY prefix_id');
+		self::assertSame(array($fixture['php_id']), array_map('intval', array_column($this->db->sql_fetchrowset($result), 'prefix_id')));
+		$this->db->sql_freeresult($result);
+
+		return $fixture;
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_viewtopic_displays_tags($fixture)
+	{
+		$this->login();
+		$crawler = self::request('GET', 'viewtopic.php?t=' . $fixture['topic_id'] . "&sid={$this->sid}");
+		$tag = $crawler->filter('h2.topic-title .topic-tag');
+		self::assertCount(1, $tag);
+		self::assertStringContainsString('PHP 8.4 filter', $tag->text());
+		self::assertSame('Filter topics by “PHP 8.4 filter”', $tag->attr('title'));
+		self::assertSame('Filter topics by “PHP 8.4 filter”', $tag->attr('aria-label'));
+		self::assertStringContainsString('topic-tags', $crawler->filter('h2.topic-title')->children()->eq(0)->attr('class'));
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_viewforum_filters_by_tag($fixture)
+	{
+		$this->login();
+		$crawler = self::request('GET', 'viewforum.php?f=' . self::FORUM_ID . '&tags=' . $fixture['php_id'] . "&sid={$this->sid}");
+		self::assertStringContainsString('Structured tag title', $crawler->filter('.topiclist.topics')->text());
+		$selected = $crawler->filter('.topic-tag-filter-panel .topic-tag-selected');
+		self::assertCount(1, $selected);
+		self::assertSame('Remove “PHP 8.4 filter” from topic filters', $selected->attr('title'));
+		self::assertSame('Remove “PHP 8.4 filter” from topic filters', $selected->attr('aria-label'));
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_search_topic_results_display_tags($fixture)
+	{
+		$this->login();
+		$crawler = self::request('GET', 'search.php?author_id=2&sr=topics' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_search_post_results_display_tags($fixture)
+	{
+		$this->markTestSkipped('Requires search_results_topic_title_prepend to be added to phpBB core.');
+		$this->login();
+		$crawler = self::request('GET', 'search.php?author_id=2&sr=posts' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('.postprofile .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_mcp_forum_displays_tags($fixture)
+	{
+		$this->login();
+		$crawler = self::request('GET', 'mcp.php?i=main&mode=forum_view&f=' . self::FORUM_ID . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_ucp_subscribed_topics_display_tags($fixture)
+	{
+		$this->markTestSkipped('Requires topiclist_row_prepend to be added to phpBB core ucp_main_subscribed.html.');
+		$this->login();
+		$this->get_db();
+		$this->db->sql_query('DELETE FROM phpbb_topics_watch
+			WHERE topic_id = ' . $fixture['topic_id'] . '
+				AND user_id = 2');
+		$this->db->sql_query('INSERT INTO phpbb_topics_watch ' . $this->db->sql_build_array('INSERT', array(
+			'topic_id' => $fixture['topic_id'],
+			'user_id' => 2,
+			'notify_status' => 0,
+		)));
+		$crawler = self::request('GET', 'ucp.php?i=ucp_main&mode=subscribed' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_ucp_bookmarks_display_tags($fixture)
+	{
+		$this->markTestSkipped('Requires topiclist_row_prepend to be added to phpBB core ucp_main_bookmarks.html.');
+		$this->login();
+		$this->get_db();
+		$this->db->sql_query('DELETE FROM phpbb_bookmarks
+			WHERE topic_id = ' . $fixture['topic_id'] . '
+				AND user_id = 2');
+		$this->db->sql_query('INSERT INTO phpbb_bookmarks ' . $this->db->sql_build_array('INSERT', array(
+			'topic_id' => $fixture['topic_id'],
+			'user_id' => 2,
+		)));
+		$crawler = self::request('GET', 'ucp.php?i=ucp_main&mode=bookmarks' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	/**
+	 * @depends test_first_post_edit_updates_tag_assignments
+	 */
+	public function test_ucp_front_displays_tags($fixture)
+	{
+		$this->markTestSkipped('Requires topiclist_row_prepend to be added to phpBB core ucp_main_front.html.');
+		$this->login();
+		$this->get_db();
+		$this->db->sql_query('UPDATE phpbb_topics
+			SET topic_type = ' . POST_GLOBAL . '
+			WHERE topic_id = ' . $fixture['topic_id']);
+		$crawler = self::request('GET', 'ucp.php?i=ucp_main&mode=front' . "&sid={$this->sid}");
+		self::assertStringContainsString('PHP 8.4 filter', $crawler->filter('ul.topiclist .topic-tag')->text());
+	}
+
+	protected function create_tag($name, $color, array $forum_ids)
+	{
+		$crawler = $this->acp_page();
+		$form = $crawler->selectButton($this->lang('SUBMIT'))->form(array(
+			'tag_name' => $name,
+			'tag_color' => $color,
+			'tag_enabled' => 1,
+			'forum_ids' => $forum_ids,
+		));
+		$crawler = self::submit($form);
+		$this->assertContainsLang('TOPIC_TAG_SAVED', $crawler->text());
+
+		$this->get_db();
+		$sql = "SELECT prefix_id FROM phpbb_topic_prefixes WHERE prefix_tag = '" . $this->db->sql_escape($name) . "' ORDER BY prefix_id DESC";
+		$result = $this->db->sql_query_limit($sql, 1);
+		$tag_id = (int) $this->db->sql_fetchfield('prefix_id');
+		$this->db->sql_freeresult($result);
+		return $tag_id;
+	}
+
+	protected function acp_page($params = '')
+	{
+		$url = 'adm/index.php?i=\\phpbb\\topicprefixes\\acp\\topic_prefixes_module&mode=manage';
+		if ($params !== '')
+		{
+			$url .= '&' . $params;
+		}
+		return self::request('GET', $url . "&sid={$this->sid}");
 	}
 }

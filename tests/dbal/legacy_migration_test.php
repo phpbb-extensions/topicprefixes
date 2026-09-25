@@ -98,6 +98,25 @@ class legacy_migration_test extends tags_base
 				SET topic_first_post_id = ' . $post_id . '
 				WHERE topic_id = ' . $topic_id);
 		}
+
+		$statement = $pdo->prepare('UPDATE phpbb_topics
+			SET topic_last_post_id = ?, topic_last_post_subject = ?
+			WHERE topic_id = ?');
+		foreach (array(
+			array($this->post_ids['reply'], 'バグ 返信 subject', 10),
+			array($this->post_ids['unrelated'], 'Unrelated reply subject', 11),
+			array($this->post_ids['php'], 'PHP 8.4 PHP only', 12),
+			array($this->post_ids['random'], '[Random] No tags', 13),
+			array($this->post_ids['moved'], 'バグ 移動 topic', $this->moved_topic_id),
+		) as $last_post)
+		{
+			$statement->execute($last_post);
+		}
+
+		$statement = $pdo->prepare('UPDATE phpbb_forums
+			SET forum_last_post_id = ?, forum_last_post_subject = ?
+			WHERE forum_id = 2');
+		$statement->execute(array($this->post_ids['reply'], 'バグ 返信 subject'));
 	}
 
 	protected function tearDown(): void
@@ -120,14 +139,19 @@ class legacy_migration_test extends tags_base
 		self::assertSame(1, (int) $this->field('SELECT prefix_order FROM phpbb_topic_prefixes WHERE prefix_id = 1', 'prefix_order'));
 		self::assertSame('日本語 title', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 10', 'topic_title'));
 		self::assertSame('日本語 title', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['both'], 'post_subject'));
+		self::assertSame('返信 subject', $this->field('SELECT topic_last_post_subject FROM phpbb_topics WHERE topic_id = 10', 'topic_last_post_subject'));
+		self::assertSame('返信 subject', $this->field('SELECT forum_last_post_subject FROM phpbb_forums WHERE forum_id = 2', 'forum_last_post_subject'));
 		self::assertSame('PHP only', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 12', 'topic_title'));
 		self::assertSame('PHP only', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['php'], 'post_subject'));
+		self::assertSame('PHP only', $this->field('SELECT topic_last_post_subject FROM phpbb_topics WHERE topic_id = 12', 'topic_last_post_subject'));
 		self::assertSame('[Other] untouched', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 11', 'topic_title'));
 		self::assertSame('Unrelated first post', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['unrelated'], 'post_subject'));
+		self::assertSame('Unrelated reply subject', $this->field('SELECT topic_last_post_subject FROM phpbb_topics WHERE topic_id = 11', 'topic_last_post_subject'));
 		self::assertSame('[Random] No tags', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = 13', 'topic_title'));
 		self::assertSame('バグ 返信 subject', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['reply'], 'post_subject'));
 		self::assertSame('移動 topic', $this->field('SELECT topic_title FROM phpbb_topics WHERE topic_id = ' . $this->moved_topic_id, 'topic_title'));
 		self::assertSame('移動 topic', $this->field('SELECT post_subject FROM phpbb_posts WHERE post_id = ' . $this->post_ids['moved'], 'post_subject'));
+		self::assertSame('移動 topic', $this->field('SELECT topic_last_post_subject FROM phpbb_topics WHERE topic_id = ' . $this->moved_topic_id, 'topic_last_post_subject'));
 		self::assertSame(0, (int) $this->field('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_topics WHERE topic_id = ' . $this->moved_topic_id, 'total'));
 		self::assertSame(1, (int) $this->field('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_forums WHERE forum_id = 2 AND prefix_id = 4', 'total'));
 

@@ -70,15 +70,16 @@ class v200_data extends \phpbb\db\migration\migration
 	public function migrate_legacy_data(): void
 	{
 		$tables = [
-			'tags' => $this->table_prefix . 'topic_prefixes',
-			'forums' => $this->table_prefix . 'topic_prefixes_forums',
-			'topic_tags' => $this->table_prefix . 'topic_prefixes_topics',
+			'topic_prefixes' => $this->table_prefix . 'topic_prefixes',
+			'topic_prefixes_forums' => $this->table_prefix . 'topic_prefixes_forums',
+			'topic_prefixes_topics' => $this->table_prefix . 'topic_prefixes_topics',
+			'forums' => $this->table_prefix . 'forums',
 			'topics' => $this->table_prefix . 'topics',
 			'posts' => $this->table_prefix . 'posts',
 		];
 
-		$this->migrate_tag_definitions($tables['tags']);
-		$this->migrate_forum_availability($tables['tags'], $tables['forums']);
+		$this->migrate_tag_definitions($tables['topic_prefixes']);
+		$this->migrate_forum_availability($tables['topic_prefixes'], $tables['topic_prefixes_forums']);
 
 		$last_topic_id = 0;
 		do
@@ -151,13 +152,17 @@ class v200_data extends \phpbb\db\migration\migration
 	 */
 	protected function get_legacy_topics(array $tables, int $last_topic_id): array
 	{
-		$sql = 'SELECT t.topic_id, t.topic_title, t.topic_first_post_id, t.topic_moved_id,
-				t.topic_prefix_id, p.prefix_tag, fp.post_subject
+		$sql = 'SELECT t.topic_id, t.topic_title, t.topic_first_post_id, t.topic_last_post_id,
+				t.topic_last_post_subject, t.topic_moved_id, t.topic_prefix_id, p.prefix_tag,
+				fp.post_subject, f.forum_id AS last_post_forum_id, f.forum_last_post_subject
 			FROM ' . $tables['topics'] . ' t
-			INNER JOIN ' . $tables['tags'] . ' p
+			INNER JOIN ' . $tables['topic_prefixes'] . ' p
 				ON p.prefix_id = t.topic_prefix_id
 			LEFT JOIN ' . $tables['posts'] . ' fp
 				ON fp.post_id = t.topic_first_post_id
+			LEFT JOIN ' . $tables['forums'] . ' f
+				ON t.topic_last_post_id <> 0
+				AND f.forum_last_post_id = t.topic_last_post_id
 			WHERE t.topic_prefix_id <> 0
 				AND t.topic_id > ' . $last_topic_id . '
 			ORDER BY t.topic_id ASC';
@@ -182,10 +187,12 @@ class v200_data extends \phpbb\db\migration\migration
 	protected function migrate_topic_batch(array $tables, array $topics): void
 	{
 		$topic_ids = array_map('intval', array_column($topics, 'topic_id'));
-		$existing = $this->get_existing_assignments($tables['topic_tags'], $topic_ids);
+		$existing = $this->get_existing_assignments($tables['topic_prefixes_topics'], $topic_ids);
 		$assignments = [];
 		$topic_titles = [];
+		$topic_last_post_subjects = [];
 		$post_subjects = [];
+		$forum_last_post_subjects = [];
 
 		foreach ($topics as $topic)
 		{
@@ -209,21 +216,33 @@ class v200_data extends \phpbb\db\migration\migration
 			{
 				$topic_titles[$topic_id] = substr($topic['topic_title'], $legacy_length);
 			}
+			if ($topic['topic_last_post_subject'] !== null && strpos($topic['topic_last_post_subject'], $legacy_text) === 0)
+			{
+				$topic_last_post_subjects[$topic_id] = substr($topic['topic_last_post_subject'], $legacy_length);
+			}
 
 			$post_id = (int) $topic['topic_first_post_id'];
 			if ($post_id && $topic['post_subject'] !== null && strpos($topic['post_subject'], $legacy_text) === 0)
 			{
 				$post_subjects[$post_id] = substr($topic['post_subject'], $legacy_length);
 			}
+
+			$forum_id = (int) $topic['last_post_forum_id'];
+			if ($forum_id && $topic['forum_last_post_subject'] !== null && strpos($topic['forum_last_post_subject'], $legacy_text) === 0)
+			{
+				$forum_last_post_subjects[$forum_id] = substr($topic['forum_last_post_subject'], $legacy_length);
+			}
 		}
 
 		$this->db->sql_transaction('begin');
 		if ($assignments)
 		{
-			$this->db->sql_multi_insert($tables['topic_tags'], $assignments);
+			$this->db->sql_multi_insert($tables['topic_prefixes_topics'], $assignments);
 		}
 		$this->bulk_update_text($tables['topics'], 'topic_id', 'topic_title', $topic_titles);
+		$this->bulk_update_text($tables['topics'], 'topic_id', 'topic_last_post_subject', $topic_last_post_subjects);
 		$this->bulk_update_text($tables['posts'], 'post_id', 'post_subject', $post_subjects);
+		$this->bulk_update_text($tables['forums'], 'forum_id', 'forum_last_post_subject', $forum_last_post_subjects);
 		$this->db->sql_transaction('commit');
 	}
 
@@ -289,7 +308,7 @@ class v200_data extends \phpbb\db\migration\migration
 	 * Quote text for use as an SQL literal.
 	 *
 	 * SQL Server requires the N prefix to preserve Unicode text when a literal
-	 * is assigned to an nvarchar column. Other supported DBMS use the standard
+	 * is assigned to a nvarchar column. Other supported DBMS use the standard
 	 * quoted form generated throughout phpBB's DBAL.
 	 *
 	 * @param string $value Text value

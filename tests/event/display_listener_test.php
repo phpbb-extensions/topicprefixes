@@ -61,7 +61,7 @@ class display_listener_test extends \phpbb_test_case
 			->willReturn([42 => [1 => $tag]]);
 		$renderer->expects(self::once())
 			->method('render')
-			->with([1 => $tag], 2)
+			->with([1 => $tag])
 			->willReturn($rendered);
 		$template->expects(self::once())
 			->method('assign_block_vars_array')
@@ -95,7 +95,7 @@ class display_listener_test extends \phpbb_test_case
 			->willReturn([42 => [1 => $tag]]);
 		$renderer->expects(self::once())
 			->method('render')
-			->with([1 => $tag], 2)
+			->with([1 => $tag])
 			->willReturn($rendered);
 
 		$listener = $this->listener($assignments, $renderer, $template);
@@ -134,7 +134,7 @@ class display_listener_test extends \phpbb_test_case
 			->willReturn([42 => [1 => $tag]]);
 		$renderer->expects(self::once())
 			->method('render')
-			->with([1 => $tag], 2)
+			->with([1 => $tag])
 			->willReturn($rendered);
 
 		$listener = $this->listener($assignments, $renderer, $template);

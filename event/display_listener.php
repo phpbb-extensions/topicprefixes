@@ -125,7 +125,7 @@ class display_listener implements EventSubscriberInterface
 		$topic_id = (int) $event['row']['topic_id'];
 		$tags = $this->search_tags[$topic_id] ?? [];
 		$tpl = $event['tpl_ary'];
-		$tpl['TOPIC_TAGS'] = $this->renderer->render($tags, (int) $event['row']['forum_id']);
+		$tpl['TOPIC_TAGS'] = $this->renderer->render($tags);
 		$event['tpl_ary'] = $tpl;
 	}
 

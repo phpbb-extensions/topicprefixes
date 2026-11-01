@@ -251,6 +251,19 @@ class title_repairer_test extends tags_base
 		$repairer->apply($plan);
 	}
 
+	public function test_force_bypasses_live_board_check(): void
+	{
+		$this->prepare_topic();
+		$repairer = $this->repairer();
+		$plan = iterator_to_array($repairer->preview(2, '[OLD]'))[0];
+		$this->db->sql_query("UPDATE phpbb_config SET config_value = '0' WHERE config_name = 'board_disable'");
+
+		$result = $repairer->apply_batch([$plan], true, true);
+
+		self::assertSame(1, $result['topics']);
+		self::assertSame('[PHP] Topic', $this->field('phpbb_topics', 'topic_title', 'topic_id = 10'));
+	}
+
 	public function test_shadow_and_wrong_post_owner_never_edit_destination_posts(): void
 	{
 		$this->prepare_topic();

@@ -32,9 +32,9 @@ pre-upgrade database backup to undo it.
 
 ## Repair tools
 
-Before applying any repair, make a current database backup and disable the
-board. Each tool shows a preview and asks for confirmation before changing
-anything.
+Before applying any repair, make a current database backup. Disable the board
+unless intentionally using `--force`. Each tool shows a preview and asks for
+confirmation before changing anything.
 
 ### Repair tags
 
@@ -47,6 +47,10 @@ php bin/phpbbcli.php topicprefixes:repair-tags
 
 To repair a specific tag, add `--tag-id=ID`.
 
+To keep the board enabled during the repair, add `--force`. Active requests may
+conflict with repair changes, so use this only when maintenance mode is not
+practical.
+
 ### Repair topics
 
 Use this command to repair missing topic tags or old prefixes, usually after
@@ -55,6 +59,9 @@ upgrading from version 1 to version 2:
 ```shell
 php bin/phpbbcli.php topicprefixes:repair-topics
 ```
+
+To keep the board enabled during any repair action, add `--force`. Active
+requests may conflict with repair changes.
 
 Choose the action that matches the problem:
 

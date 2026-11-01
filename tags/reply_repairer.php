@@ -322,11 +322,12 @@ class reply_repairer extends title_repairer
 	 *
 	 * @param array $plans      Confirmed reply repair snapshots
 	 * @param bool  $invalidate Whether to invalidate SQL caches after the batch
+	 * @param bool  $force      Whether to allow repairs while the board is enabled
 	 * @return array Applied change and conflict counts
 	 * @throws \RuntimeException When maintenance mode fails or data conflicts
 	 * @throws \Throwable When a transaction fails
 	 */
-	public function apply_batch(array $plans, bool $invalidate = true): array
+	public function apply_batch(array $plans, bool $invalidate = true, bool $force = false): array
 	{
 		if (!$plans)
 		{
@@ -368,7 +369,7 @@ class reply_repairer extends title_repairer
 			}
 			$valid[] = $plan;
 		}
-		$counts = $valid ? parent::apply_batch($valid, $invalidate) : $this->empty_counts();
+		$counts = $valid ? parent::apply_batch($valid, $invalidate, $force) : $this->empty_counts();
 		$counts['conflicts'] += $conflicts;
 		if (!$valid && $invalidate)
 		{

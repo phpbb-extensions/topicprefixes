@@ -20,6 +20,7 @@ use phpbb\topicprefixes\tags\topic_repairer;
 use phpbb\user;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -42,6 +43,9 @@ class repair_topics extends command
 
 	/** @var log_interface Administrator audit logger */
 	protected $log;
+
+	/** @var bool Whether maintenance mode checks may be bypassed */
+	protected $force = false;
 
 	/**
 	 * Constructor.
@@ -70,7 +74,13 @@ class repair_topics extends command
 	protected function configure(): void
 	{
 		$this->setName('topicprefixes:repair-topics')
-			->setDescription($this->language->lang('CLI_TOPIC_REPAIR_DESCRIPTION'));
+			->setDescription($this->language->lang('CLI_TOPIC_REPAIR_DESCRIPTION'))
+			->addOption(
+				'force',
+				null,
+				InputOption::VALUE_NONE,
+				$this->language->lang('CLI_TOPIC_REPAIR_FORCE')
+			);
 	}
 
 	/**
@@ -84,9 +94,17 @@ class repair_topics extends command
 			$io->error($this->language->lang('CLI_TOPIC_REPAIR_INTERACTIVE_REQUIRED'));
 			return 1;
 		}
+		$this->force = (bool) $input->getOption('force');
+		if ($this->force)
+		{
+			$io->warning($this->language->lang('CLI_TOPIC_REPAIR_FORCE_WARNING'));
+		}
 		try
 		{
-			$this->topic_repairer->assert_board_disabled();
+			if (!$this->force)
+			{
+				$this->topic_repairer->assert_board_disabled();
+			}
 		}
 		catch (\Throwable $e)
 		{
@@ -253,7 +271,10 @@ class repair_topics extends command
 				return false;
 			}
 
-			$this->topic_repairer->assert_board_disabled();
+			if (!$this->force)
+			{
+				$this->topic_repairer->assert_board_disabled();
+			}
 			if (!$io->confirm($this->language->lang('CLI_TOPIC_TAGS_REPAIR_BACKUP_CONFIRM'), false)
 				|| !$io->confirm($this->language->lang('CLI_TOPIC_RECOVERY_APPLY', $approved), false))
 			{
@@ -524,7 +545,10 @@ class repair_topics extends command
 				return false;
 			}
 
-			$repairer->assert_board_disabled();
+			if (!$this->force)
+			{
+				$repairer->assert_board_disabled();
+			}
 			if (!$io->confirm($this->language->lang('CLI_TOPIC_TAGS_REPAIR_BACKUP_CONFIRM'), false)
 				|| !$io->confirm($this->text($kind, 'APPLY', $prefix_label, $forum_label, $eligible), false))
 			{
@@ -703,7 +727,7 @@ class repair_topics extends command
 	 */
 	protected function apply_recovery_batch(array $batch, array &$counts, int &$repaired): void
 	{
-		$result = $this->topic_repairer->apply_batch($batch, false);
+		$result = $this->topic_repairer->apply_batch($batch, false, $this->force);
 		$repaired += count($batch) - $result['conflicts'];
 		foreach ($counts as $key => $count)
 		{
@@ -722,7 +746,7 @@ class repair_topics extends command
 	 */
 	protected function apply_text_batch(title_repairer $repairer, array $batch, array &$counts): void
 	{
-		$result = $repairer->apply_batch($batch, false);
+		$result = $repairer->apply_batch($batch, false, $this->force);
 		foreach ($counts as $key => $count)
 		{
 			$counts[$key] += $result[$key];

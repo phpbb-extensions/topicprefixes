@@ -74,6 +74,12 @@ class repair_tags extends command
 			->setName('topicprefixes:repair-tags')
 			->setDescription($this->language->lang('CLI_TOPIC_TAGS_REPAIR_DESCRIPTION'))
 			->addOption(
+				'force',
+				null,
+				InputOption::VALUE_NONE,
+				$this->language->lang('CLI_TOPIC_REPAIR_FORCE')
+			)
+			->addOption(
 				'tag-id',
 				null,
 				InputOption::VALUE_REQUIRED,
@@ -92,7 +98,12 @@ class repair_tags extends command
 			$io->error($this->language->lang('CLI_TOPIC_TAGS_REPAIR_INTERACTIVE_REQUIRED'));
 			return 1;
 		}
-		if (empty($this->config['board_disable']))
+		$force = (bool) $input->getOption('force');
+		if ($force)
+		{
+			$io->warning($this->language->lang('CLI_TOPIC_REPAIR_FORCE_WARNING'));
+		}
+		if (!$force && empty($this->config['board_disable']))
 		{
 			$io->error($this->language->lang('CLI_TOPIC_TAGS_REPAIR_BOARD_ENABLED'));
 			return 1;
@@ -203,7 +214,7 @@ class repair_tags extends command
 				$skipped++;
 				continue;
 			}
-			if (empty($this->config['board_disable']))
+			if (!$force && empty($this->config['board_disable']))
 			{
 				$io->error($this->language->lang('CLI_TOPIC_TAGS_REPAIR_BOARD_ENABLED'));
 				return 1;

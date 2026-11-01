@@ -63,6 +63,16 @@ class repair_tags_test extends \phpbb_test_case
 		self::assertSame(1, $tester->execute([], ['interactive' => true]));
 	}
 
+	public function test_force_allows_enabled_board(): void
+	{
+		$this->tag_manager->expects(self::never())->method('get_tags');
+		$tester = $this->create_tester(false);
+		$tester->setInputs(['no']);
+
+		self::assertSame(0, $tester->execute(['--force' => true], ['interactive' => true]));
+		self::assertStringContainsString('Forced mode', $tester->getDisplay());
+	}
+
 	public function test_declined_backup_confirmation_changes_nothing(): void
 	{
 		$this->tag_manager->expects(self::never())->method('get_tags');
@@ -329,6 +339,22 @@ class repair_tags_test extends \phpbb_test_case
 		$tester = $this->create_tester(true);
 		$tester->setInputs(['yes', 'split', 'A', 'B', '', 'yes']);
 		self::assertSame(1, $tester->execute([], ['interactive' => true]));
+	}
+
+	public function test_force_ignores_board_reenabled_before_apply(): void
+	{
+		$source = $this->source_tag();
+		$this->tag_manager->method('get_tags')->willReturn([1 => $source]);
+		$this->repairer->method('inspect')->willReturn($this->inspection($source));
+		$this->repairer->method('preview')->willReturnCallback(function () use ($source) {
+			$this->config['board_disable'] = 0;
+			return $this->preview($source);
+		});
+		$this->repairer->expects(self::once())->method('repair')->willReturn($this->preview($source));
+
+		$tester = $this->create_tester(true);
+		$tester->setInputs(['yes', 'split', 'A', 'B', '', 'yes']);
+		self::assertSame(0, $tester->execute(['--force' => true], ['interactive' => true]));
 	}
 
 	public function test_repair_failure_aborts(): void

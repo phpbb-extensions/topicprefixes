@@ -168,6 +168,64 @@ class repair_topics_test extends \phpbb_test_case
 		self::assertSame(1, $tester->execute([], ['interactive' => true]));
 	}
 
+	public function test_force_allows_recovery_with_enabled_board(): void
+	{
+		$plan = $this->recovery_plan();
+		$tester = $this->create_tester([$plan]);
+		$this->topic_repairer->expects(self::never())->method('assert_board_disabled');
+		$this->topic_repairer->expects(self::once())->method('apply_batch')->with([$plan], false, true)->willReturn([
+			'assignments' => 1,
+			'topics' => 1,
+			'subjects' => 0,
+			'caches' => 0,
+			'skipped' => 0,
+			'conflicts' => 0,
+		]);
+		$this->log->method('add')->willReturn(1);
+		$tester->setInputs(['0', 'yes', 'yes', 'yes', '3']);
+
+		self::assertSame(0, $tester->execute(['--force' => true], ['interactive' => true]));
+		self::assertStringContainsString('Forced mode', $tester->getDisplay());
+	}
+
+	public function test_force_allows_title_cleanup_with_enabled_board(): void
+	{
+		$plan = $this->title_plan();
+		$tester = $this->create_tester([], [$plan]);
+		$this->topic_repairer->expects(self::never())->method('assert_board_disabled');
+		$this->titles->expects(self::never())->method('assert_board_disabled');
+		$this->titles->expects(self::once())->method('apply_batch')->with([$plan], false, true)->willReturn([
+			'topics' => 1,
+			'subjects' => 0,
+			'caches' => 0,
+			'skipped' => 0,
+			'conflicts' => 0,
+		]);
+		$this->log->method('add')->willReturn(1);
+		$tester->setInputs(['1', '[OLD]', '2', 'yes', 'yes', 'yes', '3']);
+
+		self::assertSame(0, $tester->execute(['--force' => true], ['interactive' => true]));
+	}
+
+	public function test_force_allows_reply_cleanup_with_enabled_board(): void
+	{
+		$plan = $this->reply_repair_plan();
+		$tester = $this->create_tester([], [], [$plan]);
+		$this->topic_repairer->expects(self::never())->method('assert_board_disabled');
+		$this->replies->expects(self::never())->method('assert_board_disabled');
+		$this->replies->expects(self::once())->method('apply_batch')->with([$plan], false, true)->willReturn([
+			'topics' => 0,
+			'subjects' => 1,
+			'caches' => 0,
+			'skipped' => 0,
+			'conflicts' => 0,
+		]);
+		$this->log->method('add')->willReturn(1);
+		$tester->setInputs(['2', '[OLD]', '2', 'yes', 'yes', 'yes', '3']);
+
+		self::assertSame(0, $tester->execute(['--force' => true], ['interactive' => true]));
+	}
+
 	public function test_empty_recovery_returns_to_menu(): void
 	{
 		$tester = $this->create_tester();
@@ -211,7 +269,7 @@ class repair_topics_test extends \phpbb_test_case
 		$tester = $this->create_tester([$plan]);
 		$this->topic_repairer->expects(self::once())
 			->method('apply_batch')
-			->with([$plan], false)
+			->with([$plan], false, false)
 			->willReturn([
 				'assignments' => 1,
 				'topics' => 1,
@@ -242,7 +300,7 @@ class repair_topics_test extends \phpbb_test_case
 		$tester = $this->create_tester([], [$plan]);
 		$this->titles->expects(self::once())
 			->method('apply_batch')
-			->with([$plan], false)
+			->with([$plan], false, false)
 			->willReturn([
 				'topics' => 1,
 				'subjects' => 0,
@@ -391,7 +449,7 @@ class repair_topics_test extends \phpbb_test_case
 		$tester = $this->create_tester([], [], [$plan]);
 		$this->replies->expects(self::once())
 			->method('apply_batch')
-			->with([$plan], false)
+			->with([$plan], false, false)
 			->willReturn([
 				'topics' => 0,
 				'subjects' => 1,

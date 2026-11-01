@@ -434,13 +434,17 @@ class title_repairer
 	 *
 	 * @param array $plans      Confirmed repair snapshots
 	 * @param bool  $invalidate Whether to invalidate SQL caches after the batch
+	 * @param bool  $force      Whether to allow repairs while the board is enabled
 	 * @return array Counts of changed topics, subjects, caches, skipped fields and conflicts
 	 * @throws \RuntimeException When maintenance mode fails
 	 * @throws \Throwable When a transaction fails
 	 */
-	public function apply_batch(array $plans, bool $invalidate = true): array
+	public function apply_batch(array $plans, bool $invalidate = true, bool $force = false): array
 	{
-		$this->assert_board_disabled();
+		if (!$force)
+		{
+			$this->assert_board_disabled();
+		}
 		$counts = $this->empty_counts();
 		if ($plans && $this->requires_snapshot_preflight($plans))
 		{

@@ -285,6 +285,19 @@ class reply_repairer_test extends tags_base
 		$this->db->sql_query($sql);
 	}
 
+	public function test_force_bypasses_board_check(): void
+	{
+		$this->prepare_topic();
+		$repairer = $this->create_repairer();
+		$plan = iterator_to_array($repairer->preview(2, '[OLD]'))[0];
+		$this->db->sql_query("UPDATE phpbb_config SET config_value = '0' WHERE config_name = 'board_disable'");
+
+		$result = $repairer->apply_batch([$plan], true, true);
+
+		self::assertSame(1, $result['subjects']);
+		self::assertSame('Custom subject', $this->field('phpbb_posts', 'post_subject', 'post_id = 101'));
+	}
+
 	public function test_bounded_preview_and_resume(): void
 	{
 		$this->prepare_topic();

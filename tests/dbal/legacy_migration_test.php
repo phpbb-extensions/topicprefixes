@@ -27,7 +27,7 @@ class legacy_migration_test extends tags_base
 	{
 		parent::setUp();
 		$factory = new \phpbb\db\tools\factory();
-		$this->tools = $factory->get($this->db);
+		$this->tools = $factory->get($this->new_doctrine_dbal());
 		$this->tools->sql_column_add('phpbb_topics', 'topic_prefix_id', array('UINT', 0));
 		$this->tools->sql_column_add('phpbb_topic_prefixes', 'prefix_parent_id', array('UINT', 0));
 		$this->tools->sql_column_add('phpbb_topic_prefixes', 'prefix_left_id', array('UINT', 0));
@@ -220,7 +220,7 @@ class legacy_migration_test extends tags_base
 		self::assertSame(0, (int) $this->field('SELECT COUNT(*) AS total FROM phpbb_topic_prefixes_topics WHERE topic_id = ' . $this->moved_topic_id, 'total'));
 	}
 
-	public function shadow_prefix_provider(): array
+	public static function shadow_prefix_provider(): array
 	{
 		return [
 			'own prefix differs from destination' => [2, 'PHP 8.4 Shadow', 'Shadow'],
@@ -626,7 +626,8 @@ class legacy_migration_test extends tags_base
 			$this->tools,
 			$phpbb_root_path,
 			$phpEx,
-			'phpbb_'
+			'phpbb_',
+			self::get_core_tables()
 		);
 	}
 

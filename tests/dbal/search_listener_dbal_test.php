@@ -45,7 +45,7 @@ class search_listener_dbal_test extends tags_base
 		self::assertSame([10, 11], $this->execute_ids($event['sql']));
 	}
 
-	public function predefined_query_data(): array
+	public static function predefined_query_data(): array
 	{
 		return [
 			'active topics' => ['active_topics', 'topics', 'SELECT t.topic_id FROM phpbb_topics t WHERE t.forum_id = 2 ORDER BY t.topic_id'],
@@ -98,7 +98,7 @@ class search_listener_dbal_test extends tags_base
 		self::assertSame(['topicprefixes:any:1,2'], $event['search_key_array']);
 	}
 
-	public function backend_result_type_data(): array
+	public static function backend_result_type_data(): array
 	{
 		return [
 			'topic results' => ['topics'],

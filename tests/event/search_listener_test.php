@@ -225,13 +225,16 @@ class search_listener_test extends \phpbb_test_case
 		$manager->method('resolve_search_tags_for_forums')->willReturn($tags);
 		$filter->method('topic_id_tags_condition')->willReturn('TAG_CONDITION');
 		$renderer->method('url_with_tags')->willReturn('./search.php?sr=topics&amp;tags=1');
-		$renderer->expects(self::exactly(2))->method('render_for_url')->withConsecutive(
-			[$tags, './search.php?sr=topics', [1]],
-			[[1 => $tag], './search.php?sr=topics', [1]]
-		)->willReturnOnConsecutiveCalls(
-			[['TAG_ID' => 1, 'TAG_NAME' => 'Tag 1', 'U_FILTER' => './search.php?sr=topics']],
-			[['TAG_ID' => 1, 'TAG_NAME' => 'Bug', 'TAG_COLOR' => '1D70B8', 'U_FILTER' => './search.php?sr=topics']]
-		);
+		$render_calls = [
+			[[$tags, './search.php?sr=topics', [1]], [['TAG_ID' => 1, 'TAG_NAME' => 'Tag 1', 'U_FILTER' => './search.php?sr=topics']]],
+			[[[1 => $tag], './search.php?sr=topics', [1]], [['TAG_ID' => 1, 'TAG_NAME' => 'Bug', 'TAG_COLOR' => '1D70B8', 'U_FILTER' => './search.php?sr=topics']]],
+		];
+		$renderer->expects(self::exactly(2))->method('render_for_url')
+			->willReturnCallback(static function ($tags, $url, $selected) use (&$render_calls) {
+				list($expected, $result) = array_shift($render_calls);
+				self::assertSame($expected, [$tags, $url, $selected]);
+				return $result;
+			});
 		$assignments->expects(self::once())->method('get_tags_for_topics')->with([42])->willReturn([42 => [1 => $tag]]);
 		$template->expects(self::once())->method('assign_vars')->with(self::callback(static function ($vars) {
 			return $vars['S_SEARCH_TOPIC_TAG_FILTERED'] === true
@@ -433,7 +436,7 @@ class search_listener_test extends \phpbb_test_case
 		$listener->configure_search_form(new \phpbb\event\data([]));
 	}
 
-	public function passworded_forum_data(): array
+	public static function passworded_forum_data(): array
 	{
 		return [
 			'locked forum excluded' => [[3 => 3], [2]],

@@ -31,7 +31,11 @@ class lifecycle_listener_test extends \phpbb_test_case
 		$manager = $this->manager_mock();
 		$assignments->expects(self::once())->method('get_topic_tag_ids_for_topics')->with([10])->willReturn([]);
 		$assignments->expects(self::once())->method('delete_forum_topic_assignments')->with(2);
-		$manager->expects(self::exactly(2))->method('delete_forum_availability')->withConsecutive([[2]], [[3]]);
+		$forum_ids = [[2], [3]];
+		$manager->expects(self::exactly(2))->method('delete_forum_availability')
+			->willReturnCallback(static function ($ids) use (&$forum_ids) {
+				self::assertSame(array_shift($forum_ids), $ids);
+			});
 		$listener = $this->listener($assignments, $manager);
 
 		$delete = new \phpbb\event\data(['topic_ids' => [10], 'table_ary' => ['phpbb_topics']]);
@@ -45,13 +49,13 @@ class lifecycle_listener_test extends \phpbb_test_case
 	public function test_split_and_fork_topics_copy_tags(): void
 	{
 		$assignments = $this->assignment_mock();
+		$copy_calls = [[10, 20], [10, 30]];
 		$assignments->expects(self::exactly(2))
 			->method('copy_topic_tags')
-			->withConsecutive(
-				[10, 20],
-				[10, 30]
-			)
-			->willReturn(true);
+			->willReturnCallback(static function ($source, $target) use (&$copy_calls) {
+				self::assertSame(array_shift($copy_calls), [$source, $target]);
+				return true;
+			});
 		$listener = $this->listener($assignments, $this->manager_mock());
 
 		$listener->copy_split_tags(new \phpbb\event\data(['topic_id' => 10, 'to_topic_id' => 20]));

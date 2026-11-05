@@ -226,7 +226,7 @@ class repairer_test extends tags_base
 		$this->create_repairer()->preview(1, $replacements);
 	}
 
-	public function invalid_replacement_provider(): array
+	public static function invalid_replacement_provider(): array
 	{
 		return [
 			'none' => [[], 'CLI_TOPIC_TAGS_REPAIR_NEW_TAG_REQUIRED'],

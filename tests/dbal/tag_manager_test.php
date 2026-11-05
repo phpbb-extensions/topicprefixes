@@ -16,7 +16,7 @@ class tag_manager_test extends tags_base
 {
 	public function test_schema_is_normalized()
 	{
-		$tools = (new \phpbb\db\tools\factory())->get($this->db);
+		$tools = (new \phpbb\db\tools\factory())->get($this->new_doctrine_dbal());
 		self::assertTrue($tools->sql_table_exists('phpbb_topic_prefixes_forums'));
 		self::assertTrue($tools->sql_table_exists('phpbb_topic_prefixes_topics'));
 		self::assertFalse($tools->sql_column_exists('phpbb_topics', 'topic_prefix_id'));

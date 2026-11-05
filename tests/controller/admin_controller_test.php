@@ -33,11 +33,12 @@ class admin_controller_test extends \phpbb_test_case
 	protected function setUp(): void
 	{
 		parent::setUp();
-		global $phpbb_root_path, $phpEx, $user;
+		global $language, $phpbb_root_path, $phpEx, $user;
 		$this->manager = $this->getMockBuilder('\phpbb\topicprefixes\tags\manager')->disableOriginalConstructor()->getMock();
 		$this->renderer = $this->getMockBuilder('\phpbb\topicprefixes\tags\renderer')->disableOriginalConstructor()->getMock();
 		$this->language = new \phpbb\language\language(new \phpbb\language\language_file_loader($phpbb_root_path, $phpEx));
 		$this->language->add_lang('acp_topic_prefixes', 'phpbb/topicprefixes');
+		$language = $this->language;
 		$this->log = $this->getMockBuilder('\phpbb\log\log')->disableOriginalConstructor()->getMock();
 		$this->request = $this->getMockBuilder('\phpbb\request\request')->disableOriginalConstructor()->getMock();
 		$this->template = $this->getMockBuilder('\phpbb\template\template')->disableOriginalConstructor()->getMock();
@@ -103,21 +104,19 @@ class admin_controller_test extends \phpbb_test_case
 		);
 		$this->manager->method('get_forum_names_by_tag')->willReturn(array());
 		$this->manager->method('get_tags')->willReturn(array());
-		$this->template->expects(self::exactly(2))->method('assign_block_vars')->withConsecutive(
-			['forums', self::callback(static function ($row) {
-				return $row['FORUM_ID'] === 2
-					&& $row['FORUM_NAME'] === 'Parent &amp; Forum'
-					&& !$row['S_POSTABLE']
-					&& !$row['S_SELECTED'];
-			})],
-			['forums', self::callback(static function ($row) {
-				return $row['FORUM_ID'] === 3
-					&& $row['FORUM_NAME'] === 'Child 😀'
-					&& $row['DEPTH'] === 1
-					&& $row['S_POSTABLE']
-					&& $row['S_SELECTED'];
-			})]
-		);
+		$forum_rows = [
+			['FORUM_ID' => 2, 'FORUM_NAME' => 'Parent &amp; Forum', 'DEPTH' => 0, 'S_POSTABLE' => false, 'S_SELECTED' => false],
+			['FORUM_ID' => 3, 'FORUM_NAME' => 'Child 😀', 'DEPTH' => 1, 'S_POSTABLE' => true, 'S_SELECTED' => true],
+		];
+		$this->template->expects(self::exactly(2))->method('assign_block_vars')
+			->willReturnCallback(static function ($block, $row) use (&$forum_rows) {
+				$expected = array_shift($forum_rows);
+				self::assertSame('forums', $block);
+				foreach ($expected as $key => $value)
+				{
+					self::assertSame($value, $row[$key]);
+				}
+			});
 
 		$this->controller->display_settings();
 	}
@@ -461,7 +460,7 @@ class admin_controller_test extends \phpbb_test_case
 	 *
 	 * @return array Action, expected method, and expected arguments
 	 */
-	public function main_action_data(): array
+	public static function main_action_data(): array
 	{
 		return array(
 			array('save', 'save_tag', array(2)),
@@ -488,7 +487,7 @@ class admin_controller_test extends \phpbb_test_case
 				$this->manager, $this->renderer, $this->language, $this->log,
 				$this->request, $this->template, $this->user,
 			))
-			->setMethods(array('save_tag', 'delete_tag', 'toggle_tag', 'reorder_tags', 'move_tag', 'display_settings'))
+			->onlyMethods(array('save_tag', 'delete_tag', 'toggle_tag', 'reorder_tags', 'move_tag', 'display_settings'))
 			->getMock();
 		$controller->expects(self::once())->method($method)->with(...$arguments);
 		$controller->expects(self::once())->method('display_settings')->with(false);
@@ -496,7 +495,7 @@ class admin_controller_test extends \phpbb_test_case
 		$controller->main();
 	}
 
-	public function ajax_main_action_data(): array
+	public static function ajax_main_action_data(): array
 	{
 		return array(
 			array('save', 'save_tag', array(2)),
@@ -522,7 +521,7 @@ class admin_controller_test extends \phpbb_test_case
 				$this->manager, $this->renderer, $this->language, $this->log,
 				$this->request, $this->template, $this->user,
 			))
-			->setMethods(array('save_tag', 'delete_tag', 'toggle_tag', 'reorder_tags', 'display_settings'))
+			->onlyMethods(array('save_tag', 'delete_tag', 'toggle_tag', 'reorder_tags', 'display_settings'))
 			->getMock();
 		$controller->expects(self::once())->method($method)->with(...$arguments);
 		$controller->expects(self::never())->method('display_settings');
@@ -549,7 +548,7 @@ class admin_controller_test extends \phpbb_test_case
 	 *
 	 * @return array Scenario and expected language key
 	 */
-	public function error_path_data(): array
+	public static function error_path_data(): array
 	{
 		return array(
 			array('missing_name', 'TOPIC_TAG_NAME_REQUIRED'),
@@ -655,22 +654,17 @@ class admin_controller_test extends \phpbb_test_case
 		global $cache, $db, $phpbb_dispatcher, $phpbb_hook;
 
 		$previous_globals = array($cache ?? null, $db ?? null, $phpbb_dispatcher ?? null, $phpbb_hook ?? null);
-		$cache = $db = $phpbb_dispatcher = null;
-		$phpbb_hook = new class
+		$cache = $db = null;
+		$phpbb_dispatcher = new class
 		{
-			public function call_hook($name)
+			public function trigger_event($name, array $vars = array())
 			{
-				return $name === 'exit_handler';
-			}
+				if ($name === 'core.exit_handler')
+				{
+					$vars['exit_handler_override'] = true;
+				}
 
-			public function hook_return($name)
-			{
-				return $name === 'exit_handler';
-			}
-
-			public function hook_return_result($name)
-			{
-				return null;
+				return $vars;
 			}
 		};
 

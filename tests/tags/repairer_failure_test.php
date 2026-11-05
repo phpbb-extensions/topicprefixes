@@ -29,8 +29,7 @@ class repairer_failure_test extends \phpbb_test_case
 	{
 		$repairer = $this->create_repairer();
 		$repairer->fail_forum_merge = true;
-		$this->db->expects(self::exactly(2))->method('sql_transaction')
-			->withConsecutive(['begin'], ['rollback']);
+		$this->expect_transactions('begin', 'rollback');
 		$this->cache->expects(self::once())->method('destroy')
 			->with(\phpbb\topicprefixes\tags\manager::CACHE_KEY);
 		$this->expectException(\RuntimeException::class);
@@ -45,8 +44,7 @@ class repairer_failure_test extends \phpbb_test_case
 	public function test_topic_batch_failure_rolls_back(): void
 	{
 		$repairer = $this->create_repairer();
-		$this->db->expects(self::exactly(2))->method('sql_transaction')
-			->withConsecutive(['begin'], ['rollback']);
+		$this->expect_transactions('begin', 'rollback');
 		$this->db->expects(self::once())->method('sql_multi_insert')
 			->willThrowException(new \RuntimeException('Topic assignment failed.'));
 		$this->expectException(\RuntimeException::class);
@@ -66,8 +64,7 @@ class repairer_failure_test extends \phpbb_test_case
 			'targets' => [['prefix_id' => 2, 'prefix_tag' => 'A', 'existing' => true]],
 		];
 		$repairer->created_targets = [['prefix_id' => 2, 'prefix_tag' => 'A', 'existing' => true]];
-		$this->db->expects(self::exactly(2))->method('sql_transaction')
-			->withConsecutive(['begin'], ['rollback']);
+		$this->expect_transactions('begin', 'rollback');
 		$this->db->expects(self::once())->method('sql_query')
 			->willThrowException(new \RuntimeException('Source deletion failed.'));
 		$this->cache->expects(self::once())->method('destroy')
@@ -88,6 +85,14 @@ class repairer_failure_test extends \phpbb_test_case
 			'topic_map',
 			'topics'
 		);
+	}
+
+	protected function expect_transactions(string ...$transactions): void
+	{
+		$this->db->expects(self::exactly(count($transactions)))->method('sql_transaction')
+			->willReturnCallback(static function ($transaction) use (&$transactions) {
+				self::assertSame(array_shift($transactions), $transaction);
+			});
 	}
 }
 

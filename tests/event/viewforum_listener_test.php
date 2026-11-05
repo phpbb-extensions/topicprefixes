@@ -58,22 +58,28 @@ class viewforum_listener_test extends \phpbb_test_case
 			'./viewforum.php?f=2&amp;st=0&amp;sk=t&amp;sd=d&amp;tags=1%2C2'
 		);
 		$sort_params = array('st' => 0, 'sk' => 't', 'sd' => 'd');
-		$renderer->expects(self::exactly(3))->method('render')->withConsecutive(
+		$render_calls = [
 			[$tags, 2, array(1, 2), $sort_params, true],
 			[array(1 => $tags[1]), 2, array(1, 2), $sort_params, true],
-			[array(2 => $tags[2]), 2, array(1, 2), $sort_params, true]
-		)->willReturn(array());
-		$renderer->expects(self::exactly(4))->method('filter_url')->withConsecutive(
-			[2, [], array('st' => 0, 'sk' => 't', 'sd' => 'd')],
-			[2, array(1, 2)],
-			[2, array(1, 2), array('st' => 0, 'sk' => 't', 'sd' => 'd')],
-			[2, array(1, 2), array('st' => 0, 'sk' => 't', 'sd' => 'd')]
-		)->willReturnOnConsecutiveCalls(
-			'./viewforum.php?f=2',
-			'./viewforum.php?f=2&amp;tags=1%2C2',
-			'./viewforum.php?f=2&amp;st=0&amp;sk=t&amp;sd=d&amp;tags=1%2C2',
-			'./viewforum.php?f=2&amp;st=0&amp;sk=t&amp;sd=d&amp;tags=1%2C2'
-		);
+			[array(2 => $tags[2]), 2, array(1, 2), $sort_params, true],
+		];
+		$renderer->expects(self::exactly(3))->method('render')
+			->willReturnCallback(static function (...$arguments) use (&$render_calls) {
+				self::assertSame(array_shift($render_calls), $arguments);
+				return array();
+			});
+		$filter_url_calls = [
+			[[2, [], array('st' => 0, 'sk' => 't', 'sd' => 'd')], './viewforum.php?f=2'],
+			[[2, array(1, 2), array()], './viewforum.php?f=2&amp;tags=1%2C2'],
+			[[2, array(1, 2), array('st' => 0, 'sk' => 't', 'sd' => 'd')], './viewforum.php?f=2&amp;st=0&amp;sk=t&amp;sd=d&amp;tags=1%2C2'],
+			[[2, array(1, 2), array('st' => 0, 'sk' => 't', 'sd' => 'd')], './viewforum.php?f=2&amp;st=0&amp;sk=t&amp;sd=d&amp;tags=1%2C2'],
+		];
+		$renderer->expects(self::exactly(4))->method('filter_url')
+			->willReturnCallback(static function (...$arguments) use (&$filter_url_calls) {
+				list($expected, $result) = array_shift($filter_url_calls);
+				self::assertSame($expected, $arguments);
+				return $result;
+			});
 		$listener = new \phpbb\topicprefixes\event\viewforum_listener(
 			$manager, $assignments, $filter, $renderer, $request, $template, $language
 		);
@@ -90,13 +96,17 @@ class viewforum_listener_test extends \phpbb_test_case
 		$listener->filter_announcements($announcements);
 		self::assertSame('(t.topic_type = 3) AND FILTER_CONDITION', $announcements['sql_ary']['WHERE']);
 
+		$assignment_calls = [
+			[[10, 11], array(10 => array(1 => $tags[1]))],
+			[[20], array(20 => array(2 => $tags[2]))],
+		];
 		$assignments->expects(self::exactly(2))
 			->method('get_tags_for_topics')
-			->withConsecutive([array(10, 11)], [array(20)])
-			->willReturnOnConsecutiveCalls(
-				array(10 => array(1 => $tags[1])),
-				array(20 => array(2 => $tags[2]))
-			);
+			->willReturnCallback(static function ($topic_ids) use (&$assignment_calls) {
+				list($expected, $result) = array_shift($assignment_calls);
+				self::assertSame($expected, $topic_ids);
+				return $result;
+			});
 		$listener->load_topic_tags(new \phpbb\event\data(array(
 			'rowset' => array(array('topic_id' => 10), array('topic_id' => 11)),
 		)));
@@ -195,7 +205,7 @@ class viewforum_listener_test extends \phpbb_test_case
 	 *
 	 * @return array Requested filters, visible assignments, visibility candidates, visible choices, and active filters
 	 */
-	public function preserved_tag_visibility_data(): array
+	public static function preserved_tag_visibility_data(): array
 	{
 		return array(
 			array('', array(), array(), array(1), array()),

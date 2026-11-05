@@ -122,7 +122,7 @@ class filter_test extends tags_base
 		self::assertSame($expected, $ids);
 	}
 
-	public function search_sort_data(): array
+	public static function search_sort_data(): array
 	{
 		return [
 			'author ascending with unknown users' => ['a', 'a', [10, 11, 12]],

@@ -45,7 +45,6 @@ class admin_controller_test extends \phpbb_test_case
 		$this->user = $this->getMockBuilder('\phpbb\user')->disableOriginalConstructor()->getMock();
 		$this->user->data = array('user_id' => 2, 'user_form_salt' => 'salt');
 		$this->user->ip = '127.0.0.1';
-		$this->user->lang = array('BACK_TO_PREV' => 'Back');
 		self::$valid_hash = true;
 		self::$valid_form = true;
 		self::$confirmed = false;

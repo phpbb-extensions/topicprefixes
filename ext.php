@@ -55,7 +55,7 @@ class ext extends \phpbb\extension\base
 	 */
 	protected function meets_requirements(): bool
 	{
-		return PHP_VERSION_ID >= 70200 && phpbb_version_compare(PHPBB_VERSION, '3.3.19', '>=');
+		return PHP_VERSION_ID >= 80000 && phpbb_version_compare(PHPBB_VERSION, '3.3.19', '>=');
 	}
 
 	/**

@@ -324,10 +324,11 @@ class repair_topics_test extends \phpbb_test_case
 		self::assertSame(0, $tester->execute([], ['interactive' => true]));
 	}
 
-	public function test_manual_prefix_displays_unicode_emoji_and_slashes(): void
+	public function test_json_encoded_prefix_displays_unicode_emoji_and_slashes(): void
 	{
 		$tester = $this->create_tester([], [$this->title_plan()]);
-		$tester->setInputs(['1', 'バグ/😇', '2', 'no', '3']);
+		$encoded_prefix = '"\u30d0\u30b0/\ud83d\ude07"';
+		$tester->setInputs(['1', $encoded_prefix, '2', 'no', '3']);
 
 		self::assertSame(0, $tester->execute([], ['interactive' => true]));
 		self::assertStringContainsString('"バグ/😇"', $tester->getDisplay());

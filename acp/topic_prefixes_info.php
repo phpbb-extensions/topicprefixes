@@ -10,9 +10,17 @@
 
 namespace phpbb\topicprefixes\acp;
 
+/**
+ * Describe Topic Prefixes ACP module registration.
+ */
 class topic_prefixes_info
 {
-	public function module()
+	/**
+	 * Return ACP module metadata.
+	 *
+	 * @return array ACP module definition
+	 */
+	public function module(): array
 	{
 		return [
 			'filename'	=> '\phpbb\topicprefixes\acp\topic_prefixes_module',

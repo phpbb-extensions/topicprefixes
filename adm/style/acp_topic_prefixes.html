@@ -2,70 +2,201 @@
 
 <a id="maincontent"></a>
 
-<h1>{{ lang('TOPIC_PREFIXES') }}</h1>
+<div id="topic-tag-app" class="topic-tag-app" data-action="{{ U_ACTION }}" data-default-color="#4A76A8"
+	data-create-title="{{ lang('CREATE_TOPIC_TAG') }}" data-edit-title="{{ lang('EDIT_TOPIC_TAG') }}"
+	data-preview="{{ lang('TOPIC_TAG_PREVIEW') }}" data-discard="{{ lang('TOPIC_TAG_DISCARD_CONFIRM') }}"
+	data-result-count="{{ lang('TOPIC_TAG_RESULT_COUNT_JS') }}" data-forum-count="{{ lang('TOPIC_TAG_FORUM_COUNT_JS') }}"
+	data-selected-count="{{ lang('TOPIC_TAG_SELECTED_COUNT_JS') }}" data-request-failed="{{ lang('TOPIC_TAG_REQUEST_FAILED') }}"
+	data-empty="{{ lang('TOPIC_TAGS_EMPTY') }}">
+	<div class="topic-tag-page-header">
+		<div>
+			<h1>{{ lang('TOPIC_TAGS') }}</h1>
+			<p>{{ lang('TOPIC_TAGS_EXPLAIN') }}</p>
+			<details>
+				<summary>{{ lang('TOPIC_TAGS_REPAIR_CLI') }}</summary>
+				<p>{{ lang('TOPIC_TAGS_REPAIR_CLI_EXPLAIN') }}<br>
+					{{ lang('TOPIC_TAGS_REPAIR_TAGS') }} <code class="success">php bin/phpbbcli.php topicprefixes:repair-tags</code><br>
+					{{ lang('TOPIC_TAGS_REPAIR_TOPICS') }} <code class="success">php bin/phpbbcli.php topicprefixes:repair-topics</code>
+				</p>
+			</details>
+		</div>
+		<button type="button" class="tp-button tp-button-primary topic-tag-new topic-tag-js-only">
+			<i class="fa fa-plus" aria-hidden="true"></i> {{ lang('CREATE_TOPIC_TAG') }}
+		</button>
+	</div>
 
-<p>{{ lang('TOPIC_PREFIXES_EXPLAIN') }}</p>
+	<div id="topic-tag-notices" class="topic-tag-notices" aria-live="polite" aria-relevant="additions"></div>
+	<div id="topic-tag-notice-template" class="topic-tag-notice" role="status" hidden>
+		<span id="topic-tag-notice-message"></span>
+		<button type="button" class="tp-button tp-button-icon topic-tag-notice-close" aria-label="{{ lang('TOPIC_TAG_NOTICE_DISMISS') }}">
+			<i class="fa fa-times" aria-hidden="true"></i>
+		</button>
+	</div>
 
-	<form id="acp_topic_prefixes_forum" method="post" action="{{ U_ACTION }}">
-		<fieldset>
-			<dl>
-				<dt><label for="select_forum">{{ lang('SELECT_FORUM') ~ lang('COLON') }}</label></dt>
-				<dd>
-					<select id="select_forum" name="forum_id"><option value="0">{{ lang('SELECT_FORUM') }}</option>{{ S_FORUM_OPTIONS }}</select>
-					<input type="submit" value="{{ lang('GO') }}" class="button2">
-				</dd>
-			</dl>
-		</fieldset>
-	</form>
+	<div class="topic-tag-workspace">
+		<section class="topic-tag-catalog" aria-labelledby="topic-tag-catalog-title">
+			<div class="topic-tag-catalog-header">
+				<div>
+					<h2 id="topic-tag-catalog-title">{{ lang('TOPIC_TAG_CATALOG') }}</h2>
+					<p id="topic-tag-result-count">{{ lang('TOPIC_TAG_RESULT_COUNT', loops.tags|length) }}</p>
+				</div>
+				<div class="topic-tag-filters topic-tag-js-only">
+					<label class="topic-tag-search">
+						<span class="sr-only">{{ lang('TOPIC_TAG_SEARCH') }}</span>
+						<i class="fa fa-search" aria-hidden="true"></i>
+						<input type="search" id="topic-tag-search" placeholder="{{ lang('TOPIC_TAG_SEARCH') }}" autocomplete="off">
+					</label>
+					<label>
+						<span class="sr-only">{{ lang('TOPIC_TAG_FILTER_STATUS') }}</span>
+						<select id="topic-tag-status-filter">
+							<option value="all">{{ lang('TOPIC_TAG_FILTER_ALL') }}</option>
+							<option value="enabled">{{ lang('TOPIC_TAG_FILTER_ENABLED') }}</option>
+							<option value="disabled">{{ lang('TOPIC_TAG_FILTER_DISABLED') }}</option>
+						</select>
+					</label>
+				</div>
+				<p id="topic-tag-order-hint" class="topic-tag-order-hint topic-tag-js-only" hidden>{{ lang('TOPIC_TAG_CLEAR_FILTER_TO_SORT') }}</p>
+			</div>
 
-{% if FORUM_ID %}
-
-	<table class="table1 zebra-table fixed-width-table">
-		<thead>
-			<tr>
-				<th style="width:75%">{{ lang('TOPIC_PREFIX_TAG') }}</th>
-				<th>{{ lang('TOPIC_PREFIX_ENABLED') }}</th>
-				<th>{{ lang('ACTION') }}</th>
-			</tr>
-		</thead>
-		<tbody>
-		{% for prefix in loops.prefixes %}
-			<tr>
-				<td><strong>{{ prefix.PREFIX_TAG }}</strong></td>
-				<td>
-					<a href="{{ prefix.U_EDIT }}" style="text-decoration: none" title="{{ lang('TOPIC_PREFIX_TOGGLE_STATE') }}" data-ajax="tp_toggle">
-						<i class="fa fa-fw tp-toggle-{{ prefix.PREFIX_ENABLED ? 'on' : 'off' }} acp-icon"></i>
+			<div id="topic-tag-list" class="topic-tag-list" role="list">
+			{% for tag in loops.tags %}
+				<div class="topic-tag-item{% if not tag.TAG_ENABLED %} is-disabled{% endif %}"
+					role="listitem" draggable="false" data-tag-id="{{ tag.TAG_ID }}"
+					data-tag-name="{{ tag.TAG_NAME }}" data-tag-color="{{ tag.TAG_COLOR }}"
+					data-tag-text-color="{{ tag.TAG_TEXT_COLOR }}" data-tag-enabled="{{ tag.TAG_ENABLED ? '1' : '0' }}"
+					data-forum-ids="{{ tag.FORUM_IDS }}" data-search="{{ tag.SEARCH_TEXT }}">
+					<button type="button" class="tp-button tp-button-icon tp-button-quiet topic-tag-drag topic-tag-js-only" title="{{ lang('TOPIC_TAG_DRAG') }}" aria-label="{{ lang('TOPIC_TAG_DRAG') }}">
+						<i class="fa fa-bars" aria-hidden="true"></i>
+					</button>
+					<a class="topic-tag-summary" href="{{ tag.U_EDIT }}" data-tag-edit>
+						<span class="topic-tag" style="background-color: {{ tag.TAG_COLOR }}; color: {{ tag.TAG_TEXT_COLOR }}">{{ tag.TAG_NAME }}</span>
+						<span class="topic-tag-forum-summary">
+							<strong>{{ lang('TOPIC_TAG_FORUM_COUNT', tag.FORUM_COUNT) }}</strong>
+							{% if tag.FORUM_NAMES %}
+								<span class="topic-tag-forum-preview" title="{{ tag.FORUM_NAMES|join(', ') }}">{% for forum_name in tag.FORUM_NAMES %}{% if not loop.first %}, {% endif %}{{ forum_name }}{% endfor %}</span>
+							{% endif %}
+						</span>
 					</a>
-				</td>
-				<td class="actions">
-					<span class="up-disabled" style="display:none;">{{ ICON_MOVE_UP_DISABLED }}</span>
-					<span class="up"><a href="{{ prefix.U_MOVE_UP }}" data-ajax="row_up">{{ ICON_MOVE_UP }}</a></span>
-					<span class="down-disabled" style="display:none;">{{ ICON_MOVE_DOWN_DISABLED }}</span>
-					<span class="down"><a href="{{ prefix.U_MOVE_DOWN }}" data-ajax="row_down">{{ ICON_MOVE_DOWN }}</a></span>
-					<a href="{{ prefix.U_DELETE }}" data-ajax="row_delete">{{ ICON_DELETE }}</a>
-				</td>
-			</tr>
-		{% else %}
-			<tr>
-				<td colspan="3" style="text-align: center;">{{ lang('TOPIC_PREFIXES_EMPTY') }}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+					<a href="{{ tag.U_TOGGLE }}" class="topic-tag-toggle" role="switch" aria-checked="{{ tag.TAG_ENABLED ? 'true' : 'false' }}"
+						title="{{ lang('TOPIC_TAG_TOGGLE_STATE') }}" data-enabled-label="{{ lang('ENABLED') }}" data-disabled-label="{{ lang('DISABLED') }}">
+						<span class="topic-tag-switch" aria-hidden="true"></span>
+						<span class="topic-tag-state" data-enabled-label="{{ lang('ENABLED') }}" data-disabled-label="{{ lang('DISABLED') }}"><span class="topic-tag-state-current">{{ lang(tag.TAG_ENABLED ? 'ENABLED' : 'DISABLED') }}</span></span>
+					</a>
+					<div class="topic-tag-actions">
+						<span class="topic-tag-order-actions">
+							<a class="topic-tag-move-up" data-action-url="{{ tag.U_MOVE_UP }}"{% if not loop.first %} href="{{ tag.U_MOVE_UP }}" aria-disabled="false"{% else %} aria-disabled="true" tabindex="-1"{% endif %} title="{{ lang('MOVE_UP') }}">{{ ICON_MOVE_UP }}</a>
+							<a class="topic-tag-move-down" data-action-url="{{ tag.U_MOVE_DOWN }}"{% if not loop.last %} href="{{ tag.U_MOVE_DOWN }}" aria-disabled="false"{% else %} aria-disabled="true" tabindex="-1"{% endif %} title="{{ lang('MOVE_DOWN') }}">{{ ICON_MOVE_DOWN }}</a>
+						</span>
+						<a href="{{ tag.U_EDIT }}" data-tag-edit title="{{ lang('EDIT') }}">{{ ICON_EDIT }}</a>
+						<a href="{{ tag.U_DELETE }}" data-ajax="tp_delete" title="{{ lang('DELETE') }}">{{ ICON_DELETE }}</a>
+					</div>
+				</div>
+			{% else %}
+				<div class="topic-tags-empty">{{ lang('TOPIC_TAGS_EMPTY') }}</div>
+			{% endfor %}
+			</div>
+			<div id="topic-tag-no-results" class="topic-tags-empty" hidden>{{ lang('TOPIC_TAGS_NO_RESULTS') }}</div>
+			<div id="topic-tag-row-template" class="topic-tag-item topic-tag-row-template" role="listitem" hidden>
+				<button type="button" class="tp-button tp-button-icon tp-button-quiet topic-tag-drag topic-tag-js-only" title="{{ lang('TOPIC_TAG_DRAG') }}" aria-label="{{ lang('TOPIC_TAG_DRAG') }}"><i class="fa fa-bars" aria-hidden="true"></i></button>
+				<a class="topic-tag-summary" href="#" data-tag-edit>
+					<span class="topic-tag"></span>
+					<span class="topic-tag-forum-summary"><strong></strong><span class="topic-tag-forum-preview"></span></span>
+				</a>
+				<a href="#" class="topic-tag-toggle" role="switch" aria-checked="true" title="{{ lang('TOPIC_TAG_TOGGLE_STATE') }}" data-enabled-label="{{ lang('ENABLED') }}" data-disabled-label="{{ lang('DISABLED') }}">
+					<span class="topic-tag-switch" aria-hidden="true"></span><span class="topic-tag-state" data-enabled-label="{{ lang('ENABLED') }}" data-disabled-label="{{ lang('DISABLED') }}"><span class="topic-tag-state-current">{{ lang('ENABLED') }}</span></span>
+				</a>
+				<div class="topic-tag-actions">
+					<span class="topic-tag-order-actions">
+						<a class="topic-tag-move-up" data-action-url="#" aria-disabled="true" tabindex="-1" title="{{ lang('MOVE_UP') }}">{{ ICON_MOVE_UP }}</a>
+						<a class="topic-tag-move-down" data-action-url="#" aria-disabled="true" tabindex="-1" title="{{ lang('MOVE_DOWN') }}">{{ ICON_MOVE_DOWN }}</a>
+					</span>
+					<a href="#" data-tag-edit title="{{ lang('EDIT') }}">{{ ICON_EDIT }}</a>
+					<a href="#" data-ajax="tp_delete" title="{{ lang('DELETE') }}">{{ ICON_DELETE }}</a>
+				</div>
+			</div>
+		</section>
 
-	<form id="acp_add_topic_prefix" method="post" action="{{ U_ACTION }}">
-		<fieldset class="quick">
-			{{ lang('CREATE_TOPIC_PREFIX') ~ lang('COLON') }}
-			<input type="text" name="prefix_tag" value="" maxlength="200" placeholder="{{ lang('TOPIC_PREFIX_PLACEHOLDER') }}">
-			<input class="button2" name="submit" type="submit" value="{{ lang('SUBMIT') }}">
-			<input type="hidden" name="action" value="add">
-			<input type="hidden" name="forum_id" value="{{ FORUM_ID }}">
-			{{ S_FORM_TOKEN }}
-			{{ S_HIDDEN_FIELDS }}
-		</fieldset>
-	</form>
+		<section class="topic-tag-inspector" aria-labelledby="topic-tag-editor-title">
+			<form id="acp_topic_tag" method="post" action="{{ U_ACTION }}">
+				<div class="topic-tag-inspector-header">
+					<div>
+						<p class="topic-tag-eyebrow">{{ lang('TOPIC_TAG_EDITOR') }}</p>
+						<h2 id="topic-tag-editor-title">{{ lang(S_EDIT_TAG ? 'EDIT_TOPIC_TAG' : 'CREATE_TOPIC_TAG') }}</h2>
+					</div>
+					<span id="topic-tag-preview" class="topic-tag topic-tag-preview" style="background-color: {{ TAG_COLOR }}; color: {{ TAG_TEXT_COLOR }}">{{ TAG_NAME ?: lang('TOPIC_TAG_PREVIEW') }}</span>
+				</div>
 
-{% endif %}
+				<div id="topic-tag-form-error" class="topic-tag-form-error" role="alert" hidden></div>
+
+				<div class="topic-tag-field">
+					<label for="tag_name">{{ lang('TOPIC_TAG_TEXT') }}</label>
+					<input type="text" id="tag_name" name="tag_name" value="{{ TAG_NAME }}" maxlength="50" required autocomplete="off">
+				</div>
+
+				<div class="topic-tag-field">
+					<label for="tag_color">{{ lang('TOPIC_TAG_COLOR') }}</label>
+					<span class="topic-tag-help">{{ lang('TOPIC_TAG_COLOR_EXPLAIN') }}</span>
+					<div class="topic-tag-color-control">
+						<input type="color" class="topic-tag-color" id="tag_color" name="tag_color" value="{{ TAG_COLOR }}">
+						<input type="text" class="topic-tag-js-only" id="tag_color_text" value="{{ TAG_COLOR }}" maxlength="7" aria-label="{{ lang('TOPIC_TAG_COLOR_HEX') }}" aria-describedby="tag_color_error">
+					</div>
+					<span id="tag_color_error" class="topic-tag-input-error" role="alert" hidden>{{ lang('TOPIC_TAG_COLOR_INVALID') }}</span>
+				</div>
+
+				<div class="topic-tag-field topic-tag-enabled-field">
+					<div>
+						<label for="tag_enabled">{{ lang('TOPIC_TAG_ENABLED') }}</label>
+						<span class="topic-tag-help">{{ lang('TOPIC_TAG_ENABLED_EXPLAIN') }}</span>
+					</div>
+					<input type="checkbox" class="topic-tag-checkbox" id="tag_enabled" name="tag_enabled" value="1"{% if TAG_ENABLED %} checked{% endif %}>
+				</div>
+
+				<div class="topic-tag-field topic-tag-forum-field">
+					<div class="topic-tag-forum-header">
+						<div>
+							<label id="topic-tag-forums-label">{{ lang('TOPIC_TAG_FORUMS') }}</label>
+							<span class="topic-tag-help">{{ lang('TOPIC_TAG_FORUMS_EXPLAIN') }}</span>
+						</div>
+						<strong id="topic-tag-forum-selected" aria-live="polite"></strong>
+					</div>
+					<div class="topic-tag-forum-tools topic-tag-js-only">
+						<label class="topic-tag-search">
+							<span class="sr-only">{{ lang('TOPIC_TAG_FORUM_SEARCH') }}</span>
+							<i class="fa fa-search" aria-hidden="true"></i>
+							<input type="search" id="topic-tag-forum-search" placeholder="{{ lang('TOPIC_TAG_FORUM_SEARCH') }}" autocomplete="off">
+						</label>
+						<button type="button" class="tp-button tp-button-secondary" id="topic-tag-select-visible">{{ lang('TOPIC_TAG_SELECT_VISIBLE') }}</button>
+						<button type="button" class="tp-button tp-button-secondary" id="topic-tag-clear-forums">{{ lang('TOPIC_TAG_CLEAR_SELECTION') }}</button>
+					</div>
+					<div id="topic-tag-forums" class="topic-tag-forum-picker" role="group" aria-labelledby="topic-tag-forums-label">
+					{% for forum in loops.forums %}
+						{% if forum.S_POSTABLE %}
+						<label class="topic-tag-forum-option" style="--forum-depth: {{ forum.DEPTH }}" data-forum-name="{{ forum.FORUM_NAME }}">
+							<input type="checkbox" name="forum_ids[]" value="{{ forum.FORUM_ID }}"{% if forum.S_SELECTED %} checked{% endif %}>
+							<span>{{ forum.FORUM_NAME }}</span>
+						</label>
+						{% else %}
+						<div class="topic-tag-forum-group" style="--forum-depth: {{ forum.DEPTH }}" data-forum-name="{{ forum.FORUM_NAME }}">{{ forum.FORUM_NAME }}</div>
+						{% endif %}
+					{% else %}
+						<p>{{ lang('TOPIC_TAG_NO_FORUMS') }}</p>
+					{% endfor %}
+					</div>
+				</div>
+
+				<div class="topic-tag-inspector-actions">
+					<input class="tp-button tp-button-primary" name="submit" type="submit" value="{{ lang('TOPIC_TAG_SAVE') }}">
+					<a class="tp-button tp-button-secondary" id="topic-tag-cancel" href="{{ U_ACTION }}">{{ lang('CANCEL') }}</a>
+					<span id="topic-tag-dirty" class="topic-tag-dirty topic-tag-js-only" hidden>{{ lang('TOPIC_TAG_UNSAVED') }}</span>
+				</div>
+				<input type="hidden" name="action" value="save">
+				<input type="hidden" name="tag_id" value="{{ TAG_ID }}">
+				{{ S_FORM_TOKEN }}
+			</form>
+		</section>
+	</div>
+
+</div>
 
 {% INCLUDEJS '@phpbb_topicprefixes/acp_topic_prefixes.js' %}
 {% INCLUDECSS '@phpbb_topicprefixes/acp_topic_prefixes.css' %}

@@ -1,0 +1,24 @@
+{% if S_TOPIC_TAG_SEARCH %}
+<dl class="topic-tag-search">
+	<dt>
+		<label for="topic-tag-search-input">{{ lang('TOPIC_TAG_SEARCH') ~ lang('COLON') }}</label><br>
+		<span>{{ lang('TOPIC_TAG_SEARCH_EXPLAIN') }}</span>
+	</dt>
+	<dd>
+		<div class="topic-tag-combobox" data-remove-label="{{ lang('TOPIC_TAG_SEARCH_REMOVE') }}">
+			<div id="topic-tag-search-selected" class="topic-tag-search-selected"></div>
+			<input type="search" class="inputbox" id="topic-tag-search-input" autocomplete="off"
+				placeholder="{{ lang('TOPIC_TAG_SEARCH_PLACEHOLDER') }}" role="combobox"
+				aria-autocomplete="list" aria-controls="topic-tag-search-options" aria-expanded="false">
+			<ul id="topic-tag-search-options" class="topic-tag-search-options" role="listbox" hidden></ul>
+			<input type="hidden" name="tags" id="topic-tag-search-value" value="{{ TOPIC_TAG_SEARCH_SELECTED }}">
+			<script type="application/json" id="topic-tag-search-catalog">{{ TOPIC_TAG_SEARCH_CATALOG|raw }}</script>
+		</div>
+	</dd>
+	<dd id="topic-tag-search-match" class="topic-tag-search-match" hidden>
+		<label><input type="radio" name="tag_match" value="all"{% if TOPIC_TAG_SEARCH_MATCH != 'any' %} checked{% endif %}> {{ lang('TOPIC_TAG_SEARCH_MATCH_ALL') }}</label>
+		<label><input type="radio" name="tag_match" value="any"{% if TOPIC_TAG_SEARCH_MATCH == 'any' %} checked{% endif %}> {{ lang('TOPIC_TAG_SEARCH_MATCH_ANY') }}</label>
+	</dd>
+</dl>
+{% INCLUDEJS '@phpbb_topicprefixes/topic_tag_search.js' %}
+{% endif %}

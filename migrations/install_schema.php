@@ -11,12 +11,12 @@
 namespace phpbb\topicprefixes\migrations;
 
 /**
- * Class install_schema
+ * Install legacy Topic Prefixes schema required by upgrade migrations.
  */
 class install_schema extends \phpbb\db\migration\migration
 {
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function effectively_installed()
 	{
@@ -24,7 +24,7 @@ class install_schema extends \phpbb\db\migration\migration
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public static function depends_on()
 	{

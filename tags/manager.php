@@ -57,7 +57,7 @@ class manager
 	 * @param string $forums_table Forums table
 	 * @param cache|null $cache Cache driver
 	 */
-	public function __construct(driver_interface $db, string $tags_table, string $forums_map_table, string $topic_map_table, string $forums_table, ?cache $cache = null)
+	public function __construct(driver_interface $db, string $tags_table, string $forums_map_table, string $topic_map_table, string $forums_table, cache|null $cache = null)
 	{
 		$this->db = $db;
 		$this->tags_table = $tags_table;

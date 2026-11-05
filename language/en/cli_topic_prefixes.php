@@ -1,0 +1,170 @@
+<?php
+/**
+ *
+ * Topic Prefixes extension for the phpBB Forum Software package.
+ *
+ * @copyright (c) 2026 phpBB Limited <https://www.phpbb.com>
+ * @license GNU General Public License, version 2 (GPL-2.0)
+ *
+ */
+
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
+if (empty($lang) || !is_array($lang))
+{
+	$lang = [];
+}
+
+$lang = array_merge($lang, [
+	'CLI_TOPIC_REPLIES_DESCRIPTION' => 'Remove an old prefix from reply subjects.',
+	'CLI_TOPIC_REPLIES_PREFIX' => 'Enter the old prefix exactly as shown in reply subjects',
+	'CLI_TOPIC_REPLIES_POST' => 'Post ID',
+	'CLI_TOPIC_REPLIES_TITLE' => 'Current topic title',
+	'CLI_TOPIC_REPLIES_STATUS' => 'Status',
+	'CLI_TOPIC_REPLIES_STATUS_ELIGIBLE' => 'Ready',
+	'CLI_TOPIC_REPLIES_STATUS_SHADOW' => 'Skipped: this links to a moved topic',
+	'CLI_TOPIC_REPLIES_STATUS_OWNERSHIP' => 'Skipped: topic or first post could not be verified',
+	'CLI_TOPIC_REPLIES_STATUS_UNTAGGED' => 'Skipped: topic has no tag',
+	'CLI_TOPIC_REPLIES_STATUS_UNCLEANED' => 'Skipped: clean the topic title first',
+	'CLI_TOPIC_REPLIES_STATUS_BLANK' => 'Skipped: subject would be empty',
+	'CLI_TOPIC_REPLIES_MATCHES' => 'Found %1$d matching replies. %2$d can be updated. Other replies will not be changed.',
+	'CLI_TOPIC_REPLIES_WARNING' => 'Reply subjects are normally kept as part of the discussion history. Continue only if you want to remove this old prefix. Topic titles and tags will not change.',
+	'CLI_TOPIC_REPLIES_APPLY' => 'Remove %1$s from %3$d reply subjects in %2$s?',
+	'CLI_TOPIC_REPLIES_RESULT' => 'Reply subjects updated: %1$d. Items not changed: %2$d.',
+	'CLI_TOPIC_REPLIES_FAILED' => 'Reply cleanup stopped. Changes already completed were kept. Review the results and run the tool again if needed.',
+	'CLI_TOPIC_MAINTENANCE_LOG_FAILED' => 'Repairs were completed, but the administrator summary log could not be saved.',
+	'CLI_TOPIC_REPAIR_DESCRIPTION' => 'Repair missing topic tags or remove old prefixes, usually after upgrading from Topic Prefixes version 1 to version 2.',
+	'CLI_TOPIC_REPAIR_INTERACTIVE_REQUIRED' => 'Run this command in an interactive terminal.',
+	'CLI_TOPIC_REPAIR_ACTION' => 'What do you want to repair?',
+	'CLI_TOPIC_REPAIR_ACTION_RECOVER' => 'Recover missing topic tags',
+	'CLI_TOPIC_REPAIR_ACTION_TITLES' => 'Remove old prefixes from topic titles',
+	'CLI_TOPIC_REPAIR_ACTION_REPLIES' => 'Remove old prefixes from reply subjects',
+	'CLI_TOPIC_REPAIR_ACTION_EXIT' => 'Exit',
+	'CLI_TOPIC_RECOVERY_FORUM' => 'Forum ID',
+	'CLI_TOPIC_RECOVERY_TAGS' => 'Tag',
+	'CLI_TOPIC_RECOVERY_STATUS' => 'Status',
+	'CLI_TOPIC_RECOVERY_STATUS_ELIGIBLE' => 'Ready',
+	'CLI_TOPIC_RECOVERY_STATUS_AMBIGUOUS' => 'Skipped: choose the tag by editing the topic',
+	'CLI_TOPIC_RECOVERY_MATCHES' => 'Found %1$d topics that may be missing tags. %2$d can be repaired automatically. %3$d need manual review.',
+	'CLI_TOPIC_RECOVERY_WARNING' => 'This will restore the missing tags and remove the old prefix from topic titles and first-post subjects. Reply subjects will not change. Review the preview carefully.',
+	'CLI_TOPIC_RECOVERY_GROUP' => 'Old prefix %1$s in forum #%2$d; inferred tags: %3$s; candidates: %4$d',
+	'CLI_TOPIC_RECOVERY_GROUP_APPLY' => 'Approve this group? Total: %1$d; reviewed: %2$d; not previewed: %3$d.',
+	'CLI_TOPIC_RECOVERY_AMBIGUOUS_GROUP' => '%d ambiguous candidates require manual review and will not be changed.',
+	'CLI_TOPIC_RECOVERY_APPLY' => 'Repair %d topics?',
+	'CLI_TOPIC_RECOVERY_RESULT' => 'Topics repaired: %1$d. Topics not changed because their data changed: %2$d.',
+	'CLI_TOPIC_RECOVERY_FAILED' => 'Topic recovery stopped. Changes already completed were kept. Review the results and run the tool again if needed.',
+	'CLI_TOPIC_TITLES_DESCRIPTION' => 'Remove an old prefix from topic titles.',
+	'CLI_TOPIC_TITLES_PREFIX' => 'Enter the old prefix exactly as shown in topic titles',
+	'CLI_TOPIC_TITLES_INVALID_PREFIX' => 'Enter some prefix text. It cannot be empty.',
+	'CLI_TOPIC_TITLES_FORUM' => 'Choose a forum',
+	'CLI_TOPIC_TITLES_NO_FORUMS' => 'No forums are available.',
+	'CLI_TOPIC_TITLES_SELECTION' => 'Remove %1$s from titles in %2$s',
+	'CLI_TOPIC_TITLES_TOPIC' => 'Topic ID',
+	'CLI_TOPIC_TITLES_BEFORE' => 'Before',
+	'CLI_TOPIC_TITLES_AFTER' => 'After',
+	'CLI_TOPIC_TITLES_SKIPPED' => 'Status',
+	'CLI_TOPIC_TITLES_STATUS_READY' => 'Ready',
+	'CLI_TOPIC_TITLES_STATUS_BLANK' => 'Ready; empty text will be kept',
+	'CLI_TOPIC_TITLES_MORE' => 'Review the next page of matches?',
+	'CLI_TOPIC_PREVIEW_COUNTS' => 'Preview scope: %1$d total; %2$d reviewed; %3$d not previewed.',
+	'CLI_TOPIC_TITLES_MATCHES' => 'Found %1$d matching topics. %2$d can be updated. Other topics will not be changed.',
+	'CLI_TOPIC_TITLES_WARNING' => 'This will remove the old prefix from matching topic titles and first-post subjects. Tags and reply subjects will not change. Review the preview carefully.',
+	'CLI_TOPIC_TITLES_ORIGIN' => 'Do you confirm %s is a topic prefix?',
+	'CLI_TOPIC_TITLES_APPLY' => 'Remove %1$s from %3$d topic titles in %2$s?',
+	'CLI_TOPIC_TITLES_RESULT' => 'Topic titles updated: %1$d. Items not changed: %2$d.',
+	'CLI_TOPIC_TITLES_FAILED' => 'Title cleanup stopped. Changes already completed were kept. Review the results and run the tool again if needed.',
+	'CLI_TOPIC_TITLES_SEARCH' => 'Post subjects changed. Rebuild the search index under ACP, Maintenance, Search index.',
+	'CLI_TOPIC_TAGS_REPAIR_NO_TEXT_CHANGES' => 'Titles and post subjects are not changed.',
+	'CLI_TOPIC_TAGS_REPAIR_DESCRIPTION' => 'Interactively split or merge topic tags.',
+	'CLI_TOPIC_REPAIR_FORCE' => 'Allow repairs while the board is enabled.',
+	'CLI_TOPIC_REPAIR_FORCE_WARNING' => 'Forced mode allows repairs while the board is enabled. Active requests may conflict with these changes.',
+	'CLI_TOPIC_TAGS_REPAIR_TAG_ID' => 'Repair only this source tag identifier.',
+	'CLI_TOPIC_TAGS_REPAIR_INTERACTIVE_REQUIRED' => 'Run this repair command in an interactive terminal.',
+	'CLI_TOPIC_TAGS_REPAIR_BOARD_ENABLED' => 'Disable the board under General, Board settings before applying repairs.',
+	'CLI_TOPIC_TAGS_REPAIR_WARNING' => 'This tool changes topic tags and topic assignments. Titles and post subjects are left unchanged.',
+	'CLI_TOPIC_TAGS_REPAIR_BACKUP_CONFIRM' => 'Do you have a current database backup?',
+	'CLI_TOPIC_TAGS_REPAIR_CANCELLED' => 'No changes made.',
+	'CLI_TOPIC_TAGS_REPAIR_TAG_NOT_FOUND' => 'Requested topic tag does not exist.',
+	'CLI_TOPIC_TAGS_REPAIR_NO_TAGS' => 'No topic tags are available to repair.',
+	'CLI_TOPIC_TAGS_REPAIR_TITLE' => 'Topic tag repair',
+	'CLI_TOPIC_TAGS_REPAIR_SOURCE' => 'Tag #%1$d: %2$s — %3$s, %4$s, %5$s',
+	'CLI_TOPIC_TAGS_REPAIR_SOURCE_TOPICS' => [
+		1 => '%d assigned topic',
+		2 => '%d assigned topics',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_SOURCE_FORUMS' => [
+		1 => '%d forum',
+		2 => '%d forums',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_ENABLED' => 'enabled',
+	'CLI_TOPIC_TAGS_REPAIR_DISABLED' => 'disabled',
+	'CLI_TOPIC_TAGS_REPAIR_ACTION' => 'Choose an action',
+	'CLI_TOPIC_TAGS_REPAIR_ACTION_SPLIT' => 'split',
+	'CLI_TOPIC_TAGS_REPAIR_ACTION_MERGE' => 'merge',
+	'CLI_TOPIC_TAGS_REPAIR_ACTION_SKIP' => 'skip',
+	'CLI_TOPIC_TAGS_REPAIR_ACTION_QUIT' => 'quit',
+	'CLI_TOPIC_TAGS_REPAIR_FIRST_TAG' => 'Enter first tag, or leave blank to cancel',
+	'CLI_TOPIC_TAGS_REPAIR_ANOTHER_TAG' => 'Enter another tag, or leave blank to finish',
+	'CLI_TOPIC_TAGS_REPAIR_NEW_TAG_REQUIRED' => 'Enter at least one separate tag.',
+	'CLI_TOPIC_TAGS_REPAIR_INVALID_TAG' => 'Tag is empty or too long.',
+	'CLI_TOPIC_TAGS_REPAIR_SOURCE_TARGET' => 'Destination tag cannot equal source tag.',
+	'CLI_TOPIC_TAGS_REPAIR_DUPLICATE_TAG' => 'Separate tag was already entered.',
+	'CLI_TOPIC_TAGS_REPAIR_SKIPPED' => 'Tag skipped. No changes made.',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_TARGET' => 'Choose the existing tag to merge into',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_TARGET_OPTION' => 'Tag #%1$d: %2$s',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_CANCEL' => 'cancel',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_NO_TARGETS' => 'No other topic tags are available as a merge destination.',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_TARGET_NOT_FOUND' => 'Merge destination tag does not exist.',
+	'CLI_TOPIC_TAGS_REPAIR_SPLIT_PREVIEW' => 'Tag split preview',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_PREVIEW' => 'Tag merge preview',
+	'CLI_TOPIC_TAGS_REPAIR_REPLACEMENT' => 'Tag',
+	'CLI_TOPIC_TAGS_REPAIR_STATUS' => 'Status',
+	'CLI_TOPIC_TAGS_REPAIR_EXISTING_TAG' => 'reuse existing tag #%d',
+	'CLI_TOPIC_TAGS_REPAIR_NEW_TAG' => 'create new tag',
+	'CLI_TOPIC_TAGS_REPAIR_SPLIT_PREVIEW_TOPICS' => [
+		1 => 'Assign every separate tag to %d topic currently using the source tag.',
+		2 => 'Assign every separate tag to %d topics currently using the source tag.',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_SPLIT_PREVIEW_FORUMS' => [
+		1 => 'Copy source tag availability to every separate tag across %d forum.',
+		2 => 'Copy source tag availability to every separate tag across %d forums.',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_PREVIEW_TOPICS' => [
+		1 => 'Assign the destination tag to %d topic currently using the source tag.',
+		2 => 'Assign the destination tag to %d topics currently using the source tag.',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_PREVIEW_FORUMS' => [
+		1 => 'Add source tag availability to the destination tag across %d forum.',
+		2 => 'Add source tag availability to the destination tag across %d forums.',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_PREVIEW_ENABLE' => 'Enable the destination tag because the source tag is enabled.',
+	'CLI_TOPIC_TAGS_REPAIR_PREVIEW_DELETE' => 'Delete source tag only after every transfer succeeds.',
+	'CLI_TOPIC_TAGS_REPAIR_SPLIT_APPLY_CONFIRM' => 'Apply this tag split?',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_APPLY_CONFIRM' => 'Apply this tag merge?',
+	'CLI_TOPIC_TAGS_REPAIR_SPLIT_FAILED' => 'Tag split failed; source tag was retained where possible. Error: %s',
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_FAILED' => 'Tag merge failed; source tag was retained where possible. Error: %s',
+	'CLI_TOPIC_TAGS_REPAIR_SPLIT_SUCCESS' => [
+		1 => 'Split “%1$s” into “%2$s” across %3$d topic.',
+		2 => 'Split “%1$s” into “%2$s” across %3$d topics.',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_MERGE_SUCCESS' => [
+		1 => 'Merged “%1$s” into “%2$s” across %3$d topic.',
+		2 => 'Merged “%1$s” into “%2$s” across %3$d topics.',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_SUMMARY' => 'Finished: %1$s, %2$s, %3$s.',
+	'CLI_TOPIC_TAGS_REPAIR_SUMMARY_SPLITS' => [
+		1 => '%d split',
+		2 => '%d splits',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_SUMMARY_MERGES' => [
+		1 => '%d merge',
+		2 => '%d merges',
+	],
+	'CLI_TOPIC_TAGS_REPAIR_SUMMARY_SKIPS' => [
+		1 => '%d skip',
+		2 => '%d skips',
+	],
+]);

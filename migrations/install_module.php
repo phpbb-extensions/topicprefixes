@@ -11,12 +11,12 @@
 namespace phpbb\topicprefixes\migrations;
 
 /**
- * Class install_module
+ * Install Topic Prefixes ACP module entries.
  */
 class install_module extends \phpbb\db\migration\migration
 {
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function effectively_installed()
 	{
@@ -32,7 +32,7 @@ class install_module extends \phpbb\db\migration\migration
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public static function depends_on()
 	{
@@ -40,7 +40,7 @@ class install_module extends \phpbb\db\migration\migration
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function update_data()
 	{

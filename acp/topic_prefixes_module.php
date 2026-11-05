@@ -11,21 +11,26 @@
 namespace phpbb\topicprefixes\acp;
 
 /**
- * Class topic_prefixes_module
+ * Dispatch Topic Prefixes ACP requests to the administrator controller.
  */
 class topic_prefixes_module
 {
-	/** @var string */
+	/** @var string Module action URL */
 	public $u_action;
+
+	/** @var string Template name */
 	public $tpl_name;
+
+	/** @var string Page title language key */
 	public $page_title;
 
 	/**
-	 * Main ACP module
+	 * Dispatch the current ACP request.
 	 *
-	 * @throws \Exception
+	 * @return void
+	 * @throws \Exception When controller dispatch fails
 	 */
-	public function main()
+	public function main(): void
 	{
 		global $phpbb_container;
 
@@ -33,7 +38,7 @@ class topic_prefixes_module
 		$lang->add_lang('acp/forums');
 		$lang->add_lang('acp_topic_prefixes', 'phpbb/topicprefixes');
 		$this->tpl_name   = 'acp_topic_prefixes';
-		$this->page_title = 'TOPIC_PREFIXES';
+		$this->page_title = 'TOPIC_TAGS';
 
 		$admin_controller = $phpbb_container->get('phpbb.topicprefixes.admin_controller');
 		$admin_controller->set_u_action($this->u_action)->main();

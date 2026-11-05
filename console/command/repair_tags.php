@@ -342,7 +342,7 @@ class repair_tags extends command
 	 * @param array        $catalog   Tag catalog
 	 * @return int|null Selected target identifier, or null when cancelled
 	 */
-	protected function ask_merge_target(SymfonyStyle $io, int $source_id, array $catalog): int|null
+	protected function ask_merge_target(SymfonyStyle $io, int $source_id, array $catalog): ?int
 	{
 		$target_ids = [];
 		$choices = [];

@@ -178,7 +178,7 @@ class reply_repairer extends title_repairer
 		array $tag_ids,
 		array $posts,
 		array $forum_caches
-	): array|null
+	): ?array
 	{
 		$post_id = (int) $row['post_id'];
 		$topic_id = (int) $row['topic_id'];

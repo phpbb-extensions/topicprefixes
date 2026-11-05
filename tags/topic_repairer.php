@@ -200,7 +200,7 @@ class topic_repairer extends title_repairer
 	 * @param array  $tags  Tag rows available in the topic's forum
 	 * @return array|null Matched prefix and tags, or null when no prefix matches
 	 */
-	protected function match_prefix(string $title, array $tags): array|null
+	protected function match_prefix(string $title, array $tags): ?array
 	{
 		$states = [0 => ['' => []]];
 		$matches = [];

@@ -288,7 +288,7 @@ class title_repairer
 	 * @return array|null Repair snapshot, or null when the topic is unmatched
 	 * @throws \InvalidArgumentException When the prefix is invalid
 	 */
-	protected function plan_from_row(array $row, string $prefix, array $posts, array $forum_caches): array|null
+	protected function plan_from_row(array $row, string $prefix, array $posts, array $forum_caches): ?array
 	{
 		$topic_id = (int) $row['topic_id'];
 		$forum_id = (int) $row['forum_id'];
@@ -857,7 +857,7 @@ class title_repairer
 	 * @param string $sql SQL query
 	 * @return array|null First row, or null when no row exists
 	 */
-	protected function fetch(string $sql): array|null
+	protected function fetch(string $sql): ?array
 	{
 		$result = $this->db->sql_query($sql);
 		$row = $this->db->sql_fetchrow($result);
